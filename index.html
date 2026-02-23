@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flight Telemetry Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+
+<body>
+  <!-- Scanline overlay for CRT feel -->
+  <div class="scanlines"></div>
+
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-mark">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M14 2L2 10L14 6L26 10L14 2Z" fill="#00e5a0" opacity="0.9"/>
+          <path d="M14 6L2 10L14 18L26 10L14 6Z" fill="#00e5a0" opacity="0.5"/>
+          <path d="M14 18L2 10V18L14 26L26 18V10L14 18Z" fill="#00e5a0" opacity="0.25"/>
+        </svg>
+      </div>
+      <div>
+        <h1>FLIGHT TELEMETRY <span class="accent">MONITOR</span></h1>
+        <p class="sub">ANOMALY DETECTION • REPLAY • INCIDENT REPORTING</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-badge" id="statusBadge">
+        <span class="status-dot"></span>
+        <span id="statusText">NO DATA</span>
+      </div>
+      <div class="clock" id="clock">--:--:--</div>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <!-- Left Panel: Controls + Alerts -->
+    <aside class="sidebar">
+      <!-- Data Controls -->
+      <section class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">◆</span>
+          <h2>DATA SOURCE</h2>
+        </div>
+        <div class="panel-body">
+          <button id="loadDefaultBtn" class="btn btn-primary">
+            <span class="btn-icon">▶</span> Load Sample Flight
+          </button>
+          <label class="file-upload">
+            <input id="fileInput" type="file" accept=".csv" />
+            <span class="btn btn-secondary">
+              <span class="btn-icon">↑</span> Upload CSV
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Current Readings -->
+      <section class="panel readings-panel">
+        <div class="panel-header">
+          <span class="panel-icon">◆</span>
+          <h2>LIVE READINGS</h2>
+          <span class="timestamp-badge" id="curTime">--:--</span>
+        </div>
+        <div class="panel-body">
+          <div class="gauge-grid">
+            <div class="gauge" id="altGauge">
+              <div class="gauge-label">ALT</div>
+              <div class="gauge-value" id="curAlt">---</div>
+              <div class="gauge-unit">FT</div>
+              <div class="gauge-bar"><div class="gauge-fill" id="altFill"></div></div>
+            </div>
+            <div class="gauge" id="spdGauge">
+              <div class="gauge-label">SPD</div>
+              <div class="gauge-value" id="curSpd">---</div>
+              <div class="gauge-unit">KTS</div>
+              <div class="gauge-bar"><div class="gauge-fill" id="spdFill"></div></div>
+            </div>
+            <div class="gauge" id="fuelGauge">
+              <div class="gauge-label">FUEL</div>
+              <div class="gauge-value" id="curFuel">---</div>
+              <div class="gauge-unit">%</div>
+              <div class="gauge-bar"><div class="gauge-fill" id="fuelFill"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Replay Controls -->
+      <section class="panel">
+        <div class="panel-header">
+          <span class="panel-icon">◆</span>
+          <h2>REPLAY</h2>
+        </div>
+        <div class="panel-body">
+          <div class="replay-controls">
+            <button id="playBtn" class="btn btn-play" disabled>▶</button>
+            <button id="pauseBtn" class="btn btn-play" disabled>❚❚</button>
+            <button id="resetBtn" class="btn btn-play" disabled>◼</button>
+            <span class="replay-time" id="replayTime">0 / 0</span>
+          </div>
+          <input id="replaySlider" class="slider" type="range" min="0" max="0" value="0" disabled />
+          <div class="speed-controls">
+            <span class="speed-label">SPEED:</span>
+            <button class="btn btn-speed active" data-speed="250">1×</button>
+            <button class="btn btn-speed" data-speed="125">2×</button>
+            <button class="btn btn-speed" data-speed="60">4×</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alerts -->
+      <section class="panel alerts-panel">
+        <div class="panel-header">
+          <span class="panel-icon warning-icon">⚠</span>
+          <h2>ANOMALY ALERTS</h2>
+          <span class="alert-count" id="alertCount">0</span>
+        </div>
+        <div class="panel-body">
+          <ul id="alertsList" class="alerts-list">
+            <li class="alert-empty">Load flight data to begin analysis.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Export -->
+      <section class="panel">
+        <div class="panel-body">
+          <button id="exportBtn" class="btn btn-export" disabled>
+            <span class="btn-icon">⬇</span> Export Incident Report (JSON)
+          </button>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Main Chart Area -->
+    <div class="chart-area">
+      <section class="chart-panel">
+        <div class="chart-header">
+          <h3>ALTITUDE <span class="chart-unit">(FT)</span></h3>
+          <span class="chart-indicator alt-indicator" id="altIndicator">---</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="altChart"></canvas>
+        </div>
+      </section>
+
+      <section class="chart-panel">
+        <div class="chart-header">
+          <h3>AIRSPEED <span class="chart-unit">(KTS)</span></h3>
+          <span class="chart-indicator spd-indicator" id="spdIndicator">---</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="spdChart"></canvas>
+        </div>
+      </section>
+
+      <section class="chart-panel">
+        <div class="chart-header">
+          <h3>FUEL LEVEL <span class="chart-unit">(%)</span></h3>
+          <span class="chart-indicator fuel-indicator" id="fuelIndicator">---</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="fuelChart"></canvas>
+        </div>
+      </section>
+
+      <!-- Flight Summary Bar -->
+      <section class="summary-bar" id="summaryBar">
+        <div class="summary-item">
+          <span class="summary-label">DURATION</span>
+          <span class="summary-value" id="sumDuration">--</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">MAX ALT</span>
+          <span class="summary-value" id="sumMaxAlt">--</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">MAX SPD</span>
+          <span class="summary-value" id="sumMaxSpd">--</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">FUEL USED</span>
+          <span class="summary-value" id="sumFuelUsed">--</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">ANOMALIES</span>
+          <span class="summary-value anomaly-count" id="sumAnomalies">--</span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <span>AEROSPACE TELEMETRY DASHBOARD v1.0</span>
+    <span class="footer-sep">•</span>
+    <span>Built with JavaScript, Chart.js, PapaParse</span>
+    <span class="footer-sep">•</span>
+    <span>Kato Thompkins — 2025</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
