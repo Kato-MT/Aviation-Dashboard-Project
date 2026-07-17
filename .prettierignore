@@ -1,0 +1,14 @@
+dist
+dist-offline
+/release
+coverage
+node_modules
+.pnpm-store
+.tmp-tests/
+analytics/latest-report.md
+artifacts/
+models/*.json
+pnpm-lock.yaml
+data/flight.csv
+LICENSE
+.github/CODEOWNERS
