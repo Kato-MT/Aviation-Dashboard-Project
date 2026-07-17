@@ -1,0 +1,346 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedFor": "Flight Diagnostics Workbench",
+  "dataBoundary": "All test fixtures, profiles, thresholds, streams, and scenarios are synthetic and unclassified.",
+  "mappings": [
+    {
+      "area": "canonical-model",
+      "requirements": ["FDW-ING-001", "FDW-ING-002"],
+      "tests": ["TC-CSV-001", "TC-JSON-001", "TC-PRO-006"],
+      "evidencePaths": ["tests/core", "tests/integration"]
+    },
+    {
+      "area": "legacy-csv-baseline",
+      "requirements": ["FDW-ING-003", "FDW-RUL-009"],
+      "tests": [
+        "TC-CSV-001",
+        "TC-CSV-002",
+        "TC-RULE-001",
+        "TC-RULE-002",
+        "TC-RULE-003",
+        "TC-RULE-004"
+      ],
+      "evidencePaths": ["tests/core", "tests/integration"]
+    },
+    {
+      "area": "json-version-and-mapping",
+      "requirements": ["FDW-ING-004", "FDW-ING-005"],
+      "tests": ["TC-JSON-001", "TC-JSON-002", "TC-JSON-003", "TC-JSON-004", "TC-JSON-005"],
+      "evidencePaths": ["tests/core"]
+    },
+    {
+      "area": "invalid-values-and-quarantine",
+      "requirements": ["FDW-ING-006", "FDW-ING-007", "FDW-ING-009"],
+      "tests": [
+        "TC-CSV-007",
+        "TC-CSV-008",
+        "TC-CSV-009",
+        "TC-CSV-010",
+        "TC-CSV-011",
+        "TC-CSV-012",
+        "TC-CSV-013",
+        "TC-CSV-014",
+        "TC-CSV-015",
+        "TC-CSV-016",
+        "TC-JSON-006"
+      ],
+      "evidencePaths": ["tests/core", "tests/integration"]
+    },
+    {
+      "area": "fatal-validation",
+      "requirements": ["FDW-ING-008", "FDW-ING-016", "FDW-RUL-008"],
+      "tests": [
+        "TC-CSV-003",
+        "TC-CSV-004",
+        "TC-CSV-005",
+        "TC-CSV-006",
+        "TC-CSV-017",
+        "TC-JSON-002",
+        "TC-JSON-003",
+        "TC-JSON-007",
+        "TC-PRO-004",
+        "TC-PRO-005"
+      ],
+      "evidencePaths": ["tests/core", "tests/integration"]
+    },
+    {
+      "area": "adapter-equivalence",
+      "requirements": ["FDW-ING-010"],
+      "tests": ["TC-JSON-008", "TC-JSON-009"],
+      "evidencePaths": ["tests/integration"]
+    },
+    {
+      "area": "time-and-sequence-validation",
+      "requirements": ["FDW-ING-011", "FDW-ING-012"],
+      "tests": [
+        "TC-RULE-011",
+        "TC-RULE-012",
+        "TC-RULE-013",
+        "TC-RULE-014",
+        "TC-RULE-015",
+        "TC-RULE-016",
+        "TC-RULE-017"
+      ],
+      "evidencePaths": ["tests/core"]
+    },
+    {
+      "area": "input-limits-and-hashing",
+      "requirements": ["FDW-ING-013", "FDW-ING-014", "FDW-ING-015"],
+      "tests": ["TC-CSV-002", "TC-CSV-018", "TC-CSV-019", "TC-CSV-020"],
+      "evidencePaths": ["tests/core", "tests/performance"]
+    },
+    {
+      "area": "profiles",
+      "requirements": ["FDW-RUL-001", "FDW-RUL-002", "FDW-RUL-003"],
+      "tests": ["TC-PRO-001", "TC-PRO-002", "TC-PRO-003", "TC-PRO-006", "TC-RULE-007"],
+      "evidencePaths": ["tests/core"]
+    },
+    {
+      "area": "deterministic-rule-families",
+      "requirements": ["FDW-RUL-004", "FDW-RUL-005", "FDW-RUL-006", "FDW-RUL-007"],
+      "tests": [
+        "TC-RULE-005",
+        "TC-RULE-006",
+        "TC-RULE-008",
+        "TC-RULE-009",
+        "TC-RULE-010",
+        "TC-RULE-018",
+        "TC-RULE-019",
+        "TC-RULE-020",
+        "TC-RULE-021"
+      ],
+      "evidencePaths": ["tests/core"]
+    },
+    {
+      "area": "finding-contract-and-determinism",
+      "requirements": ["FDW-RUL-010", "FDW-RUL-011", "FDW-RUL-012"],
+      "tests": ["TC-RULE-007", "TC-RULE-022", "TC-RULE-023"],
+      "evidencePaths": ["tests/core"]
+    },
+    {
+      "area": "fault-injection",
+      "requirements": ["FDW-FLT-001", "FDW-FLT-002", "FDW-FLT-003", "FDW-FLT-004", "FDW-FLT-005"],
+      "tests": [
+        "TC-FLT-001",
+        "TC-FLT-002",
+        "TC-FLT-003",
+        "TC-FLT-004",
+        "TC-FLT-005",
+        "TC-FLT-006",
+        "TC-FLT-007",
+        "TC-FLT-008",
+        "TC-FLT-009",
+        "TC-FLT-010",
+        "TC-FLT-011",
+        "TC-FLT-012"
+      ],
+      "evidencePaths": ["tests/core", "tests/integration"]
+    },
+    {
+      "area": "verification",
+      "requirements": [
+        "FDW-VER-001",
+        "FDW-VER-002",
+        "FDW-VER-003",
+        "FDW-VER-004",
+        "FDW-VER-005",
+        "FDW-VER-006",
+        "FDW-VER-007",
+        "FDW-VER-008"
+      ],
+      "tests": [
+        "TC-VER-001",
+        "TC-VER-002",
+        "TC-VER-003",
+        "TC-VER-004",
+        "TC-VER-005",
+        "TC-VER-006",
+        "TC-VER-007",
+        "TC-VER-008",
+        "TC-VER-009"
+      ],
+      "evidencePaths": ["tests/core", "tests/integration"]
+    },
+    {
+      "area": "four-view-ui",
+      "requirements": [
+        "FDW-UI-001",
+        "FDW-UI-002",
+        "FDW-UI-003",
+        "FDW-UI-004",
+        "FDW-UI-005",
+        "FDW-UI-006",
+        "FDW-UI-008",
+        "FDW-UI-010"
+      ],
+      "tests": [
+        "TC-UI-001",
+        "TC-UI-002",
+        "TC-UI-003",
+        "TC-UI-004",
+        "TC-UI-005",
+        "TC-UI-006",
+        "TC-UI-007",
+        "TC-UI-008",
+        "TC-UI-009",
+        "TC-UI-010",
+        "TC-UI-011",
+        "TC-UI-012"
+      ],
+      "evidencePaths": ["tests/browser", "tests/accessibility"]
+    },
+    {
+      "area": "request-scoped-state",
+      "requirements": ["FDW-UI-007", "FDW-UI-009"],
+      "tests": ["TC-UI-013", "TC-UI-014", "TC-UI-015", "TC-UI-016", "TC-UI-017"],
+      "evidencePaths": ["tests/unit", "tests/browser"]
+    },
+    {
+      "area": "evidence-exports",
+      "requirements": [
+        "FDW-EXP-001",
+        "FDW-EXP-002",
+        "FDW-EXP-003",
+        "FDW-EXP-004",
+        "FDW-EXP-005",
+        "FDW-EXP-006"
+      ],
+      "tests": ["TC-EXP-001", "TC-EXP-002", "TC-EXP-003", "TC-EXP-004", "TC-EXP-005", "TC-EXP-006"],
+      "evidencePaths": ["tests/core", "tests/unit", "tests/browser"]
+    },
+    {
+      "area": "dom-and-content-security",
+      "requirements": ["FDW-SEC-001", "FDW-SEC-009"],
+      "tests": ["TC-SEC-001", "TC-SEC-002", "TC-SEC-003", "TC-SEC-004"],
+      "evidencePaths": ["tests/unit", "tests/browser"]
+    },
+    {
+      "area": "accessibility-and-responsive",
+      "requirements": [
+        "FDW-SEC-002",
+        "FDW-SEC-003",
+        "FDW-SEC-004",
+        "FDW-SEC-005",
+        "FDW-SEC-006",
+        "FDW-SEC-007"
+      ],
+      "tests": [
+        "TC-A11Y-001",
+        "TC-A11Y-002",
+        "TC-A11Y-003",
+        "TC-A11Y-004",
+        "TC-A11Y-005",
+        "TC-A11Y-006",
+        "TC-A11Y-007",
+        "TC-A11Y-008",
+        "TC-A11Y-009",
+        "TC-A11Y-010",
+        "TC-A11Y-011",
+        "TC-A11Y-012"
+      ],
+      "evidencePaths": ["tests/accessibility", "tests/browser"]
+    },
+    {
+      "area": "dependency-security",
+      "requirements": ["FDW-SEC-008"],
+      "tests": ["TC-BUILD-001"],
+      "evidencePaths": [".github/workflows"]
+    },
+    {
+      "area": "build-and-offline",
+      "requirements": ["FDW-CM-001", "FDW-CM-002", "FDW-CM-003"],
+      "tests": ["TC-BUILD-001", "TC-BUILD-002", "TC-BUILD-003", "TC-BUILD-004", "TC-BUILD-005"],
+      "evidencePaths": ["tests/browser", ".github/workflows"]
+    },
+    {
+      "area": "coverage-test-count-and-traceability",
+      "requirements": ["FDW-CM-004", "FDW-CM-005", "FDW-CM-006", "FDW-CM-007"],
+      "tests": ["TC-CM-001", "TC-CM-002", "TC-CM-003"],
+      "evidencePaths": [
+        "tests/core",
+        "tests/unit",
+        "tests/integration",
+        "tests/browser",
+        "tests/accessibility",
+        ".github/workflows"
+      ]
+    },
+    {
+      "area": "release-evidence-and-claims",
+      "requirements": ["FDW-CM-008", "FDW-CM-009", "FDW-CM-010"],
+      "tests": ["TC-BUILD-001", "TC-BUILD-002", "TC-CM-002", "TC-CM-003"],
+      "evidencePaths": ["scripts/release", ".github/workflows", "docs"]
+    },
+    {
+      "area": "streaming-protocol-and-health",
+      "requirements": [
+        "FDW-STR-001",
+        "FDW-STR-002",
+        "FDW-STR-003",
+        "FDW-STR-004",
+        "FDW-STR-005",
+        "FDW-STR-006",
+        "FDW-STR-007",
+        "FDW-STR-008"
+      ],
+      "tests": [
+        "TC-STR-001",
+        "TC-STR-002",
+        "TC-STR-003",
+        "TC-STR-004",
+        "TC-STR-005",
+        "TC-STR-006",
+        "TC-STR-007",
+        "TC-STR-008",
+        "TC-STR-009",
+        "TC-STR-010",
+        "TC-STR-011"
+      ],
+      "evidencePaths": ["tests/streaming"]
+    },
+    {
+      "area": "learned-baseline",
+      "requirements": [
+        "FDW-ML-001",
+        "FDW-ML-002",
+        "FDW-ML-003",
+        "FDW-ML-004",
+        "FDW-ML-005",
+        "FDW-ML-006",
+        "FDW-ML-007"
+      ],
+      "tests": [
+        "TC-ML-001",
+        "TC-ML-002",
+        "TC-ML-003",
+        "TC-ML-004",
+        "TC-ML-005",
+        "TC-ML-006",
+        "TC-ML-007",
+        "TC-ML-008"
+      ],
+      "evidencePaths": ["tests/ml"]
+    },
+    {
+      "area": "history-analytics",
+      "requirements": ["FDW-DB-001", "FDW-DB-002", "FDW-DB-003", "FDW-DB-004", "FDW-DB-005"],
+      "tests": ["TC-DB-001", "TC-DB-002", "TC-DB-003", "TC-DB-004", "TC-DB-005", "TC-DB-006"],
+      "evidencePaths": ["tests/analytics"]
+    },
+    {
+      "area": "advanced-assurance",
+      "requirements": ["FDW-ADV-001", "FDW-ADV-002", "FDW-ADV-003", "FDW-ADV-004"],
+      "tests": [
+        "TC-ADV-001",
+        "TC-ADV-002",
+        "TC-ADV-003",
+        "TC-PERF-001",
+        "TC-PERF-002",
+        "TC-PERF-003",
+        "TC-DEV-001",
+        "TC-DEV-002"
+      ],
+      "evidencePaths": ["tests/core", "tests/performance", ".devcontainer"]
+    }
+  ]
+}

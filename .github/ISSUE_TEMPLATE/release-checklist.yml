@@ -1,0 +1,38 @@
+name: Release checklist
+description: Track exact-commit release evidence without claiming pending results.
+title: 'release: v'
+labels:
+  - release
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Proposed version
+      placeholder: v2.0.0
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Proposed commit
+      description: Use the full 40-character commit SHA.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Gate evidence
+      description: Link CI, CodeQL, dependency review, coverage, accessibility, audit, traceability, and visual checks.
+    validations:
+      required: true
+  - type: checkboxes
+    id: release
+    attributes:
+      label: Release gates
+      options:
+        - label: Golden 85-record and exact 5/3/1 regression passed on the proposed commit.
+        - label: Normal and offline artifacts passed verification.
+        - label: SBOM, checksums, and provenance were generated for the exact artifacts.
+        - label: Desktop and mobile visual checks were recorded.
+        - label: Known limitations and synthetic-data boundaries appear in the notes.
+        - label: The deployed Pages commit matches the verified commit.

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "release-screenshots.v1",
+  "applicationVersion": "2.1.0",
+  "browser": "149.0.7827.55",
+  "source": "included synthetic baseline",
+  "datasetHash": "b3b50781afde9b3895707109e40e86b2fae82ed8e38cc4e964d9cb2de327b700",
+  "captures": [
+    {
+      "file": "workbench-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "file": "workbench-diagnostics.png",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "view": "Diagnostics"
+    },
+    {
+      "file": "workbench-configuration.png",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "view": "Configuration"
+    },
+    {
+      "file": "workbench-mobile.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ]
+}

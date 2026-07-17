@@ -1,0 +1,13 @@
+{
+  "artifactVersion": "inference-parity.v1",
+  "modelVersion": "1.0.0",
+  "measurements": {
+    "airspeed": 130.0,
+    "altitude": 5500.0,
+    "verticalRate": 50.0,
+    "fuel": 70.0,
+    "vibration": 0.3
+  },
+  "pythonScore": 27.18691586461726,
+  "absoluteTolerance": 1e-10
+}

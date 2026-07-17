@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kato-mt.github.io/Aviation-Dashboard-Project/schemas/verification.v1.schema.json",
+  "title": "Telemetry Verification Report",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "verificationId",
+    "createdAt",
+    "baseline",
+    "candidate",
+    "resolved",
+    "persisting",
+    "newlyIntroduced",
+    "status",
+    "summary",
+    "provenance"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "verification.v1" },
+    "verificationId": { "type": "string", "minLength": 1 },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "status": { "enum": ["pass", "fail", "blocked"] },
+    "resolved": { "type": "array" },
+    "persisting": { "type": "array" },
+    "newlyIntroduced": { "type": "array" },
+    "summary": {
+      "type": "object",
+      "required": ["resolved", "persisting", "newlyIntroduced"],
+      "properties": {
+        "resolved": { "type": "integer", "minimum": 0 },
+        "persisting": { "type": "integer", "minimum": 0 },
+        "newlyIntroduced": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "baseline": { "$ref": "#/$defs/runSummary" },
+    "candidate": { "$ref": "#/$defs/runSummary" },
+    "provenance": { "type": "object" }
+  },
+  "$defs": {
+    "runSummary": {
+      "type": "object",
+      "required": ["runId", "datasetSha256", "findingCount"],
+      "properties": {
+        "runId": { "type": "string" },
+        "datasetSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "findingCount": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}
