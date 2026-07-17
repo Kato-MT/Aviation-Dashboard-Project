@@ -1,209 +1,783 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Flight Telemetry Dashboard</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A synthetic telemetry integration, diagnostics, and verification workbench."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' ws://127.0.0.1:*; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+    <meta name="theme-color" content="#071019" />
+    <title>Flight Diagnostics Workbench</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Skip to workbench</a>
+    <div class="scanlines" aria-hidden="true"></div>
 
-<body>
-  <!-- Scanline overlay for CRT feel -->
-  <div class="scanlines"></div>
-
-  <header class="header">
-    <div class="header-left">
-      <div class="logo-mark">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <path d="M14 2L2 10L14 6L26 10L14 2Z" fill="#00e5a0" opacity="0.9"/>
-          <path d="M14 6L2 10L14 18L26 10L14 6Z" fill="#00e5a0" opacity="0.5"/>
-          <path d="M14 18L2 10V18L14 26L26 18V10L14 18Z" fill="#00e5a0" opacity="0.25"/>
-        </svg>
-      </div>
-      <div>
-        <h1>FLIGHT TELEMETRY <span class="accent">MONITOR</span></h1>
-        <p class="sub">ANOMALY DETECTION • REPLAY • INCIDENT REPORTING</p>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="status-badge" id="statusBadge">
-        <span class="status-dot"></span>
-        <span id="statusText">NO DATA</span>
-      </div>
-      <div class="clock" id="clock">--:--:--</div>
-    </div>
-  </header>
-
-  <main class="dashboard">
-    <!-- Left Panel: Controls + Alerts -->
-    <aside class="sidebar">
-      <!-- Data Controls -->
-      <section class="panel">
-        <div class="panel-header">
-          <span class="panel-icon">◆</span>
-          <h2>DATA SOURCE</h2>
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" focusable="false">
+            <path d="M24 5 7 15l17 7 17-7L24 5Z" />
+            <path d="m7 15 17 7 17-7v10L24 35 7 25V15Z" opacity=".5" />
+            <path d="M7 25 24 35l17-10v8L24 43 7 33v-8Z" opacity=".25" />
+          </svg>
         </div>
-        <div class="panel-body">
-          <button id="loadDefaultBtn" class="btn btn-primary">
-            <span class="btn-icon">▶</span> Load Sample Flight
+        <div>
+          <p class="eyebrow">Synthetic telemetry verification suite</p>
+          <h1>Flight Diagnostics <span>Workbench</span></h1>
+        </div>
+      </div>
+
+      <div class="header-health" aria-label="Application status">
+        <div class="status-pill" id="run-status" data-status="empty">
+          <span class="status-symbol" aria-hidden="true">o</span>
+          <span id="run-status-text">Ready for data</span>
+        </div>
+        <div class="version-stack">
+          <span>APP <strong id="app-version">v2.1.0</strong></span>
+          <span id="clock" aria-label="Local time">--:--:--</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="disclaimer" role="note">
+      <span aria-hidden="true">i</span>
+      All data, limits, profiles, and fault scenarios in this demonstration are synthetic and
+      unclassified. This project is not affiliated with or certified by any aircraft manufacturer,
+      operator, or government organization.
+    </div>
+
+    <nav class="view-tabs" aria-label="Workbench views">
+      <div role="tablist" aria-label="Workbench views">
+        <button
+          id="tab-monitor"
+          class="view-tab active"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="view-monitor"
+          data-view="monitor"
+        >
+          <span aria-hidden="true">01</span> Monitor
+        </button>
+        <button
+          id="tab-diagnostics"
+          class="view-tab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-diagnostics"
+          data-view="diagnostics"
+          tabindex="-1"
+        >
+          <span aria-hidden="true">02</span> Diagnostics
+          <strong class="tab-count" id="diagnostics-tab-count">0</strong>
+        </button>
+        <button
+          id="tab-verification"
+          class="view-tab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-verification"
+          data-view="verification"
+          tabindex="-1"
+        >
+          <span aria-hidden="true">03</span> Verification
+        </button>
+        <button
+          id="tab-configuration"
+          class="view-tab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-configuration"
+          data-view="configuration"
+          tabindex="-1"
+        >
+          <span aria-hidden="true">04</span> Configuration
+        </button>
+      </div>
+    </nav>
+
+    <main id="workspace" class="workspace" tabindex="-1">
+      <section
+        id="view-monitor"
+        class="view active"
+        role="tabpanel"
+        aria-labelledby="tab-monitor"
+        data-view-panel="monitor"
+      >
+        <div class="source-toolbar panel">
+          <div class="source-copy">
+            <p class="eyebrow">Active run</p>
+            <h2 id="active-run-name">No telemetry loaded</h2>
+            <p id="active-run-detail">
+              Load the included baseline or select a synthetic CSV/JSON file.
+            </p>
+          </div>
+          <div class="source-actions">
+            <button id="load-baseline" class="button primary" type="button">
+              Load included baseline
+            </button>
+            <button id="load-demo" class="button secondary" type="button">Generate demo run</button>
+            <label class="button secondary file-button" for="telemetry-file">
+              Import CSV or JSON
+            </label>
+            <input
+              id="telemetry-file"
+              class="visually-hidden"
+              type="file"
+              accept=".csv,.json,text/csv,application/json"
+            />
+          </div>
+        </div>
+
+        <div id="message-banner" class="message-banner" data-state="info" hidden tabindex="-1">
+          <span class="message-icon" aria-hidden="true">i</span>
+          <div>
+            <strong id="message-title">Status</strong>
+            <p id="message-detail"></p>
+          </div>
+          <button
+            id="dismiss-message"
+            class="icon-button"
+            type="button"
+            aria-label="Dismiss message"
+          >
+            x
           </button>
-          <label class="file-upload">
-            <input id="fileInput" type="file" accept=".csv" />
-            <span class="btn btn-secondary">
-              <span class="btn-icon">↑</span> Upload CSV
-            </span>
+        </div>
+
+        <div class="metric-grid" aria-label="Run summary">
+          <article class="metric-card">
+            <span class="metric-label">Accepted samples</span>
+            <strong id="metric-accepted">0</strong>
+            <span id="metric-total">of 0 received</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Quarantined rows</span>
+            <strong id="metric-quarantined">0</strong>
+            <span>retained for review</span>
+          </article>
+          <article class="metric-card" data-tone="warning">
+            <span class="metric-label">Diagnostic findings</span>
+            <strong id="metric-findings">0</strong>
+            <span id="metric-severity">no active findings</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Dataset identity</span>
+            <strong id="metric-hash">--------</strong>
+            <span>SHA-256 prefix</span>
+          </article>
+        </div>
+
+        <div class="monitor-layout">
+          <aside class="monitor-sidebar" aria-label="Replay and live readings">
+            <section class="panel compact-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Sample position</p>
+                  <h2>Replay controls</h2>
+                </div>
+                <output id="replay-position" for="replay-slider">0 / 0</output>
+              </div>
+              <div class="replay-buttons" role="group" aria-label="Replay controls">
+                <button
+                  id="replay-start"
+                  class="icon-button"
+                  type="button"
+                  disabled
+                  aria-label="Start replay"
+                >
+                  &#9654;
+                </button>
+                <button
+                  id="replay-pause"
+                  class="icon-button"
+                  type="button"
+                  disabled
+                  aria-label="Pause replay"
+                >
+                  &#10074;&#10074;
+                </button>
+                <button
+                  id="replay-reset"
+                  class="icon-button"
+                  type="button"
+                  disabled
+                  aria-label="Reset replay"
+                >
+                  &#8634;
+                </button>
+                <label for="replay-speed">Speed</label>
+                <select id="replay-speed" disabled>
+                  <option value="600">1x</option>
+                  <option value="300">2x</option>
+                  <option value="150">4x</option>
+                </select>
+              </div>
+              <label class="visually-hidden" for="replay-slider">Replay sample</label>
+              <input id="replay-slider" type="range" min="0" max="0" value="0" disabled />
+            </section>
+
+            <section class="panel compact-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Current sample</p>
+                  <h2 id="sample-time">No reading</h2>
+                </div>
+                <span id="sample-quality" class="quality-badge" data-quality="unknown"
+                  >Unknown</span
+                >
+              </div>
+              <dl class="reading-list">
+                <div>
+                  <dt>Altitude</dt>
+                  <dd><strong id="reading-altitude">---</strong> <span>ft</span></dd>
+                  <dd class="reading-meter">
+                    <meter id="meter-altitude" min="0" max="50000" value="0">0</meter>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Airspeed</dt>
+                  <dd><strong id="reading-speed">---</strong> <span>kt</span></dd>
+                  <dd class="reading-meter">
+                    <meter id="meter-speed" min="0" max="700" value="0">0</meter>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Fuel</dt>
+                  <dd><strong id="reading-fuel">---</strong> <span>%</span></dd>
+                  <dd class="reading-meter">
+                    <meter id="meter-fuel" min="0" max="100" value="0">0</meter>
+                  </dd>
+                </div>
+              </dl>
+            </section>
+
+            <section class="panel compact-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Recent evidence</p>
+                  <h2>Finding timeline</h2>
+                </div>
+                <button class="text-button" type="button" data-open-view="diagnostics">
+                  View all
+                </button>
+              </div>
+              <ol id="finding-timeline" class="finding-timeline">
+                <li class="empty-state">No findings to display.</li>
+              </ol>
+            </section>
+          </aside>
+
+          <div class="chart-stack">
+            <section class="panel chart-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Channel ALTITUDE_FT</p>
+                  <h2>Altitude</h2>
+                </div>
+                <strong id="chart-altitude-value">---</strong>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-altitude" aria-label="Altitude over time" role="img"></canvas>
+              </div>
+            </section>
+            <section class="panel chart-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Channel AIRSPEED_KTS</p>
+                  <h2>Airspeed</h2>
+                </div>
+                <strong id="chart-speed-value">---</strong>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-speed" aria-label="Airspeed over time" role="img"></canvas>
+              </div>
+            </section>
+            <section class="panel chart-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Channel FUEL_PCT</p>
+                  <h2>Fuel level</h2>
+                </div>
+                <strong id="chart-fuel-value">---</strong>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-fuel" aria-label="Fuel level over time" role="img"></canvas>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="view-diagnostics"
+        class="view"
+        role="tabpanel"
+        aria-labelledby="tab-diagnostics"
+        data-view-panel="diagnostics"
+        hidden
+      >
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">Evidence-backed fault isolation</p>
+            <h2>Diagnostics</h2>
+            <p>Inspect every finding and validation issue without losing invalid source rows.</p>
+          </div>
+          <div class="heading-actions">
+            <button id="export-findings" class="button secondary" type="button" disabled>
+              Export findings CSV
+            </button>
+          </div>
+        </div>
+
+        <section class="panel filter-panel" aria-label="Finding filters">
+          <label>
+            Severity
+            <select id="filter-severity">
+              <option value="all">All severities</option>
+              <option value="critical">Critical</option>
+              <option value="error">Error</option>
+              <option value="warning">Warning</option>
+              <option value="info">Info</option>
+            </select>
           </label>
-        </div>
-      </section>
+          <label>
+            Rule
+            <select id="filter-rule">
+              <option value="all">All rules</option>
+            </select>
+          </label>
+          <label>
+            Source
+            <select id="filter-source">
+              <option value="all">All sources</option>
+            </select>
+          </label>
+          <label class="search-label">
+            Search evidence
+            <input id="filter-search" type="search" placeholder="Timestamp, value, or evidence" />
+          </label>
+          <button id="clear-filters" class="button quiet" type="button">Clear filters</button>
+        </section>
 
-      <!-- Current Readings -->
-      <section class="panel readings-panel">
-        <div class="panel-header">
-          <span class="panel-icon">◆</span>
-          <h2>LIVE READINGS</h2>
-          <span class="timestamp-badge" id="curTime">--:--</span>
-        </div>
-        <div class="panel-body">
-          <div class="gauge-grid">
-            <div class="gauge" id="altGauge">
-              <div class="gauge-label">ALT</div>
-              <div class="gauge-value" id="curAlt">---</div>
-              <div class="gauge-unit">FT</div>
-              <div class="gauge-bar"><div class="gauge-fill" id="altFill"></div></div>
-            </div>
-            <div class="gauge" id="spdGauge">
-              <div class="gauge-label">SPD</div>
-              <div class="gauge-value" id="curSpd">---</div>
-              <div class="gauge-unit">KTS</div>
-              <div class="gauge-bar"><div class="gauge-fill" id="spdFill"></div></div>
-            </div>
-            <div class="gauge" id="fuelGauge">
-              <div class="gauge-label">FUEL</div>
-              <div class="gauge-value" id="curFuel">---</div>
-              <div class="gauge-unit">%</div>
-              <div class="gauge-bar"><div class="gauge-fill" id="fuelFill"></div></div>
+        <section class="panel table-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Rule-engine output</p>
+              <h2>Findings <span id="filtered-count">0</span></h2>
             </div>
           </div>
-        </div>
-      </section>
-
-      <!-- Replay Controls -->
-      <section class="panel">
-        <div class="panel-header">
-          <span class="panel-icon">◆</span>
-          <h2>REPLAY</h2>
-        </div>
-        <div class="panel-body">
-          <div class="replay-controls">
-            <button id="playBtn" class="btn btn-play" disabled>▶</button>
-            <button id="pauseBtn" class="btn btn-play" disabled>❚❚</button>
-            <button id="resetBtn" class="btn btn-play" disabled>◼</button>
-            <span class="replay-time" id="replayTime">0 / 0</span>
+          <div class="table-scroll">
+            <table>
+              <caption class="visually-hidden">
+                Filterable diagnostic findings
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Severity</th>
+                  <th scope="col">Rule ID</th>
+                  <th scope="col">Source and time</th>
+                  <th scope="col">Observed</th>
+                  <th scope="col">Expected</th>
+                  <th scope="col">Evidence</th>
+                </tr>
+              </thead>
+              <tbody id="findings-body">
+                <tr>
+                  <td colspan="6" class="empty-table">Load telemetry to run diagnostics.</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <input id="replaySlider" class="slider" type="range" min="0" max="0" value="0" disabled />
-          <div class="speed-controls">
-            <span class="speed-label">SPEED:</span>
-            <button class="btn btn-speed active" data-speed="250">1×</button>
-            <button class="btn btn-speed" data-speed="125">2×</button>
-            <button class="btn btn-speed" data-speed="60">4×</button>
+        </section>
+
+        <div class="diagnostic-grid">
+          <section class="panel compact-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Validation containment</p>
+                <h2>Quarantined rows <span id="quarantine-count">0</span></h2>
+              </div>
+            </div>
+            <div id="quarantine-list" class="stack-list">
+              <p class="empty-state">No quarantined rows.</p>
+            </div>
+          </section>
+
+          <section class="panel compact-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Deterministic test stimulus</p>
+                <h2>Fault injection</h2>
+              </div>
+            </div>
+            <p class="section-help">
+              Create a reproducible candidate from the current run. The original source remains
+              unchanged.
+            </p>
+            <label>
+              Declared scenario
+              <select id="fault-scenario"></select>
+            </label>
+            <label>
+              Seed
+              <input id="fault-seed" type="number" min="1" max="2147483647" value="1337" />
+            </label>
+            <button id="inject-fault" class="button primary" type="button" disabled>
+              Create candidate run
+            </button>
+            <p id="fault-description" class="section-help"></p>
+          </section>
+        </div>
+      </section>
+
+      <section
+        id="view-verification"
+        class="view"
+        role="tabpanel"
+        aria-labelledby="tab-verification"
+        data-view-panel="verification"
+        hidden
+      >
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">Before-and-after regression analysis</p>
+            <h2>Verification</h2>
+            <p>
+              Compare stable finding identities and expose resolved, persisting, and new behavior.
+            </p>
+          </div>
+          <div class="heading-actions">
+            <button id="export-verification" class="button primary" type="button" disabled>
+              Export verification JSON
+            </button>
           </div>
         </div>
+
+        <div class="verification-pair">
+          <article class="panel run-card">
+            <p class="eyebrow">Baseline</p>
+            <h3 id="baseline-name">Not captured</h3>
+            <dl>
+              <div>
+                <dt>Hash</dt>
+                <dd id="baseline-hash">--------</dd>
+              </div>
+              <div>
+                <dt>Samples</dt>
+                <dd id="baseline-samples">0</dd>
+              </div>
+              <div>
+                <dt>Findings</dt>
+                <dd id="baseline-findings">0</dd>
+              </div>
+            </dl>
+            <button id="capture-baseline" class="button secondary" type="button" disabled>
+              Capture current as baseline
+            </button>
+          </article>
+
+          <div class="comparison-arrow" aria-hidden="true">-&gt;</div>
+
+          <article class="panel run-card">
+            <p class="eyebrow">Candidate</p>
+            <h3 id="candidate-name">Not selected</h3>
+            <dl>
+              <div>
+                <dt>Hash</dt>
+                <dd id="candidate-hash">--------</dd>
+              </div>
+              <div>
+                <dt>Samples</dt>
+                <dd id="candidate-samples">0</dd>
+              </div>
+              <div>
+                <dt>Findings</dt>
+                <dd id="candidate-findings">0</dd>
+              </div>
+            </dl>
+            <button id="use-candidate" class="button secondary" type="button" disabled>
+              Use current as candidate
+            </button>
+          </article>
+
+          <article id="verification-status" class="verification-status" data-status="empty">
+            <span class="verification-symbol" aria-hidden="true">o</span>
+            <div>
+              <p class="eyebrow">Outcome</p>
+              <h3 id="verification-status-title">Comparison pending</h3>
+              <p id="verification-status-detail">Capture a baseline and candidate to compare.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="classification-grid">
+          <section class="panel classification-card resolved">
+            <div class="panel-heading">
+              <h2>Resolved</h2>
+              <strong id="resolved-count">0</strong>
+            </div>
+            <ol id="resolved-list" class="stack-list">
+              <li class="empty-state">None</li>
+            </ol>
+          </section>
+          <section class="panel classification-card persisting">
+            <div class="panel-heading">
+              <h2>Persisting</h2>
+              <strong id="persisting-count">0</strong>
+            </div>
+            <ol id="persisting-list" class="stack-list">
+              <li class="empty-state">None</li>
+            </ol>
+          </section>
+          <section class="panel classification-card introduced">
+            <div class="panel-heading">
+              <h2>Newly introduced</h2>
+              <strong id="introduced-count">0</strong>
+            </div>
+            <ol id="introduced-list" class="stack-list">
+              <li class="empty-state">None</li>
+            </ol>
+          </section>
+        </div>
+
+        <section class="panel table-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Release evidence</p>
+              <h2>Requirement results</h2>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <caption class="visually-hidden">
+                Verification requirement results
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Requirement</th>
+                  <th scope="col">Result</th>
+                  <th scope="col">Evidence</th>
+                </tr>
+              </thead>
+              <tbody id="requirements-body">
+                <tr>
+                  <td>REQ-VER-001</td>
+                  <td><span class="result-badge pending">Pending</span></td>
+                  <td>Comparison has not run.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </section>
 
-      <!-- Alerts -->
-      <section class="panel alerts-panel">
-        <div class="panel-header">
-          <span class="panel-icon warning-icon">⚠</span>
-          <h2>ANOMALY ALERTS</h2>
-          <span class="alert-count" id="alertCount">0</span>
+      <section
+        id="view-configuration"
+        class="view"
+        role="tabpanel"
+        aria-labelledby="tab-configuration"
+        data-view-panel="configuration"
+        hidden
+      >
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">Versions, provenance, and experiment controls</p>
+            <h2>Configuration</h2>
+            <p>
+              Every analysis is tied to explicit schemas, adapters, profiles, rules, and hashes.
+            </p>
+          </div>
+          <div class="heading-actions">
+            <button id="export-run" class="button primary" type="button" disabled>
+              Export run evidence
+            </button>
+          </div>
         </div>
-        <div class="panel-body">
-          <ul id="alertsList" class="alerts-list">
-            <li class="alert-empty">Load flight data to begin analysis.</li>
-          </ul>
+
+        <div class="configuration-grid">
+          <section class="panel compact-panel">
+            <div class="panel-heading"><h2>Active analysis</h2></div>
+            <dl class="definition-grid">
+              <div>
+                <dt>Application</dt>
+                <dd id="config-app-version">2.1.0</dd>
+              </div>
+              <div>
+                <dt>Schema</dt>
+                <dd id="config-schema">telemetry-run/2.0.0</dd>
+              </div>
+              <div>
+                <dt>Adapter</dt>
+                <dd id="config-adapter">None</dd>
+              </div>
+              <div>
+                <dt>Profile</dt>
+                <dd id="config-profile">None</dd>
+              </div>
+              <div>
+                <dt>Profile version</dt>
+                <dd id="config-profile-version">None</dd>
+              </div>
+              <div>
+                <dt>Dataset hash</dt>
+                <dd id="config-hash">Not loaded</dd>
+              </div>
+            </dl>
+            <label>
+              Synthetic profile
+              <select id="profile-select"></select>
+            </label>
+            <label class="checkbox-row">
+              <input id="include-source-export" type="checkbox" />
+              Include uploaded source data in JSON export
+            </label>
+            <p class="section-help">
+              Source data is excluded by default and only included by this explicit choice.
+            </p>
+          </section>
+
+          <section class="panel compact-panel v21-feature">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Version 1 protocol</p>
+                <h2>Streaming simulator</h2>
+              </div>
+              <span id="stream-state" class="quality-badge" data-quality="unknown"
+                >Disconnected</span
+              >
+            </div>
+            <label>
+              WebSocket endpoint
+              <input id="stream-url" type="url" value="ws://127.0.0.1:8080" />
+            </label>
+            <div class="button-row">
+              <button id="stream-connect" class="button secondary" type="button">
+                Connect local simulator
+              </button>
+              <button id="stream-demo" class="button secondary" type="button">
+                Run in-browser demo
+              </button>
+              <button id="stream-disconnect" class="button quiet" type="button" disabled>
+                Disconnect
+              </button>
+            </div>
+            <dl class="health-grid">
+              <div>
+                <dt>Sources</dt>
+                <dd id="health-sources">0</dd>
+              </div>
+              <div>
+                <dt>Messages</dt>
+                <dd id="health-messages">0</dd>
+              </div>
+              <div>
+                <dt>Dropped</dt>
+                <dd id="health-dropped">0</dd>
+              </div>
+              <div>
+                <dt>Heartbeat age</dt>
+                <dd id="health-heartbeat">N/A</dd>
+              </div>
+              <div>
+                <dt>Queue depth</dt>
+                <dd id="health-queue">0</dd>
+              </div>
+              <div>
+                <dt>Reconnects</dt>
+                <dd id="health-reconnects">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="panel compact-panel v21-feature">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Experimental comparison only</p>
+                <h2>Learned baseline</h2>
+              </div>
+              <span id="model-state" class="quality-badge" data-quality="unknown">Disabled</span>
+            </div>
+            <p class="section-help">
+              Deterministic rules remain authoritative. The model is enabled only when its stored
+              held-out evaluation meets both release gates.
+            </p>
+            <dl class="definition-grid">
+              <div>
+                <dt>Model version</dt>
+                <dd id="model-version">Not loaded</dd>
+              </div>
+              <div>
+                <dt>Held-out F1</dt>
+                <dd id="model-f1">Not measured</dd>
+              </div>
+              <div>
+                <dt>False-positive rate</dt>
+                <dd id="model-fpr">Not measured</dd>
+              </div>
+              <div>
+                <dt>Current anomaly score</dt>
+                <dd id="model-score">N/A</dd>
+              </div>
+            </dl>
+            <div
+              id="model-contributions"
+              class="contribution-list"
+              role="list"
+              aria-label="Per-channel residual contributions"
+            ></div>
+          </section>
+
+          <section class="panel compact-panel rules-card">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Profile-driven logic</p>
+                <h2>Enabled rules</h2>
+              </div>
+              <strong id="rule-count">0</strong>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <caption class="visually-hidden">
+                  Rules enabled by the selected synthetic profile
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Rule ID</th>
+                    <th scope="col">Severity</th>
+                    <th scope="col">Condition</th>
+                  </tr>
+                </thead>
+                <tbody id="rules-body">
+                  <tr>
+                    <td colspan="3" class="empty-table">Select a profile.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
       </section>
+    </main>
 
-      <!-- Export -->
-      <section class="panel">
-        <div class="panel-body">
-          <button id="exportBtn" class="btn btn-export" disabled>
-            <span class="btn-icon">⬇</span> Export Incident Report (JSON)
-          </button>
-        </div>
-      </section>
-    </aside>
+    <footer class="app-footer">
+      <span>Flight Diagnostics Workbench</span>
+      <span>Version 2.1.0</span>
+      <a href="https://github.com/Kato-MT/Aviation-Dashboard-Project">Source and documentation</a>
+      <span>Kato Thompkins</span>
+    </footer>
 
-    <!-- Main Chart Area -->
-    <div class="chart-area">
-      <section class="chart-panel">
-        <div class="chart-header">
-          <h3>ALTITUDE <span class="chart-unit">(FT)</span></h3>
-          <span class="chart-indicator alt-indicator" id="altIndicator">---</span>
-        </div>
-        <div class="chart-container">
-          <canvas id="altChart"></canvas>
-        </div>
-      </section>
-
-      <section class="chart-panel">
-        <div class="chart-header">
-          <h3>AIRSPEED <span class="chart-unit">(KTS)</span></h3>
-          <span class="chart-indicator spd-indicator" id="spdIndicator">---</span>
-        </div>
-        <div class="chart-container">
-          <canvas id="spdChart"></canvas>
-        </div>
-      </section>
-
-      <section class="chart-panel">
-        <div class="chart-header">
-          <h3>FUEL LEVEL <span class="chart-unit">(%)</span></h3>
-          <span class="chart-indicator fuel-indicator" id="fuelIndicator">---</span>
-        </div>
-        <div class="chart-container">
-          <canvas id="fuelChart"></canvas>
-        </div>
-      </section>
-
-      <!-- Flight Summary Bar -->
-      <section class="summary-bar" id="summaryBar">
-        <div class="summary-item">
-          <span class="summary-label">DURATION</span>
-          <span class="summary-value" id="sumDuration">--</span>
-        </div>
-        <div class="summary-item">
-          <span class="summary-label">MAX ALT</span>
-          <span class="summary-value" id="sumMaxAlt">--</span>
-        </div>
-        <div class="summary-item">
-          <span class="summary-label">MAX SPD</span>
-          <span class="summary-value" id="sumMaxSpd">--</span>
-        </div>
-        <div class="summary-item">
-          <span class="summary-label">FUEL USED</span>
-          <span class="summary-value" id="sumFuelUsed">--</span>
-        </div>
-        <div class="summary-item">
-          <span class="summary-label">ANOMALIES</span>
-          <span class="summary-value anomaly-count" id="sumAnomalies">--</span>
-        </div>
-      </section>
-    </div>
-  </main>
-
-  <footer class="footer">
-    <span>AEROSPACE TELEMETRY DASHBOARD v1.0</span>
-    <span class="footer-sep">•</span>
-    <span>Built with JavaScript, Chart.js, PapaParse</span>
-    <span class="footer-sep">•</span>
-    <span>Kato Thompkins — 2025</span>
-  </footer>
-
-  <script src="app.js"></script>
-</body>
+    <div id="live-region" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+    <noscript>This application requires JavaScript to analyze local synthetic telemetry.</noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
