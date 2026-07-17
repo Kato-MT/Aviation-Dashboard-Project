@@ -1,0 +1,71 @@
+name: Bug report
+description: Report reproducible behavior using synthetic data only.
+title: 'bug: '
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not attach proprietary, personal, controlled, operational, or real-platform data. Use a minimal synthetic fixture. Report vulnerabilities through the private security advisory link.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: v2.0.0 or full commit SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Adapter and validation
+        - Deterministic diagnostics
+        - Fault injection
+        - Verification
+        - Monitor and replay
+        - Accessibility and responsive layout
+        - Export
+        - Streaming
+        - Model comparison
+        - Analytics
+        - Build, CI, Pages, or release
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction
+      description: Include exact commands, profile and adapter versions, synthetic seed, and minimal fixture construction.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and evidence
+      description: Include visible error text, report evidence, or a screenshot without sensitive data.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Windows 11, Chrome version, Node version
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Data and reporting checks
+      options:
+        - label: The report uses synthetic, unclassified data and contains no secret or personal data.
+          required: true
+        - label: This is not a vulnerability report.
+          required: true
