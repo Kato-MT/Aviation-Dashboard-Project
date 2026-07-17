@@ -1,0 +1,376 @@
+{
+  "reportSchemaVersion": "release-verification.v1",
+  "runId": "included-baseline-release-evidence",
+  "createdAt": "2026-07-17T09:41:46.395Z",
+  "status": "pass",
+  "dataBoundary": "All telemetry, profiles, thresholds, and injected scenarios are synthetic and unclassified.",
+  "applicationVersion": "2.0.0",
+  "profileId": "included-baseline",
+  "profileVersion": "1.0.0",
+  "adapter": "legacy-csv@2.0.0",
+  "datasetHash": "b3b50781afde9b3895707109e40e86b2fae82ed8e38cc4e964d9cb2de327b700",
+  "provenance": {
+    "applicationVersion": "2.0.0",
+    "sourceRevision": "working-tree-v2.0-verification",
+    "adapter": "legacy-csv@2.0.0",
+    "datasetHash": "b3b50781afde9b3895707109e40e86b2fae82ed8e38cc4e964d9cb2de327b700",
+    "profileId": "included-baseline",
+    "profileVersion": "1.0.0",
+    "generatedAt": "2026-07-17T09:41:46.395Z"
+  },
+  "recordCounts": {
+    "total": 85,
+    "accepted": 85,
+    "quarantined": 0,
+    "validationErrors": 0
+  },
+  "validation": {
+    "fatal": false,
+    "issues": []
+  },
+  "sources": [
+    {
+      "sourceId": "synthetic-source-1",
+      "profileId": "included-baseline",
+      "schemaVersion": "telemetry.v1",
+      "acceptedRecords": 85,
+      "droppedMessages": 0
+    }
+  ],
+  "findings": [
+    {
+      "ruleId": "baseline.overspeed",
+      "ruleLabel": "Synthetic overspeed condition",
+      "severity": "warning",
+      "sourceId": "synthetic-source-1",
+      "timestamp": "1970-01-01T00:10:10.000Z",
+      "timestampMs": 610000,
+      "sampleIndex": 61,
+      "rowNumber": 63,
+      "channel": "speed",
+      "observedValue": 525,
+      "expectedCondition": "speed <= 520 kts",
+      "evidence": {
+        "message": "speed value 525 triggered > 520.",
+        "currentValue": 525,
+        "threshold": 520,
+        "operator": ">",
+        "sampleIndices": [
+          61
+        ]
+      },
+      "origin": "rule-engine",
+      "fingerprint": "baseline.overspeed|synthetic-source-1|1970-01-01T00:10:10.000Z|61|speed",
+      "findingId": "baseline.overspeed|synthetic-source-1|1970-01-01T00:10:10.000Z|61|speed"
+    },
+    {
+      "ruleId": "baseline.overspeed",
+      "ruleLabel": "Synthetic overspeed condition",
+      "severity": "warning",
+      "sourceId": "synthetic-source-1",
+      "timestamp": "1970-01-01T00:10:20.000Z",
+      "timestampMs": 620000,
+      "sampleIndex": 62,
+      "rowNumber": 64,
+      "channel": "speed",
+      "observedValue": 530,
+      "expectedCondition": "speed <= 520 kts",
+      "evidence": {
+        "message": "speed value 530 triggered > 520.",
+        "currentValue": 530,
+        "threshold": 520,
+        "operator": ">",
+        "sampleIndices": [
+          62
+        ]
+      },
+      "origin": "rule-engine",
+      "fingerprint": "baseline.overspeed|synthetic-source-1|1970-01-01T00:10:20.000Z|62|speed",
+      "findingId": "baseline.overspeed|synthetic-source-1|1970-01-01T00:10:20.000Z|62|speed"
+    },
+    {
+      "ruleId": "baseline.overspeed",
+      "ruleLabel": "Synthetic overspeed condition",
+      "severity": "warning",
+      "sourceId": "synthetic-source-1",
+      "timestamp": "1970-01-01T00:10:30.000Z",
+      "timestampMs": 630000,
+      "sampleIndex": 63,
+      "rowNumber": 65,
+      "channel": "speed",
+      "observedValue": 535,
+      "expectedCondition": "speed <= 520 kts",
+      "evidence": {
+        "message": "speed value 535 triggered > 520.",
+        "currentValue": 535,
+        "threshold": 520,
+        "operator": ">",
+        "sampleIndices": [
+          63
+        ]
+      },
+      "origin": "rule-engine",
+      "fingerprint": "baseline.overspeed|synthetic-source-1|1970-01-01T00:10:30.000Z|63|speed",
+      "findingId": "baseline.overspeed|synthetic-source-1|1970-01-01T00:10:30.000Z|63|speed"
+    },
+    {
+      "ruleId": "baseline.fuel-change",
+      "ruleLabel": "Synthetic fuel-change condition",
+      "severity": "warning",
+      "sourceId": "synthetic-source-1",
+      "timestamp": "1970-01-01T00:10:40.000Z",
+      "timestampMs": 640000,
+      "sampleIndex": 64,
+      "rowNumber": 66,
+      "channel": "fuel",
+      "observedValue": 0.23999999999999985,
+      "expectedCondition": "decrease rate <= 0.2 %/s",
+      "evidence": {
+        "message": "fuel decreased at 0.23999999999999985 units per second.",
+        "previousValue": 59.4,
+        "currentValue": 57,
+        "calculatedRate": 0.23999999999999985,
+        "elapsedMs": 10000,
+        "sampleIndices": [
+          63,
+          64
+        ]
+      },
+      "origin": "rule-engine",
+      "fingerprint": "baseline.fuel-change|synthetic-source-1|1970-01-01T00:10:40.000Z|64|fuel",
+      "findingId": "baseline.fuel-change|synthetic-source-1|1970-01-01T00:10:40.000Z|64|fuel"
+    },
+    {
+      "ruleId": "baseline.overspeed",
+      "ruleLabel": "Synthetic overspeed condition",
+      "severity": "warning",
+      "sourceId": "synthetic-source-1",
+      "timestamp": "1970-01-01T00:10:40.000Z",
+      "timestampMs": 640000,
+      "sampleIndex": 64,
+      "rowNumber": 66,
+      "channel": "speed",
+      "observedValue": 560,
+      "expectedCondition": "speed <= 520 kts",
+      "evidence": {
+        "message": "speed value 560 triggered > 520.",
+        "currentValue": 560,
+        "threshold": 520,
+        "operator": ">",
+        "sampleIndices": [
+          64
+        ]
+      },
+      "origin": "rule-engine",
+      "fingerprint": "baseline.overspeed|synthetic-source-1|1970-01-01T00:10:40.000Z|64|speed",
+      "findingId": "baseline.overspeed|synthetic-source-1|1970-01-01T00:10:40.000Z|64|speed"
+    },
+    {
+      "ruleId": "baseline.overspeed",
+      "ruleLabel": "Synthetic overspeed condition",
+      "severity": "warning",
+      "sourceId": "synthetic-source-1",
+      "timestamp": "1970-01-01T00:10:50.000Z",
+      "timestampMs": 650000,
+      "sampleIndex": 65,
+      "rowNumber": 67,
+      "channel": "speed",
+      "observedValue": 545,
+      "expectedCondition": "speed <= 520 kts",
+      "evidence": {
+        "message": "speed value 545 triggered > 520.",
+        "currentValue": 545,
+        "threshold": 520,
+        "operator": ">",
+        "sampleIndices": [
+          65
+        ]
+      },
+      "origin": "rule-engine",
+      "fingerprint": "baseline.overspeed|synthetic-source-1|1970-01-01T00:10:50.000Z|65|speed",
+      "findingId": "baseline.overspeed|synthetic-source-1|1970-01-01T00:10:50.000Z|65|speed"
+    },
+    {
+      "ruleId": "baseline.rapid-descent",
+      "ruleLabel": "Synthetic rapid-descent condition",
+      "severity": "error",
+      "sourceId": "synthetic-source-1",
+      "timestamp": "1970-01-01T00:10:50.000Z",
+      "timestampMs": 650000,
+      "sampleIndex": 65,
+      "rowNumber": 67,
+      "channel": "altitude",
+      "observedValue": 1600,
+      "expectedCondition": "altitude decrease <= 900 ft in 20000 ms",
+      "evidence": {
+        "message": "altitude decreased by 1600 within the configured time window.",
+        "previousValue": 18600,
+        "currentValue": 17000,
+        "elapsedMs": 20000,
+        "sampleIndices": [
+          63,
+          65
+        ]
+      },
+      "origin": "rule-engine",
+      "fingerprint": "baseline.rapid-descent|synthetic-source-1|1970-01-01T00:10:50.000Z|65|altitude",
+      "findingId": "baseline.rapid-descent|synthetic-source-1|1970-01-01T00:10:50.000Z|65|altitude"
+    },
+    {
+      "ruleId": "baseline.rapid-descent",
+      "ruleLabel": "Synthetic rapid-descent condition",
+      "severity": "error",
+      "sourceId": "synthetic-source-1",
+      "timestamp": "1970-01-01T00:11:00.000Z",
+      "timestampMs": 660000,
+      "sampleIndex": 66,
+      "rowNumber": 68,
+      "channel": "altitude",
+      "observedValue": 2000,
+      "expectedCondition": "altitude decrease <= 900 ft in 20000 ms",
+      "evidence": {
+        "message": "altitude decreased by 2000 within the configured time window.",
+        "previousValue": 18000,
+        "currentValue": 16000,
+        "elapsedMs": 20000,
+        "sampleIndices": [
+          64,
+          66
+        ]
+      },
+      "origin": "rule-engine",
+      "fingerprint": "baseline.rapid-descent|synthetic-source-1|1970-01-01T00:11:00.000Z|66|altitude",
+      "findingId": "baseline.rapid-descent|synthetic-source-1|1970-01-01T00:11:00.000Z|66|altitude"
+    },
+    {
+      "ruleId": "baseline.rapid-descent",
+      "ruleLabel": "Synthetic rapid-descent condition",
+      "severity": "error",
+      "sourceId": "synthetic-source-1",
+      "timestamp": "1970-01-01T00:11:10.000Z",
+      "timestampMs": 670000,
+      "sampleIndex": 67,
+      "rowNumber": 69,
+      "channel": "altitude",
+      "observedValue": 2000,
+      "expectedCondition": "altitude decrease <= 900 ft in 20000 ms",
+      "evidence": {
+        "message": "altitude decreased by 2000 within the configured time window.",
+        "previousValue": 17000,
+        "currentValue": 15000,
+        "elapsedMs": 20000,
+        "sampleIndices": [
+          65,
+          67
+        ]
+      },
+      "origin": "rule-engine",
+      "fingerprint": "baseline.rapid-descent|synthetic-source-1|1970-01-01T00:11:10.000Z|67|altitude",
+      "findingId": "baseline.rapid-descent|synthetic-source-1|1970-01-01T00:11:10.000Z|67|altitude"
+    }
+  ],
+  "comparison": {
+    "outcome": "baseline-golden-regression",
+    "status": "pass",
+    "expected": {
+      "acceptedRecords": 85,
+      "findingTotal": 9,
+      "distribution": {
+        "baseline.overspeed": 5,
+        "baseline.rapid-descent": 3,
+        "baseline.fuel-change": 1
+      }
+    },
+    "actual": {
+      "acceptedRecords": 85,
+      "findingTotal": 9,
+      "distribution": {
+        "baseline.overspeed": 5,
+        "baseline.fuel-change": 1,
+        "baseline.rapid-descent": 3
+      }
+    }
+  },
+  "coverage": {
+    "lines": {
+      "total": 602,
+      "covered": 593,
+      "skipped": 0,
+      "pct": 98.5
+    },
+    "statements": {
+      "total": 655,
+      "covered": 643,
+      "skipped": 0,
+      "pct": 98.16
+    },
+    "functions": {
+      "total": 96,
+      "covered": 92,
+      "skipped": 0,
+      "pct": 95.83
+    },
+    "branches": {
+      "total": 573,
+      "covered": 523,
+      "skipped": 0,
+      "pct": 91.27
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "traceability": {
+    "schemaVersion": "1.0.0",
+    "requirementCount": 100,
+    "declaredTestIdCount": 159
+  },
+  "requirementResults": [
+    {
+      "requirementId": "FDW-ING-003",
+      "status": "pass",
+      "testIds": [
+        "TC-CSV-001",
+        "TC-CSV-002"
+      ],
+      "evidence": "Included dataset hash and 85 accepted records verified by the generated report."
+    },
+    {
+      "requirementId": "FDW-RUL-009",
+      "status": "pass",
+      "testIds": [
+        "TC-RULE-001",
+        "TC-RULE-002",
+        "TC-RULE-003",
+        "TC-RULE-004"
+      ],
+      "evidence": "Exact 5 overspeed, 3 rapid-descent, and 1 fuel-change distribution verified."
+    },
+    {
+      "requirementId": "FDW-CM-004",
+      "status": "pass",
+      "testIds": [
+        "TC-CM-001"
+      ],
+      "evidence": "Extracted-core branch coverage is 91.27 percent."
+    }
+  ],
+  "releaseGates": {
+    "datasetHash": true,
+    "acceptedRecords": true,
+    "quarantinedRecords": true,
+    "fatalValidation": true,
+    "findingTotal": true,
+    "overspeed": true,
+    "rapidDescent": true,
+    "fuelChange": true,
+    "branchCoverage": true
+  },
+  "exportPolicy": {
+    "sourceDataIncluded": false,
+    "note": "The verification report contains findings and provenance, not source telemetry samples."
+  }
+}

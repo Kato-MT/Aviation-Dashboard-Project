@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "mutation-summary.v1",
+  "generatedAt": "2026-07-17T09:15:31.451Z",
+  "sourceRevision": "working-tree",
+  "tool": {
+    "name": "StrykerJS",
+    "version": "9.6.1",
+    "testRunner": "vitest",
+    "typescriptChecker": "9.6.1"
+  },
+  "scope": [
+    "src/core/**/*.ts",
+    "src/adapters/**/*.ts",
+    "src/faults/**/*.ts"
+  ],
+  "initialTestRun": {
+    "status": "passed",
+    "relatedTests": 183
+  },
+  "results": {
+    "totalMutants": 1803,
+    "validMutants": 1113,
+    "killed": 690,
+    "timedOut": 20,
+    "survived": 367,
+    "noCoverage": 36,
+    "compileErrors": 690,
+    "mutationScorePercent": 63.79,
+    "coveredMutationScorePercent": 65.92
+  },
+  "thresholds": {
+    "high": 80,
+    "low": 60,
+    "break": 60,
+    "passed": true
+  },
+  "durationSeconds": 531.7,
+  "fullLocalReport": {
+    "path": "reports/mutation/mutation.html",
+    "bytes": 1274358,
+    "sha256": "cf73d0faf41eb46567dfd8489d5c3ded2c306e5abcfbe14ebd79bd94207e9912",
+    "tracked": false
+  },
+  "limitations": [
+    "This is measured working-tree evidence, not tagged-release evidence.",
+    "Surviving mutants identify opportunities for stronger assertions and do not override deterministic release gates.",
+    "Compile-error mutants were rejected by the TypeScript checker and excluded from the valid-mutant score denominator."
+  ]
+}
