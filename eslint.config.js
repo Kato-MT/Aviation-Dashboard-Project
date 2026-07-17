@@ -41,6 +41,7 @@ export default tseslint.config(
       'coverage/**',
       'node_modules/**',
       'playwright-report/**',
+      'release/**',
       'test-results/**',
       'models/**',
     ],

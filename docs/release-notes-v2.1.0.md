@@ -1,6 +1,6 @@
 # Flight Diagnostics Workbench v2.1.0
 
-> Candidate release text. Publish only after every applicable gate in `release-verification.md` passes on the tagged commit.
+> Published on July 17, 2026, after every applicable gate passed on commit `4439cbe06f5c7e85fba523e25cc04b3eba2c7f98`. See the [completed release verification](release-verification-v2.1.0.md).
 
 Flight Diagnostics Workbench v2.1.0 activates the expanded synthetic communications, learned-baseline comparison, verification-history analytics, and assurance tooling that were staged behind the deterministic v2.0 release boundary.
 

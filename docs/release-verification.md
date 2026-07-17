@@ -2,6 +2,9 @@
 
 Copy this template to a versioned release evidence directory or GitHub release asset. Fill values only from commands and CI results for the exact release commit.
 
+The completed v2.1.0 record is preserved in
+[`release-verification-v2.1.0.md`](release-verification-v2.1.0.md). This file remains the reusable template for future releases.
+
 ## Identity
 
 | Field             | Verified value |

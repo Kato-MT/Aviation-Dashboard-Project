@@ -95,16 +95,17 @@ The workbench enforces a 10 MiB upload limit and a 250,000-sample limit with exp
 - [Verification-history analytics queries](docs/analytics-queries.md)
 - [Experimental model card](models/MODEL_CARD.md)
 - [Learned-baseline evaluation evidence](docs/model-card.md)
-- [Release verification](docs/release-verification.md)
+- [v2.1.0 completed release verification](docs/release-verification-v2.1.0.md)
+- [Release verification template](docs/release-verification.md)
 - [v2.0.0 candidate release notes](docs/release-notes-v2.0.0.md)
-- [v2.1.0 candidate release notes](docs/release-notes-v2.1.0.md)
+- [v2.1.0 release notes](docs/release-notes-v2.1.0.md)
 - [Release screenshot protocol](docs/screenshots/README.md)
 - [Configuration management](docs/configuration-management.md)
 - [90-second demo](docs/demo-script.md)
 
 ## Releases
 
-`v2.0.0` is the deterministic application-ready release. `v2.1.0` adds synthetic streaming, optional learned-baseline comparison, and local SQLite analytics after the deterministic release is stable. Release numbers, coverage, performance, accessibility results, security results, and model metrics are published only when CI or signed release evidence verifies them.
+`v2.0.0` is the deterministic application-ready release. The published `v2.1.0` release adds synthetic streaming, optional learned-baseline comparison, and local SQLite analytics. Its exact-commit results are recorded in the completed release verification document. Future release numbers, coverage, performance, accessibility results, security results, and model metrics are published only when CI or signed release evidence verifies them.
 
 The normal build is deployed at [kato-mt.github.io/Aviation-Dashboard-Project](https://kato-mt.github.io/Aviation-Dashboard-Project/). Release assets include the offline HTML application, verification and traceability reports, SBOM, SHA-256 checksums, and provenance when their release gates pass.
 
