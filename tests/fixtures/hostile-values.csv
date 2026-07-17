@@ -1,0 +1,4 @@
+timestamp,altitude_ft,speed_kts,fuel_pct
+00:00,"<img src=x onerror=alert(1)>",200,90
+00:10,1100,205,89.5
+

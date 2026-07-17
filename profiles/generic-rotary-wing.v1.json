@@ -1,0 +1,15 @@
+{
+  "id": "generic-rotary-wing",
+  "version": "1.0.0",
+  "label": "Generic Rotary-Wing Demonstration",
+  "synthetic": true,
+  "dataClassification": "SYNTHETIC_UNCLASSIFIED",
+  "disclaimer": "Illustrative synthetic profile only. Not approved for operational use.",
+  "expectedCadenceMs": 500,
+  "requiredChannels": {
+    "altitude": "ft",
+    "airspeed": "kts",
+    "rotorSpeed": "rpm",
+    "fuel": "%"
+  }
+}

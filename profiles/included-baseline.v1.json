@@ -1,0 +1,17 @@
+{
+  "id": "included-baseline",
+  "version": "1.0.0",
+  "label": "Included Baseline",
+  "synthetic": true,
+  "dataClassification": "SYNTHETIC_UNCLASSIFIED",
+  "disclaimer": "Illustrative synthetic values only. Not approved for operational use.",
+  "expectedCadenceMs": 10000,
+  "stableRuleIds": ["baseline.overspeed", "baseline.rapid-descent", "baseline.fuel-change"],
+  "expectedIncludedDatasetResults": {
+    "datasetSha256": "b3b50781afde9b3895707109e40e86b2fae82ed8e38cc4e964d9cb2de327b700",
+    "acceptedRecords": 85,
+    "baseline.overspeed": 5,
+    "baseline.rapid-descent": 3,
+    "baseline.fuel-change": 1
+  }
+}

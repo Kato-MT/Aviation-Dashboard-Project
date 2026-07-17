@@ -1,0 +1,15 @@
+{
+  "id": "generic-fixed-wing",
+  "version": "1.0.0",
+  "label": "Generic Fixed-Wing Demonstration",
+  "synthetic": true,
+  "dataClassification": "SYNTHETIC_UNCLASSIFIED",
+  "disclaimer": "Illustrative synthetic profile only. Not approved for operational use.",
+  "expectedCadenceMs": 1000,
+  "requiredChannels": {
+    "altitude": "ft",
+    "airspeed": "kts",
+    "fuel": "%",
+    "verticalRate": "ft/min"
+  }
+}

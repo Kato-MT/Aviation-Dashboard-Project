@@ -1,0 +1,5 @@
+timestamp,altitude_ft,speed_kts,fuel_pct
+00:00,1000,200,90
+00:10,1100,205,89.5
+00:20,1200,210,89
+
