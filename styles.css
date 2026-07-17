@@ -1188,10 +1188,6 @@ noscript {
   }
 }
 
-.v21-feature {
-  display: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

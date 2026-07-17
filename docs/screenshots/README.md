@@ -4,7 +4,9 @@ Capture screenshots only from the exact verified release commit after the produc
 
 Required release files:
 
-- `workbench-desktop.png`: desktop viewport showing the loaded included synthetic baseline and visible product version.
+- `workbench-desktop.png`: desktop Monitor viewport showing the loaded included synthetic baseline and visible product version.
+- `workbench-diagnostics.png`: desktop Diagnostics viewport showing filterable evidence-backed findings.
+- `workbench-configuration.png`: desktop Configuration viewport showing provenance and activated v2.1 capabilities.
 - `workbench-mobile.png`: narrow mobile viewport showing usable navigation, status text, and one primary view without clipped controls.
 
 Before capture:

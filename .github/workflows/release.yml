@@ -69,8 +69,24 @@ jobs:
       - name: Run browser assurance suite
         run: pnpm test:e2e
 
+      - name: Refresh v2.1 model and benchmark evidence
+        if: startsWith(github.ref_name, 'v2.1.')
+        run: |
+          pnpm ml:train
+          pnpm benchmark
+
       - name: Generate exact-commit verification report
         run: pnpm release:report
+
+      - name: Generate v2.1 verification-history analytics
+        if: startsWith(github.ref_name, 'v2.1.')
+        run: |
+          python tools/analytics/analytics.py migrate
+          python tools/analytics/analytics.py ingest artifacts/verification-report.json
+          python tools/analytics/analytics.py import-benchmarks benchmark/latest.json
+          python tools/analytics/analytics.py import-model models/evaluation_v1.json
+          python tools/analytics/analytics.py integrity
+          python tools/analytics/analytics.py report
 
       - name: Generate SBOM
         run: pnpm sbom --sbom-format cyclonedx --lockfile-only --out dist/sbom.cdx.json

@@ -29,13 +29,11 @@ pnpm benchmark
 
 | Field               | Value                      |
 | ------------------- | -------------------------- |
-| Recorded at         | `2026-07-17T08:27:01.037Z` |
+| Recorded at         | `2026-07-17T09:49:53.636Z` |
 | Node                | `v24.14.0`                 |
 | Platform            | Windows `10.0.26200`, x64  |
 | Logical CPUs        | 12                         |
-| CI environment flag | `true`                     |
-
-The environment flag was set during a local working-tree verification. It does not make this result a hosted CI or tagged-release result.
+| CI environment flag | `false`                    |
 
 ## Deterministic rule-engine results
 
@@ -43,9 +41,9 @@ The environment flag was set during a local working-tree verification. It does n
 
 | Samples | Mean ms | Minimum ms | Maximum ms | Samples/second | Peak heap bytes | Findings |
 | ------: | ------: | ---------: | ---------: | -------------: | --------------: | -------: |
-|   1,000 |  11.399 |      0.939 |     29.984 |         87,726 |      72,508,448 |        0 |
-|  10,000 |  26.191 |      9.419 |     59.370 |        381,809 |      71,328,840 |        0 |
-| 100,000 | 194.666 |    158.983 |    213.070 |        513,700 |     174,412,376 |        0 |
+|   1,000 |   1.656 |      1.521 |      1.746 |        603,889 |      71,813,632 |        0 |
+|  10,000 |  11.839 |     10.387 |     13.505 |        844,630 |      76,418,072 |        0 |
+| 100,000 |  95.651 |     78.515 |    104.710 |      1,045,467 |     175,858,864 |        0 |
 
 `peakHeapBytes` is absolute Node.js process heap, including loaded benchmark dependencies. It is not incremental rule-engine allocation.
 

@@ -4,9 +4,17 @@ All notable changes are documented here. This project follows [Semantic Versioni
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-07-17
+
 ### Added
 
-- v2.1 synthetic streaming, optional learned-baseline analysis, and local verification-history analytics are staged behind documented release gates.
+- Versioned WebSocket protocol, local Node simulator, in-browser demo adapter, and multiple synthetic source support.
+- Heartbeat health, bounded reconnect backoff, visible queue pressure, and dropped-message accounting.
+- Seeded communications faults for disconnects, latency, jitter, packet loss, duplicates, reordering, stale heartbeat, schema mismatch, and queue pressure.
+- Experimental robust-covariance anomaly scoring with per-channel residual contributions and deterministic side-by-side comparison.
+- Versioned Python model training, held-out evaluation evidence, TypeScript inference parity, and a model quality gate.
+- SQLite verification history with migrations, foreign keys, indexes, integrity checks, fourteen analytical queries, and generated trend reporting.
+- Seeded parser property tests, mutation testing, reproducible 1,000, 10,000, and 100,000-sample benchmarks, and an optional native-first development container.
 
 ## [2.0.0] - 2026-07-17
 
@@ -37,6 +45,7 @@ All notable changes are documented here. This project follows [Semantic Versioni
 - Original static telemetry dashboard with charts, gauges, alerts, replay controls, CSV loading, and incident-report export.
 - Included 85-record synthetic CSV fixture with the preserved 5 overspeed, 3 rapid-descent, and 1 fuel-change regression baseline.
 
-[Unreleased]: https://github.com/Kato-MT/Aviation-Dashboard-Project/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/Kato-MT/Aviation-Dashboard-Project/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/Kato-MT/Aviation-Dashboard-Project/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Kato-MT/Aviation-Dashboard-Project/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/Kato-MT/Aviation-Dashboard-Project/releases/tag/v1.0.0

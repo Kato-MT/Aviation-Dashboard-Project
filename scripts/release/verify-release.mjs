@@ -27,6 +27,9 @@ if (/^v?2\.1\./.test(releaseVersion)) {
     'model-evaluation.json',
     'robust-covariance-model-v1.json',
     'inference-parity-vector-v1.json',
+    'verification-history-analytics.md',
+    'workbench-diagnostics.png',
+    'workbench-configuration.png',
   );
 }
 const errors = [];

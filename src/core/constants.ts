@@ -1,7 +1,7 @@
 import type { AdapterInputLimits } from './types';
 
 /** Version of the complete workbench release assembled by the repository. */
-export const APPLICATION_VERSION = '2.0.0';
+export const APPLICATION_VERSION = '2.1.0';
 
 /** Version of the deterministic adapters, profile engine, and verification contracts. */
 export const DETERMINISTIC_CORE_VERSION = '2.0.0';

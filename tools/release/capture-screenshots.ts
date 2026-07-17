@@ -10,7 +10,12 @@ const outputDirectory = resolve(repositoryRoot, 'docs', 'screenshots');
 const applicationUrl =
   process.env.SCREENSHOT_URL ?? 'http://127.0.0.1:4173/Aviation-Dashboard-Project/';
 
-async function capture(page: Page, name: string, viewport: ViewportSize): Promise<void> {
+async function capture(
+  page: Page,
+  name: string,
+  viewport: ViewportSize,
+  tabName?: 'Diagnostics' | 'Configuration',
+): Promise<void> {
   await page.setViewportSize(viewport);
   await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
   await page.goto(applicationUrl, { waitUntil: 'networkidle' });
@@ -18,6 +23,10 @@ async function capture(page: Page, name: string, viewport: ViewportSize): Promis
   await page.waitForFunction(
     () => document.querySelector('#metric-accepted')?.textContent?.trim() === '85',
   );
+  if (tabName) {
+    await page.getByRole('tab', { name: new RegExp(tabName, 'i') }).click();
+    await page.evaluate(() => window.scrollTo(0, 0));
+  }
   await page.screenshot({
     path: resolve(outputDirectory, name),
     animations: 'disabled',
@@ -30,6 +39,13 @@ const browser = await chromium.launch({ headless: true });
 try {
   const page = await browser.newPage();
   await capture(page, 'workbench-desktop.png', { width: 1440, height: 1000 });
+  await capture(page, 'workbench-diagnostics.png', { width: 1440, height: 1000 }, 'Diagnostics');
+  await capture(
+    page,
+    'workbench-configuration.png',
+    { width: 1440, height: 1000 },
+    'Configuration',
+  );
   await capture(page, 'workbench-mobile.png', { width: 390, height: 844 });
   await writeFile(
     resolve(outputDirectory, 'metadata.json'),
@@ -42,6 +58,16 @@ try {
         datasetHash: 'b3b50781afde9b3895707109e40e86b2fae82ed8e38cc4e964d9cb2de327b700',
         captures: [
           { file: 'workbench-desktop.png', viewport: { width: 1440, height: 1000 } },
+          {
+            file: 'workbench-diagnostics.png',
+            viewport: { width: 1440, height: 1000 },
+            view: 'Diagnostics',
+          },
+          {
+            file: 'workbench-configuration.png',
+            viewport: { width: 1440, height: 1000 },
+            view: 'Configuration',
+          },
           { file: 'workbench-mobile.png', viewport: { width: 390, height: 844 } },
         ],
       },

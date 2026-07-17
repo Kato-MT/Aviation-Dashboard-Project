@@ -97,6 +97,7 @@ The workbench enforces a 10 MiB upload limit and a 250,000-sample limit with exp
 - [Learned-baseline evaluation evidence](docs/model-card.md)
 - [Release verification](docs/release-verification.md)
 - [v2.0.0 candidate release notes](docs/release-notes-v2.0.0.md)
+- [v2.1.0 candidate release notes](docs/release-notes-v2.1.0.md)
 - [Release screenshot protocol](docs/screenshots/README.md)
 - [Configuration management](docs/configuration-management.md)
 - [90-second demo](docs/demo-script.md)

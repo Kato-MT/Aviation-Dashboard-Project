@@ -4,13 +4,7 @@
   "plugins": ["@stryker-mutator/typescript-checker", "@stryker-mutator/vitest-runner"],
   "checkers": ["typescript"],
   "tsconfigFile": "tsconfig.json",
-  "mutate": [
-    "src/core/**/*.ts",
-    "src/adapters/**/*.ts",
-    "src/faults/**/*.ts",
-    "!src/**/*.test.ts",
-    "!src/**/types.ts"
-  ],
+  "mutate": ["src/core/**/*.ts", "src/adapters/**/*.ts", "src/faults/**/*.ts", "!src/**/types.ts"],
   "reporters": ["clear-text", "progress", "html", "json"],
   "jsonReporter": {
     "fileName": "reports/mutation/mutation.json"

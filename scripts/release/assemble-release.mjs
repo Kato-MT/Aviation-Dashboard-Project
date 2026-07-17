@@ -87,6 +87,18 @@ if (includeExpandedEvidence) {
     resolve(repositoryRoot, 'models', 'inference_parity_v1.json'),
     'inference-parity-vector-v1.json',
   );
+  copyOptional(
+    resolve(repositoryRoot, 'analytics', 'latest-report.md'),
+    'verification-history-analytics.md',
+  );
+  copyOptional(
+    resolve(repositoryRoot, 'docs', 'screenshots', 'workbench-diagnostics.png'),
+    'workbench-diagnostics.png',
+  );
+  copyOptional(
+    resolve(repositoryRoot, 'docs', 'screenshots', 'workbench-configuration.png'),
+    'workbench-configuration.png',
+  );
 }
 copyOptional(
   resolve(repositoryRoot, 'docs', 'screenshots', 'workbench-desktop.png'),
