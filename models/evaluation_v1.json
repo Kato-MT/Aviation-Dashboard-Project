@@ -1,0 +1,57 @@
+{
+  "artifactVersion": "learned-baseline.v1",
+  "enabledByDefault": true,
+  "evaluation": {
+    "byFault": {
+      "airspeed-shift": {
+        "detected": 36,
+        "recall": 1.0,
+        "samples": 36
+      },
+      "altitude-jump": {
+        "detected": 28,
+        "recall": 1.0,
+        "samples": 28
+      },
+      "fuel-loss": {
+        "detected": 46,
+        "recall": 1.0,
+        "samples": 46
+      },
+      "vertical-rate-spike": {
+        "detected": 32,
+        "recall": 1.0,
+        "samples": 32
+      },
+      "vibration-spike": {
+        "detected": 38,
+        "recall": 1.0,
+        "samples": 38
+      }
+    },
+    "faultFraction": 0.06,
+    "metrics": {
+      "f1": 0.916030534351,
+      "falseNegatives": 0,
+      "falsePositiveRate": 0.01170212766,
+      "falsePositives": 33,
+      "precision": 0.845070422535,
+      "recall": 1.0,
+      "trueNegatives": 2787,
+      "truePositives": 180
+    },
+    "samplesPerSeed": 1000,
+    "seeds": [
+      701,
+      809,
+      907
+    ]
+  },
+  "generatedAt": "2026-07-17T00:00:00.000Z",
+  "modelVersion": "1.0.0",
+  "qualityGate": {
+    "maximumFalsePositiveRate": 0.05,
+    "minimumF1": 0.85,
+    "passed": true
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "benchmark.v1",
+  "recordedAt": "2026-07-17T08:27:01.037Z",
+  "syntheticDataOnly": true,
+  "reproducibility": {
+    "applicationVersion": "2.1.0",
+    "sourceRevision": "working-tree",
+    "seed": 20260717,
+    "sizes": [1000, 10000, 100000],
+    "iterations": 3,
+    "warmupIterations": 1,
+    "profile": { "id": "generic-fixed-wing", "version": "1.0.0" }
+  },
+  "environment": {
+    "node": "v24.14.0",
+    "platform": "win32",
+    "release": "10.0.26200",
+    "architecture": "x64",
+    "logicalCpuCount": 12,
+    "ci": true
+  },
+  "results": [
+    {
+      "benchmarkId": "rule-engine-1000-20260717",
+      "name": "profile-rule-engine",
+      "sampleCount": 1000,
+      "iterations": 3,
+      "durationMs": 11.39906666666669,
+      "minimumDurationMs": 0.939200000000028,
+      "maximumDurationMs": 29.984000000000037,
+      "throughputPerSecond": 87726.48053056958,
+      "peakHeapBytes": 72508448,
+      "findingCount": 0,
+      "datasetSha256": "d7a3df0c57f116254cb4243fa49863abbd963279911ca385a3734488982796ed",
+      "configurationSha256": "704a4e388a07e0258b8ed3718dfe362c4049c7d7ec99e8678816df14c669f446"
+    },
+    {
+      "benchmarkId": "rule-engine-10000-20260717",
+      "name": "profile-rule-engine",
+      "sampleCount": 10000,
+      "iterations": 3,
+      "durationMs": 26.191100000000006,
+      "minimumDurationMs": 9.418899999999894,
+      "maximumDurationMs": 59.36959999999999,
+      "throughputPerSecond": 381809.0878199082,
+      "peakHeapBytes": 71328840,
+      "findingCount": 0,
+      "datasetSha256": "af00383801d26e2c63cf56e0bb1b5d9cb4e43f8b882ec7184e41bbab823c2a55",
+      "configurationSha256": "1a613c11a0f5da54013e93f30cd05062b691e74dd2c684e169f5fd3444a703f6"
+    },
+    {
+      "benchmarkId": "rule-engine-100000-20260717",
+      "name": "profile-rule-engine",
+      "sampleCount": 100000,
+      "iterations": 3,
+      "durationMs": 194.66606666666667,
+      "minimumDurationMs": 158.98310000000038,
+      "maximumDurationMs": 213.07019999999966,
+      "throughputPerSecond": 513700.21345956204,
+      "peakHeapBytes": 174412376,
+      "findingCount": 0,
+      "datasetSha256": "dc6f4d5866131806103a9298fe3d5cd401a3efacdac7e8e506e9b2f28e48db2c",
+      "configurationSha256": "310761fff442896764c7cf4508b0a380ed72294930fad88fabb74b689afd4ede"
+    }
+  ],
+  "limitations": [
+    "Results depend on hardware, operating system, Node.js version, and background load.",
+    "Generated synthetic telemetry is used; results do not represent an operational system.",
+    "The benchmark reports rule-engine execution only and excludes browser rendering.",
+    "peakHeapBytes is the absolute Node.js process heap and includes loaded benchmark dependencies."
+  ]
+}

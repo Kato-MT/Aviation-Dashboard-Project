@@ -1,0 +1,144 @@
+{
+  "artifactVersion": "learned-baseline.v1",
+  "calibration": {
+    "samplesPerSeed": 1000,
+    "seeds": [
+      509,
+      601
+    ],
+    "thresholdPercentile": 0.99
+  },
+  "center": [
+    124.330891635803,
+    5316.204812993416,
+    2.554877327913,
+    72.188260024762,
+    0.239781829401
+  ],
+  "channels": [
+    "airspeed",
+    "altitude",
+    "verticalRate",
+    "fuel",
+    "vibration"
+  ],
+  "enabledByDefault": true,
+  "evaluation": {
+    "byFault": {
+      "airspeed-shift": {
+        "detected": 36,
+        "recall": 1.0,
+        "samples": 36
+      },
+      "altitude-jump": {
+        "detected": 28,
+        "recall": 1.0,
+        "samples": 28
+      },
+      "fuel-loss": {
+        "detected": 46,
+        "recall": 1.0,
+        "samples": 46
+      },
+      "vertical-rate-spike": {
+        "detected": 32,
+        "recall": 1.0,
+        "samples": 32
+      },
+      "vibration-spike": {
+        "detected": 38,
+        "recall": 1.0,
+        "samples": 38
+      }
+    },
+    "faultFraction": 0.06,
+    "metrics": {
+      "f1": 0.916030534351,
+      "falseNegatives": 0,
+      "falsePositiveRate": 0.01170212766,
+      "falsePositives": 33,
+      "precision": 0.845070422535,
+      "recall": 1.0,
+      "trueNegatives": 2787,
+      "truePositives": 180
+    },
+    "samplesPerSeed": 1000,
+    "seeds": [
+      701,
+      809,
+      907
+    ]
+  },
+  "generatedAt": "2026-07-17T00:00:00.000Z",
+  "inverseCovariance": [
+    [
+      1.475178440728,
+      -0.106217460155,
+      -0.19874549175,
+      -0.003188484185,
+      -0.234481907246
+    ],
+    [
+      -0.106217460155,
+      1.633138588069,
+      -0.078809647736,
+      -0.05878989344,
+      -0.01311086895
+    ],
+    [
+      -0.19874549175,
+      -0.078809647736,
+      1.224038309916,
+      0.080296555389,
+      -0.245608656806
+    ],
+    [
+      -0.003188484185,
+      -0.05878989344,
+      0.080296555389,
+      1.188706374521,
+      0.031534383335
+    ],
+    [
+      -0.234481907246,
+      -0.01311086895,
+      -0.245608656806,
+      0.031534383335,
+      1.094059406925
+    ]
+  ],
+  "limitations": [
+    "Experimental detector trained only on generated synthetic telemetry.",
+    "Pointwise model does not detect all temporal, communications, or schema faults.",
+    "Deterministic profile rules remain authoritative for verification results.",
+    "Model scores are demonstrations and are not flight-safety or certification evidence."
+  ],
+  "modelType": "robust-regularized-covariance-mahalanobis",
+  "modelVersion": "1.0.0",
+  "qualityGate": {
+    "maximumFalsePositiveRate": 0.05,
+    "minimumF1": 0.85,
+    "passed": true
+  },
+  "scale": [
+    5.344446632957,
+    175.238463269923,
+    46.225251589573,
+    0.984804031347,
+    0.013182661817
+  ],
+  "scoreThreshold": 11.473097972204,
+  "syntheticDataOnly": true,
+  "training": {
+    "covarianceRegularization": 0.05,
+    "samplesPerSeed": 1500,
+    "seeds": [
+      101,
+      211,
+      307,
+      401
+    ],
+    "totalSamples": 6000,
+    "winsorizationLimit": 4.0
+  }
+}
