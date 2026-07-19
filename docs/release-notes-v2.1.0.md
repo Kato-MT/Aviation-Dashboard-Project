@@ -13,7 +13,7 @@ Flight Diagnostics Workbench v2.1.0 activates the expanded synthetic communicati
 - Side-by-side learned and deterministic findings, with deterministic rules remaining authoritative
 - Versioned model, held-out evaluation, model card, seeds, limitations, and Python-to-TypeScript inference parity evidence
 - SQLite verification history with migrations, foreign keys, indexes, integrity checks, fourteen documented analytical queries, and trend reports
-- Reproducible parser property tests, mutation testing, performance benchmarks, and a native-first development container
+- Reproducible parser property tests, mutation testing, performance benchmarks, and a documented native-first gate for a future optional development container
 
 ## Release gates
 

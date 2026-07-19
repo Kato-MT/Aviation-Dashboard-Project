@@ -1,6 +1,6 @@
 # Flight Diagnostics Workbench v2.0.0
 
-> Candidate release text. Publish only after every v2.0 gate in `release-verification.md` passes on the tagged commit.
+## Status: Released July 17, 2026
 
 Flight Diagnostics Workbench v2.0.0 modernizes the original static dashboard into a versioned telemetry integration, deterministic diagnostics, and baseline-versus-candidate verification project while preserving its dark visual identity and replay workflow.
 
@@ -27,6 +27,6 @@ Every bundled dataset, profile, threshold, stream, and fault scenario is synthet
 
 ## Evidence
 
-The release assets include the offline application, traceability and verification reports, SBOM, SHA-256 checksums, and GitHub artifact provenance. Verify actual test, coverage, accessibility, audit, and visual results in the release evidence. Do not treat this candidate text as a passed gate.
+The published release assets include the offline application, traceability and verification reports, SBOM, SHA-256 checksums, and GitHub artifact provenance. Test, coverage, accessibility, audit, and visual claims remain limited to the evidence attached to the tagged release.
 
 Known constraints are documented in [limitations.md](limitations.md).

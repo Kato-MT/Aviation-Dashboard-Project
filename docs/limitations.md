@@ -32,6 +32,28 @@ Flight Diagnostics Workbench is an educational software engineering demonstratio
 - Per-channel contributions are diagnostic aids, not causal explanations.
 - Deterministic rules remain authoritative even if model release gates pass.
 
+## Temporal fault intelligence
+
+- Mission phases, redundant sensors, noise, fault magnitudes, durations, and recovery behavior are generated examples. They do not represent a real aircraft or platform.
+- The phase state machine and two-state Kalman estimator simplify dynamics to make transition and residual evidence inspectable. They are not navigation, control, health-management, or certification algorithms.
+- Model v1 is research-evidence-only. Its separate five-channel generator, same-population comparisons, and post-hoc non-gating challenge do not measure the browser's integrated path. The challenge shows reduced recall for unseen magnitude and especially short or late onset-duration configurations; its ten nominal controls per dimension are too small for a release-quality false-positive estimate.
+- Model v2 is the production-integrated advisory artifact, but its checked metrics use one selected 40-sample window from each balanced synthetic seed-label mission. They are not episode, full-stream, prevalence-weighted, independent-flight, or real-world estimates.
+- V2 recorded 2 false positives among 40 selected nominal windows. The observed rate is 5 percent, but the exact one-sided 95 percent upper bound is approximately 14.92 percent. This sample does not establish an underlying false-positive rate at or below 5 percent.
+- V2's weakest selected-window class is cross-sensor decoupling at 33 of 40 correct classifications, or 0.825 recall. Stuck value and simultaneous faults each record 39 of 40. Named hypotheses remain exploratory despite satisfying the declared selected-window point-estimate gate.
+- An `unknown` result means the artifact abstained under its declared support rules. It does not prove that no fault exists or that unfamiliar inputs will abstain.
+- Ranked hypotheses are declared synthetic labels, not definitive causes. Deterministic rules remain authoritative.
+- Current temporal inference requires the registered generic fixed-wing profile, channel and unit set, 1,000 ms cadence tolerance, and 40-sample window. Other active telemetry profiles report incompatibility.
+
+## Campaign lab
+
+- Campaign metrics describe only the exact versioned specification, seeds, generator, detector versions, and synthetic exposure recorded in the report.
+- Low-level campaign validation caps specifications at 256 KiB, results at 10 MiB, matrices at 372 cases, retained SQLite result payloads at 64 MiB, and the campaign-history database at 128 MiB. Reaching a limit fails explicitly and requires the user to archive or remove history; evidence is never silently pruned.
+- A false alarm per synthetic hour is a simulation statistic, not a real-world operational rate.
+- Confidence intervals quantify resampling variability in the completed synthetic cases. They do not account for generator misspecification.
+- Worker cancellation is cooperative. The active synchronous case can finish before the cancellation response is emitted.
+- The browser does not persist campaign reports automatically. SQLite history requires an explicit local export and developer-side ingest.
+- Local Node proxy benchmarks are not browser latency claims or release timing gates.
+
 ## Analytics
 
 - SQLite history is local and file-based. It is not a multi-user service.

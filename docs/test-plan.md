@@ -8,18 +8,18 @@ No test count, coverage percentage, accessibility result, performance measuremen
 
 ## Test levels
 
-| Level         | Scope                                                                    | Primary command                          |
-| ------------- | ------------------------------------------------------------------------ | ---------------------------------------- |
-| Unit          | parsers, normalization, rules, hashing, comparison, exports, queues      | `pnpm test:coverage`                     |
-| Integration   | adapter to run to finding to report, equivalent formats, history import  | `pnpm validate`                          |
-| Browser       | four views, upload states, replay, filters, exports, streaming health    | `pnpm test:e2e`                          |
-| Accessibility | keyboard, focus, names, status semantics, reduced motion, automated scan | `pnpm test:e2e`                          |
-| Responsive    | narrow mobile, tablet, desktop, content reflow and no hidden controls    | `pnpm test:e2e`                          |
-| Security      | hostile strings, formula cells, limits, dependency review, CodeQL        | CI workflows                             |
-| Offline       | one HTML file, no runtime CDN, supported browser smoke test              | `pnpm build:offline` and `pnpm test:e2e` |
-| Performance   | 1,000, 10,000, and 100,000 samples with fixed seeds and environment      | `pnpm benchmark`                         |
-| Analytics     | migrations, foreign keys, integrity, queries, repeatable trends          | `pnpm analytics`                         |
-| Model         | held-out seeds, labeled faults, metrics, artifact parity                 | model evaluation command                 |
+| Level         | Scope                                                                    | Primary command                                |
+| ------------- | ------------------------------------------------------------------------ | ---------------------------------------------- |
+| Unit          | parsers, normalization, rules, phase, fusion, models, campaigns, exports | `pnpm test:coverage`                           |
+| Integration   | adapter to report, temporal investigation, worker, and history import    | `pnpm validate`                                |
+| Browser       | five views, upload, replay, Investigation, campaign, exports, stream     | `pnpm test:e2e`                                |
+| Accessibility | keyboard, focus, names, status semantics, reduced motion, automated scan | `pnpm test:e2e`                                |
+| Responsive    | narrow mobile, tablet, desktop, content reflow and no hidden controls    | `pnpm test:e2e`                                |
+| Security      | hostile strings, formula cells, limits, dependency review, CodeQL        | CI workflows                                   |
+| Offline       | one HTML file, no runtime CDN, supported browser smoke test              | `pnpm build:offline` and `pnpm test:e2e`       |
+| Performance   | deterministic and temporal fixed-seed scales with environment evidence   | `pnpm benchmark` and `pnpm benchmark:temporal` |
+| Analytics     | run and campaign migrations, integrity, queries, repeatable trends       | `pnpm analytics` and `pnpm analytics:campaign` |
+| Model         | disjoint seeds, faults, gates, abstention, identity, and parity          | `pnpm ml:train`                                |
 
 ## v2.0 behavior inventory
 
@@ -39,6 +39,19 @@ The authoritative case definitions are in [requirements/test-cases.md](../requir
 - normal and self-contained offline builds.
 
 Each automated test should include its `TC-*` identifier in the test name so CI output can be traced back without interpreting line numbers.
+
+## v2.2 behavior inventory
+
+The v2.2 catalog adds stable cases for:
+
+- model-registry identity, compatibility reasons, eligibility, user enablement, and deterministic authority;
+- six mission phases, hysteresis, transition evidence, redundant measurements, Kalman prediction and update, uncertainty bands, missing sensors, and residual ordering;
+- ten seeded temporal scenarios, nominal behavior, onset, active duration, recovery, and no ground-truth leakage;
+- disjoint training, calibration, and held-out seeds; unseen magnitude evidence; quality gates; unknown abstention; and Python-to-TypeScript parity;
+- Investigation linked charts, replay, phase and fault markers, hypotheses, deterministic indications, compatible comparison overlays, empty and failure states, and minimized export;
+- campaign matrix validation, deterministic replay, progress, one-active-request bound, cancellation, malformed messages, contained failures, expected/missing/unexpected detections, grouped confusion, detection delay, calibration, abstention, and bootstrap intervals;
+- SQLite campaign migration, foreign-key enforcement, indexes, idempotent ingest, integrity, and report generation;
+- desktop, mobile, 200 percent zoom, keyboard, reduced motion, automated accessibility, normal build, self-contained offline build, and offline worker behavior.
 
 ## Mandatory regression tests
 
@@ -72,7 +85,7 @@ Coverage is evidence of exercised control flow, not proof of correctness. The re
 
 ## Accessibility
 
-Automated scans must report zero serious or critical findings on all four views and named application states. Manual checks cover:
+Automated scans must report zero serious or critical findings on all five views and named application states. Manual checks cover:
 
 - complete keyboard traversal and activation;
 - logical focus order and visible focus;
@@ -83,6 +96,7 @@ Automated scans must report zero serious or critical findings on all four views 
 - non-color-only status and meaningful icons;
 - reduced-motion behavior;
 - screen-reader announcements for load, stream, verification, and error status.
+- Investigation chart seeking, overlay toggles, model enablement, campaign progress, cancellation, and unsupported compatibility reasons.
 
 ## Browser matrix
 
@@ -117,3 +131,22 @@ All v2.0 criteria remain satisfied, plus:
 - model artifact evaluation is reproducible and TypeScript inference matches Python within the declared tolerance;
 - the model remains disabled unless F1 is at least 0.85 and false-positive rate is at most 5 percent on held-out synthetic seeds;
 - the optional development container is added only after native and CI gates are stable.
+
+## Exit criteria for v2.2.0
+
+All v2.0 and v2.1 criteria remain satisfied, plus:
+
+- the preserved included test dataset still yields its exact hash, 85 accepted records, and 5/3/1 finding distribution;
+- every v2.2 requirement maps to a real test case and no release-required case remains pending;
+- registry identities are recomputed from the checked-in artifact and canonical configuration, and incompatible profiles produce explicit inactive reasons;
+- phase, fusion, temporal generator, investigation, campaign, worker, browser client, and SQLite campaign tests pass with the expanded core branch-coverage gate;
+- the v1 research artifact and v2 production-integrated advisory artifact regenerate from pinned configuration, all seed partitions remain disjoint, Python and TypeScript parity remains within the declared tolerance, and eligibility is recomputed against the unchanged requirements rather than trusted from a stored flag;
+- v2 evidence reports selected-window confusion counts, exact one-sided false-positive uncertainty, and per-fault counts without describing those observations as complete episodes, full streams, prevalence-weighted samples, independent flights, calibrated probabilities, or real-world performance;
+- every v2 integrated gate metric, including minimum per-fault classification recall, satisfies `FDW-TML-004` before release eligibility is claimed;
+- deterministic, one-sample persistence, two-sample linear prediction, unchanged covariance, and temporal comparison evidence remains explicitly scoped to the v1 research population without changing deterministic authority;
+- the v1 disjoint post-hoc challenge records unseen magnitude, onset, active-duration, phase-label, and novel-combination limitations with frozen inference and no release-performance gate;
+- normal and self-contained offline builds contain the same Investigation, inline worker, and model artifacts;
+- desktop and mobile browser checks cover linked replay, comparison overlays, campaign progress and cancellation, export minimization, unsupported and failure states, and network-disabled offline operation;
+- automated accessibility scans report zero serious or critical findings in empty, populated, and campaign states;
+- temporal benchmark evidence records the exact environment and hashes and remains labeled as local Node proxy evidence, not a browser performance target;
+- release notes, limitations, threat model, model evidence, SBOM, checksums, provenance, screenshots, and exact-commit verification are complete before the tag or Pages deployment.

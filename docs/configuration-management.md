@@ -4,17 +4,21 @@
 
 The following items are version-controlled configuration, not informal UI settings:
 
-| Item               | Identifier                              | Change rule                                                |
-| ------------------ | --------------------------------------- | ---------------------------------------------------------- |
-| Application        | semantic version                        | Update for every release                                   |
-| Canonical schema   | schema version                          | Reject unsupported major versions                          |
-| Adapter            | adapter ID and version                  | Preserve explicit field and unit mappings                  |
-| Detection profile  | profile ID and version                  | Review rule parameters and expected channels               |
-| Deterministic rule | stable rule ID                          | Do not reuse an ID for different semantics                 |
-| Streaming protocol | protocol version                        | Reject incompatible major versions                         |
-| Model artifact     | model ID, version, training config hash | Keep disabled unless evaluation gates pass                 |
-| Database schema    | migration version                       | Apply ordered migrations inside a transaction              |
-| Report format      | report schema version                   | Maintain backward-readable release fixtures when practical |
+| Item               | Identifier                                  | Change rule                                                |
+| ------------------ | ------------------------------------------- | ---------------------------------------------------------- |
+| Application        | semantic version                            | Update for every release                                   |
+| Canonical schema   | schema version                              | Reject unsupported major versions                          |
+| Adapter            | adapter ID and version                      | Preserve explicit field and unit mappings                  |
+| Detection profile  | profile ID and version                      | Review rule parameters and expected channels               |
+| Deterministic rule | stable rule ID                              | Do not reuse an ID for different semantics                 |
+| Streaming protocol | protocol version                            | Reject incompatible major versions                         |
+| Model registry     | registry schema and entry ID                | Require compatible identities and explicit user selection  |
+| Model artifact     | model ID, version, artifact and config hash | Keep disabled unless evaluation gates pass                 |
+| Temporal scenario  | scenario ID, generator version, seed        | Preserve lifecycle labels and synthetic boundary           |
+| Campaign           | spec/result schema and replay hash          | Preserve matrix inputs, progress outcomes, and metrics     |
+| Phase state        | transition rule ID and configuration        | Record hysteresis and confirmation evidence                |
+| Database schema    | migration version                           | Apply ordered migrations inside a transaction              |
+| Report format      | report schema version                       | Maintain backward-readable release fixtures when practical |
 
 Every bundled profile, threshold, fault scenario, and dataset is synthetic and unclassified.
 
@@ -39,7 +43,10 @@ Every completed analysis records:
 - validation results and findings;
 - comparison result when a candidate exists;
 - injected scenario and seed when applicable;
-- model artifact version and enabled state when evaluated.
+- model artifact version and enabled state when evaluated;
+- registry compatibility reasons, artifact and configuration identities, cadence, and window when a learned model is considered;
+- temporal scenario, seed, phase transitions, fault lifecycle, sensor-fusion residuals, uncertainty, and detector agreement when an investigation runs;
+- campaign specification hash, case matrix, completion and failure counts, expected/missing/unexpected comparisons, grouped metrics, calibration, abstention, and bootstrap configuration when a campaign runs.
 
 Source data is excluded from normal evidence exports.
 
