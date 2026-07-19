@@ -8,9 +8,9 @@ interface ChannelChart {
 }
 
 const COLORS = {
-  altitude: '#1ee3a6',
-  speed: '#56a8ff',
-  fuel: '#ffc857',
+  altitude: '#78b69a',
+  speed: '#76add5',
+  fuel: '#d7ac5d',
 };
 
 function pickMeasurement(sample: TelemetrySample, channel: 'altitude' | 'speed' | 'fuel'): number {
@@ -45,7 +45,7 @@ export class TelemetryCharts {
         const fraction = Math.max(0, Math.min(1, this.cursorSampleIndex / (this.totalSamples - 1)));
         const x = chartArea.left + chartArea.width * fraction;
         ctx.save();
-        ctx.strokeStyle = 'rgba(232, 240, 245, 0.72)';
+        ctx.strokeStyle = 'rgba(231, 235, 238, 0.72)';
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
@@ -80,7 +80,7 @@ export class TelemetryCharts {
         pickMeasurement(sample, channel as 'altitude' | 'speed' | 'fuel'),
       );
       dataset.pointBackgroundColor = visibleSamples.map((sample) =>
-        findingIndices.has(sample.sampleIndex) ? '#ff6b7d' : COLORS[channel as keyof typeof COLORS],
+        findingIndices.has(sample.sampleIndex) ? '#d5747b' : COLORS[channel as keyof typeof COLORS],
       );
       dataset.pointRadius = visibleSamples.map((sample) =>
         findingIndices.has(sample.sampleIndex) ? 3 : 0,
@@ -139,20 +139,20 @@ export class TelemetryCharts {
         interaction: { intersect: false, mode: 'index' },
         scales: {
           x: {
-            ticks: { color: '#687e8c', maxTicksLimit: 9, maxRotation: 0 },
-            grid: { color: 'rgba(49, 86, 108, 0.18)' },
+            ticks: { color: '#73808b', maxTicksLimit: 9, maxRotation: 0 },
+            grid: { color: 'rgba(58, 74, 88, 0.22)' },
           },
           y: {
-            ticks: { color: '#687e8c' },
-            grid: { color: 'rgba(49, 86, 108, 0.18)' },
-            title: { display: true, text: unit, color: '#91a8b7' },
+            ticks: { color: '#73808b' },
+            grid: { color: 'rgba(58, 74, 88, 0.22)' },
+            title: { display: true, text: unit, color: '#a0abb5' },
           },
         },
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: '#071019',
-            borderColor: '#31566c',
+            backgroundColor: '#0d1319',
+            borderColor: '#3a4a58',
             borderWidth: 1,
             displayColors: false,
           },

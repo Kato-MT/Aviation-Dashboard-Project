@@ -1,10 +1,20 @@
 import baselineCsv from '../../data/flight.csv?raw';
 import learnedBaselineArtifact from '../../models/robust_covariance_v1.json';
+import temporalFaultArtifact from '../../models/temporal_fault_model_v2.json';
+import temporalFaultArtifactRaw from '../../models/temporal_fault_model_v2.json?raw';
 import { legacyCsvAdapter, versionedJsonAdapter } from '../adapters';
+import {
+  buildDefaultTemporalCampaignSpec,
+  serializeCampaignResult,
+  type CampaignProgress,
+  type CampaignResult,
+} from '../campaign';
+import { CampaignCancelledError, TemporalCampaignBrowserClient } from '../campaign/browserClient';
 import {
   APPLICATION_VERSION,
   DEFAULT_INPUT_LIMITS,
   analyzeTelemetryRun,
+  sha256Hex,
   type AnalysisResult,
   type DetectionProfile,
   type DetectionRule,
@@ -22,7 +32,19 @@ import {
   injectLegacyCsvFault,
   type FaultScenarioId,
 } from '../faults';
-import { modelPassesQualityGate, parseLearnedBaselineArtifact, scoreLearnedBaseline } from '../ml';
+import { analyzeTemporalScenario, type TemporalScenarioInvestigation } from '../investigation';
+import {
+  modelPassesQualityGate,
+  parseLearnedBaselineArtifact,
+  parseTemporalFaultModelArtifact,
+  scoreLearnedBaseline,
+  temporalModelPassesQualityGate,
+} from '../ml';
+import {
+  evaluateModelCompatibility,
+  temporalFaultRegistryEntry,
+  type ModelCompatibilityResult,
+} from '../model-registry';
 import {
   detectionProfiles,
   genericFixedWingProfile,
@@ -36,10 +58,25 @@ import {
   type SourceHealth,
   type StreamMessage,
 } from '../streaming';
+import {
+  DECLARED_TEMPORAL_FAULTS,
+  generateTemporalScenario,
+  type MissionPhase,
+  type TemporalScenario,
+} from '../temporal';
 import { createVerificationRun } from '../verification';
 import { TelemetryCharts } from './charts';
 import { byId, downloadText, formatNumber, formatObserved, setText, slug } from './dom';
 import { generateSyntheticDocument } from './generate';
+import {
+  evaluateInvestigationComparison,
+  InvestigationChartRenderer,
+  type InvestigationComparisonCompatibility,
+  type InvestigationComparisonIdentity,
+  type InvestigationOverlayVisibility,
+  type InvestigationPhaseSegment,
+  type InvestigationSeries as ChartInvestigationSeries,
+} from './investigationCharts';
 
 type InputFormat = 'csv' | 'json' | 'generated' | 'injected';
 type MessageState = 'info' | 'warning' | 'error';
@@ -47,6 +84,16 @@ type MessageState = 'info' | 'warning' | 'error';
 interface CapturedRun {
   run: TelemetryRun;
   analysis: AnalysisResult;
+}
+
+interface CapturedInvestigationBaseline {
+  capturedAt: string;
+  profileId: TemporalScenario['profileId'];
+  cadenceMs: number;
+  sampleCount: number;
+  scenarioId: TemporalScenario['scenarioId'];
+  seed: number;
+  series: ChartInvestigationSeries;
 }
 
 const SEVERITY_ORDER: Record<Finding['severity'], number> = {
@@ -103,8 +150,43 @@ function streamHealthTone(
   return 'good';
 }
 
+function meanFinite(values: readonly (number | null | undefined)[]): number | null {
+  const finite = values.filter(
+    (value): value is number => typeof value === 'number' && Number.isFinite(value),
+  );
+  return finite.length === 0 ? null : finite.reduce((sum, value) => sum + value, 0) / finite.length;
+}
+
+function phaseLabel(phase: MissionPhase): string {
+  return phase.charAt(0).toUpperCase() + phase.slice(1);
+}
+
+function investigationPhaseSegments(
+  investigation: TemporalScenarioInvestigation,
+): InvestigationPhaseSegment[] {
+  const segments: InvestigationPhaseSegment[] = [];
+  for (const point of investigation.points) {
+    const previous = segments.at(-1);
+    if (previous?.phase === point.phase) {
+      previous.endIndex = point.sampleIndex;
+    } else {
+      segments.push({
+        phase: point.phase,
+        label: phaseLabel(point.phase),
+        startIndex: point.sampleIndex,
+        endIndex: point.sampleIndex,
+      });
+    }
+  }
+  return segments;
+}
+
 export class WorkbenchController {
   private readonly charts = new TelemetryCharts();
+  private readonly investigationCharts = new InvestigationChartRenderer({
+    onSeek: (sampleIndex) => this.setInvestigationIndex(sampleIndex),
+  });
+  private readonly campaignClient = new TemporalCampaignBrowserClient();
   private activeProfile: DetectionProfile = includedBaselineProfile;
   private currentRun: TelemetryRun | undefined;
   private currentAnalysis: AnalysisResult | undefined;
@@ -121,13 +203,31 @@ export class WorkbenchController {
   private browserHealth: StreamHealthMonitor | undefined;
   private browserQueueDropped = 0;
   private modelArtifact = parseLearnedBaselineArtifact(learnedBaselineArtifact);
+  private temporalArtifact = parseTemporalFaultModelArtifact(temporalFaultArtifact);
+  private temporalArtifactSha256 = '';
+  private learnedModelEnabled = false;
+  private temporalModelEnabled = false;
+  private temporalScenario: TemporalScenario | undefined;
+  private investigation: TemporalScenarioInvestigation | undefined;
+  private investigationIndex = 0;
+  private investigationBaseline: CapturedInvestigationBaseline | undefined;
+  private campaignResult: CampaignResult | undefined;
+  private campaignRunning = false;
 
   async initialize(): Promise<void> {
+    try {
+      this.temporalArtifactSha256 = await sha256Hex(temporalFaultArtifactRaw);
+    } catch {
+      this.temporalArtifactSha256 = '';
+    }
     this.bindTabs();
     this.bindActions();
     this.renderProfiles();
     this.renderFaultScenarios();
+    this.renderTemporalScenarios();
     this.renderModelSummary();
+    this.renderTemporalModelConfiguration();
+    this.renderEmptyInvestigation();
     this.renderEmptyRun();
     this.updateClock();
     setInterval(() => this.updateClock(), 1_000);
@@ -226,6 +326,7 @@ export class WorkbenchController {
       } else {
         this.renderConfiguration();
       }
+      this.renderTemporalModelConfiguration();
       this.announce(`Selected ${selected.label}.`);
     });
 
@@ -243,6 +344,59 @@ export class WorkbenchController {
     byId<HTMLButtonElement>('stream-demo').addEventListener('click', () => this.startBrowserDemo());
     byId<HTMLButtonElement>('stream-disconnect').addEventListener('click', () =>
       this.stopStreams(),
+    );
+
+    byId<HTMLInputElement>('learned-model-enabled').addEventListener('change', (event) => {
+      this.learnedModelEnabled = (event.currentTarget as HTMLInputElement).checked;
+      this.renderModelSummary();
+      this.renderCurrentSample();
+      if (this.temporalScenario) this.analyzeCurrentTemporalScenario();
+      this.announce(
+        this.learnedModelEnabled
+          ? 'Experimental pointwise comparison enabled.'
+          : 'Experimental pointwise comparison disabled.',
+      );
+    });
+    byId<HTMLInputElement>('temporal-model-enabled').addEventListener('change', (event) => {
+      const requested = (event.currentTarget as HTMLInputElement).checked;
+      const compatibility = this.temporalModelCompatibility(requested);
+      this.temporalModelEnabled = requested && compatibility.readiness.active;
+      this.renderTemporalModelConfiguration();
+      if (this.temporalScenario) this.analyzeCurrentTemporalScenario();
+      this.announce(
+        requested && !this.temporalModelEnabled
+          ? 'Experimental temporal hypotheses remain disabled because the registered compatibility or eligibility gate did not pass.'
+          : this.temporalModelEnabled
+            ? 'Experimental temporal hypotheses enabled when compatible.'
+            : 'Experimental temporal hypotheses disabled.',
+      );
+    });
+    byId<HTMLButtonElement>('run-investigation').addEventListener('click', () =>
+      this.runInvestigation(),
+    );
+    byId<HTMLButtonElement>('investigation-export').addEventListener('click', () =>
+      this.downloadInvestigation(),
+    );
+    byId<HTMLButtonElement>('capture-investigation-baseline').addEventListener('click', () =>
+      this.captureInvestigationBaseline(),
+    );
+    byId<HTMLInputElement>('investigation-replay-slider').addEventListener('input', (event) =>
+      this.setInvestigationIndex(Number((event.currentTarget as HTMLInputElement).value)),
+    );
+    for (const checkbox of document.querySelectorAll<HTMLInputElement>(
+      '[data-investigation-overlay]',
+    )) {
+      checkbox.addEventListener('change', () => this.renderInvestigationCharts());
+    }
+    byId<HTMLButtonElement>('campaign-run').addEventListener(
+      'click',
+      () => void this.runTemporalCampaign(),
+    );
+    byId<HTMLButtonElement>('campaign-cancel').addEventListener('click', () =>
+      this.cancelTemporalCampaign(),
+    );
+    byId<HTMLButtonElement>('campaign-export').addEventListener('click', () =>
+      this.downloadCampaign(),
     );
   }
 
@@ -750,6 +904,7 @@ export class WorkbenchController {
       severityCell.append(badge);
       row.insertCell().textContent = ruleCondition(rule);
     }
+    this.renderTemporalModelConfiguration();
   }
 
   private renderFaultScenarios(): void {
@@ -1039,6 +1194,909 @@ export class WorkbenchController {
     this.announce('Versioned verification report exported without source data.');
   }
 
+  private renderTemporalScenarios(): void {
+    const select = byId<HTMLSelectElement>('temporal-scenario');
+    select.replaceChildren();
+    const nominal = document.createElement('option');
+    nominal.value = 'nominal';
+    nominal.textContent = 'Nominal mission | no injected fault';
+    select.append(nominal);
+    for (const definition of DECLARED_TEMPORAL_FAULTS) {
+      const option = document.createElement('option');
+      option.value = definition.id;
+      option.textContent = definition.label;
+      select.append(option);
+    }
+    select.value = 'gradual-drift';
+  }
+
+  private runInvestigation(): void {
+    const scenarioId = byId<HTMLSelectElement>('temporal-scenario')
+      .value as TemporalScenario['scenarioId'];
+    const seed = Number(byId<HTMLInputElement>('temporal-seed').value);
+    const sampleCount = Number(byId<HTMLInputElement>('temporal-samples').value);
+    const state = byId('investigation-status');
+    if (!Number.isInteger(seed) || seed < 1 || seed > 2_147_483_647) {
+      state.dataset.quality = 'warning';
+      state.textContent = 'Invalid seed';
+      this.announce('Investigation seed must be a positive integer.');
+      return;
+    }
+    if (!Number.isInteger(sampleCount) || sampleCount < 60 || sampleCount > 2_000) {
+      state.dataset.quality = 'warning';
+      state.textContent = 'Invalid sample count';
+      this.announce('Investigation sample count must be between 60 and 2,000.');
+      return;
+    }
+    state.dataset.quality = 'unknown';
+    state.textContent = 'Analyzing';
+    byId<HTMLButtonElement>('capture-investigation-baseline').disabled = true;
+    byId<HTMLInputElement>('investigation-comparison-overlay').disabled = true;
+    this.setInvestigationComparisonStatus(
+      this.investigationBaseline
+        ? 'Checking the current scenario against the captured baseline.'
+        : 'Analyzing the current scenario before a baseline can be captured.',
+      'unknown',
+    );
+    try {
+      this.temporalScenario = generateTemporalScenario({
+        seed,
+        scenarioId,
+        sampleCount,
+        cadenceMs: this.temporalArtifact.cadenceMs,
+      });
+      this.analyzeCurrentTemporalScenario();
+      this.openView('investigation');
+      this.announce(`Temporal investigation completed for ${scenarioId}, seed ${seed}.`);
+    } catch (error) {
+      this.temporalScenario = undefined;
+      this.investigation = undefined;
+      this.renderEmptyInvestigation();
+      state.dataset.quality = 'warning';
+      state.textContent = 'Analysis failed';
+      this.announce(
+        error instanceof Error
+          ? `Temporal analysis failed: ${error.message}`
+          : 'Temporal analysis failed.',
+      );
+    }
+  }
+
+  private analyzeCurrentTemporalScenario(): void {
+    if (!this.temporalScenario) return;
+    const modelActive = this.temporalModelCompatibility().readiness.active;
+    this.investigation = analyzeTemporalScenario(this.temporalScenario, {
+      modelEnabled: modelActive,
+      covarianceModelEnabled: this.learnedModelEnabled,
+    });
+    this.investigationIndex = this.temporalScenario.faultTimeline?.onsetIndex ?? 0;
+    this.renderInvestigationCharts();
+    this.renderInvestigationEvidence();
+    this.setInvestigationIndex(this.investigationIndex);
+    byId<HTMLButtonElement>('investigation-export').disabled = false;
+    const state = byId('investigation-status');
+    state.dataset.quality = this.investigation.indications.length > 0 ? 'warning' : 'good';
+    state.textContent =
+      this.investigation.indications.length > 0
+        ? `${this.investigation.indications.length} rule indications`
+        : 'Nominal rule result';
+    this.renderTemporalModelConfiguration();
+  }
+
+  private renderEmptyInvestigation(): void {
+    this.investigationCharts.clear();
+    setText('investigation-phase', '---');
+    setText('investigation-phase-detail', 'No temporal sample selected');
+    setText('investigation-agreement', '---');
+    setText('investigation-agreement-detail', 'deterministic rules are authoritative');
+    setText('investigation-rule-count', 0);
+    setText('investigation-rule-detail', 'observed evidence only');
+    setText('investigation-model-confidence', 'N/A');
+    setText('investigation-model-label', 'model disabled');
+    const slider = byId<HTMLInputElement>('investigation-replay-slider');
+    slider.disabled = true;
+    slider.min = '0';
+    slider.max = '0';
+    slider.value = '0';
+    setText('investigation-replay-position', '0 / 0');
+    byId<HTMLButtonElement>('investigation-export').disabled = true;
+    this.setEmptyList('investigation-hypotheses', 'The temporal model is disabled.');
+    this.setEmptyList('investigation-indications', 'No investigation has run.');
+    this.setEmptyList('investigation-phase-log', 'No phase evidence is available.');
+    this.setEmptyList('investigation-detector-agreement', 'No detector evidence is available.');
+    const timeline = byId('investigation-timeline');
+    timeline.replaceChildren();
+    const empty = document.createElement('p');
+    empty.className = 'empty-state';
+    empty.textContent = 'Run a synthetic scenario to inspect onset and recovery.';
+    timeline.append(empty);
+    this.renderInvestigationComparisonState();
+  }
+
+  private buildInvestigationChartSeries(): ChartInvestigationSeries | undefined {
+    if (!this.temporalScenario || !this.investigation) return undefined;
+    const scenario = this.temporalScenario;
+    const investigation = this.investigation;
+    const timeline = scenario.faultTimeline;
+    return {
+      sampleIndices: investigation.points.map(({ sampleIndex }) => sampleIndex),
+      timestamps: investigation.points.map(({ timestamp }) => timestamp),
+      observedAltitude: investigation.points.map(({ fusion }) => fusion.observed.altitude),
+      predictedAltitude: investigation.points.map(({ fusion }) => fusion.predicted.altitude),
+      lowerUncertainty: investigation.points.map(({ fusion }) => fusion.altitude95[0]),
+      upperUncertainty: investigation.points.map(({ fusion }) => fusion.altitude95[1]),
+      observedAirspeed: scenario.samples.map(({ measurements }) =>
+        meanFinite([measurements.indicatedAirspeed, measurements.gpsGroundSpeed]),
+      ),
+      observedFuel: scenario.samples.map(({ measurements }) => measurements.fuelQuantity),
+      residualValues: investigation.points.map(
+        ({ maximumAbsoluteNormalizedResidual }) => maximumAbsoluteNormalizedResidual,
+      ),
+      phaseSegments: investigationPhaseSegments(investigation),
+      faultMarkers:
+        timeline === null
+          ? []
+          : [
+              {
+                faultId: timeline.faultId,
+                label:
+                  DECLARED_TEMPORAL_FAULTS.find(({ id }) => id === timeline.faultId)?.label ??
+                  timeline.faultId,
+                onsetIndex: timeline.onsetIndex,
+                endIndex: timeline.activeEndIndex,
+                recoveryIndex: timeline.recoveryEndIndex,
+                ...(investigation.detection.deterministicIndex === null
+                  ? {}
+                  : { detectionIndex: investigation.detection.deterministicIndex }),
+              },
+            ],
+    };
+  }
+
+  private investigationComparisonIdentity(
+    series: ChartInvestigationSeries,
+  ): InvestigationComparisonIdentity | undefined {
+    const scenario = this.temporalScenario;
+    if (!scenario) return undefined;
+    return {
+      profileId: scenario.profileId,
+      cadenceMs: scenario.cadenceMs,
+      sampleCount: scenario.samples.length,
+      sampleIndices: series.sampleIndices,
+    };
+  }
+
+  private capturedInvestigationIdentity(): InvestigationComparisonIdentity | undefined {
+    const baseline = this.investigationBaseline;
+    if (!baseline) return undefined;
+    return {
+      profileId: baseline.profileId,
+      cadenceMs: baseline.cadenceMs,
+      sampleCount: baseline.sampleCount,
+      sampleIndices: baseline.series.sampleIndices,
+    };
+  }
+
+  private investigationComparisonCompatibility(
+    series: ChartInvestigationSeries,
+  ): InvestigationComparisonCompatibility | undefined {
+    const baseline = this.capturedInvestigationIdentity();
+    const current = this.investigationComparisonIdentity(series);
+    return baseline && current ? evaluateInvestigationComparison(baseline, current) : undefined;
+  }
+
+  private setInvestigationComparisonStatus(
+    message: string,
+    quality: 'unknown' | 'good' | 'warning',
+  ): void {
+    const status = byId('investigation-comparison-status');
+    status.textContent = message;
+    status.dataset.quality = quality;
+  }
+
+  private renderInvestigationComparisonState(
+    series = this.buildInvestigationChartSeries(),
+  ): InvestigationComparisonCompatibility | undefined {
+    const capture = byId<HTMLButtonElement>('capture-investigation-baseline');
+    const overlay = byId<HTMLInputElement>('investigation-comparison-overlay');
+    const baseline = this.investigationBaseline;
+    capture.disabled = series === undefined;
+    capture.textContent = baseline ? 'Replace comparison baseline' : 'Capture comparison baseline';
+    if (!baseline) {
+      overlay.disabled = true;
+      this.setInvestigationComparisonStatus('No comparison baseline captured.', 'unknown');
+      return undefined;
+    }
+    if (!series || !this.temporalScenario) {
+      overlay.disabled = true;
+      this.setInvestigationComparisonStatus(
+        `Baseline retained: ${baseline.scenarioId}, seed ${baseline.seed}. Run a compatible scenario to compare.`,
+        'unknown',
+      );
+      return undefined;
+    }
+    const compatibility = this.investigationComparisonCompatibility(series);
+    if (!compatibility?.compatible) {
+      overlay.disabled = true;
+      this.setInvestigationComparisonStatus(
+        `Baseline not overlaid. ${compatibility?.reasons.join(' ') ?? 'Compatibility is unavailable.'}`,
+        'warning',
+      );
+      return compatibility;
+    }
+    overlay.disabled = false;
+    this.setInvestigationComparisonStatus(
+      overlay.checked
+        ? `Overlay active: baseline ${baseline.scenarioId}, seed ${baseline.seed}, versus current ${this.temporalScenario.scenarioId}, seed ${this.temporalScenario.seed}.`
+        : 'Compatible comparison baseline available. The waveform overlay is hidden.',
+      'good',
+    );
+    return compatibility;
+  }
+
+  private captureInvestigationBaseline(): void {
+    const scenario = this.temporalScenario;
+    const series = this.buildInvestigationChartSeries();
+    if (!scenario || !series) {
+      this.announce('Run a temporal investigation before capturing a comparison baseline.');
+      return;
+    }
+    this.investigationBaseline = {
+      capturedAt: new Date().toISOString(),
+      profileId: scenario.profileId,
+      cadenceMs: scenario.cadenceMs,
+      sampleCount: scenario.samples.length,
+      scenarioId: scenario.scenarioId,
+      seed: scenario.seed,
+      series,
+    };
+    const overlay = byId<HTMLInputElement>('investigation-comparison-overlay');
+    overlay.checked = true;
+    this.renderInvestigationComparisonState(series);
+    this.renderInvestigationCharts();
+    this.announce(
+      `Comparison baseline captured for ${scenario.scenarioId}, seed ${scenario.seed}. Deterministic rules remain authoritative.`,
+    );
+  }
+
+  private renderInvestigationCharts(): void {
+    const chartSeries = this.buildInvestigationChartSeries();
+    if (!chartSeries) return;
+    const checkbox = (name: string): boolean =>
+      document.querySelector<HTMLInputElement>(`[data-investigation-overlay="${name}"]`)?.checked ??
+      true;
+    const overlays: Partial<InvestigationOverlayVisibility> = {
+      predictedAltitude: checkbox('prediction'),
+      uncertainty: checkbox('uncertainty'),
+      phases: checkbox('phases'),
+      faultMarkers: checkbox('faults'),
+      comparisonBaseline: checkbox('comparison'),
+    };
+    const compatibility = this.renderInvestigationComparisonState(chartSeries);
+    const baseline = compatibility?.compatible ? this.investigationBaseline : undefined;
+    this.investigationCharts.render(chartSeries, {
+      overlays,
+      ...(baseline
+        ? {
+            comparison: {
+              sampleIndices: baseline.series.sampleIndices,
+              observedAltitude: baseline.series.observedAltitude,
+              predictedAltitude: baseline.series.predictedAltitude,
+            },
+          }
+        : {}),
+    });
+    this.investigationCharts.setCursor(this.investigationIndex);
+  }
+
+  private setInvestigationIndex(index: number): void {
+    const investigation = this.investigation;
+    if (!investigation || investigation.points.length === 0) return;
+    this.investigationIndex = Math.max(
+      0,
+      Math.min(investigation.points.length - 1, Math.floor(index)),
+    );
+    const point = investigation.points[this.investigationIndex]!;
+    const slider = byId<HTMLInputElement>('investigation-replay-slider');
+    slider.disabled = false;
+    slider.max = String(investigation.points.length - 1);
+    slider.value = String(this.investigationIndex);
+    setText(
+      'investigation-replay-position',
+      `${this.investigationIndex + 1} / ${investigation.points.length}`,
+    );
+    this.investigationCharts.setCursor(this.investigationIndex);
+    setText('investigation-phase', phaseLabel(point.phase));
+    setText(
+      'investigation-phase-detail',
+      point.phaseEvaluation.transitioned
+        ? `transition confirmed at sample ${point.sampleIndex}`
+        : `sample ${point.sampleIndex} | ${point.timestamp.slice(11, 19)} UTC`,
+    );
+    const fourWayAgreement = point.detectorEvidence.fourWayAgreement;
+    const agreementState = fourWayAgreement.state.replaceAll('-', ' ');
+    setText(
+      'investigation-agreement',
+      fourWayAgreement.complete
+        ? agreementState
+        : `partial ${agreementState.replace('unanimous ', '')}`,
+    );
+    setText(
+      'investigation-agreement-detail',
+      `${fourWayAgreement.indicatingSignals} indicate | ${fourWayAgreement.nominalSignals} nominal | ${fourWayAgreement.unavailableSignals.length} unavailable | deterministic authority`,
+    );
+    setText('investigation-rule-count', investigation.indications.length);
+    setText(
+      'investigation-rule-detail',
+      `${point.indications.length} at selected sample | deterministic authority`,
+    );
+    const score = point.model.score;
+    if (score === null) {
+      setText('investigation-model-confidence', 'Warmup');
+      setText('investigation-model-label', `${point.model.warmupRemaining} samples remaining`);
+    } else if (!score.activation.active) {
+      setText('investigation-model-confidence', 'Disabled');
+      setText('investigation-model-label', score.activation.inactiveReason ?? 'inactive');
+    } else {
+      setText('investigation-model-confidence', `${(score.relativeScore * 100).toFixed(1)}%`);
+      setText(
+        'investigation-model-label',
+        score.abstained ? 'unknown | abstained' : score.predictedLabel.replaceAll('-', ' '),
+      );
+    }
+    this.renderInvestigationHypotheses(point.model.score);
+    this.renderInvestigationIndications(point.sampleIndex);
+    this.renderInvestigationDetectorAgreement(point);
+  }
+
+  private renderInvestigationDetectorAgreement(
+    point: TemporalScenarioInvestigation['points'][number],
+  ): void {
+    const list = byId<HTMLOListElement>('investigation-detector-agreement');
+    list.replaceChildren();
+    const evidence = point.detectorEvidence;
+    const topResiduals = evidence.kalmanInnovation.topResidualSensorChannels
+      .map(
+        ({ sensorId, absoluteNormalizedInnovation }) =>
+          `${sensorId} ${absoluteNormalizedInnovation.toFixed(2)} sigma`,
+      )
+      .join(', ');
+    const rows: readonly [string, string][] = [
+      [
+        'Deterministic rules | authoritative',
+        `${evidence.deterministicRules.state} | ${evidence.deterministicRules.indicationCount} selected-sample indications`,
+      ],
+      [
+        'Robust covariance | advisory',
+        evidence.covarianceAdvisory.state === 'unsupported'
+          ? `unsupported | ${evidence.covarianceAdvisory.unsupportedReason ?? 'compatibility unavailable'}`
+          : `${evidence.covarianceAdvisory.state} | score ${evidence.covarianceAdvisory.score?.score.toFixed(2) ?? 'N/A'} / ${evidence.covarianceAdvisory.threshold.toFixed(2)}`,
+      ],
+      [
+        'Kalman innovation | supporting evidence',
+        `${evidence.kalmanInnovation.state} | ${topResiduals || evidence.kalmanInnovation.unsupportedReason || 'no finite residuals'}`,
+      ],
+      [
+        'Temporal model | advisory',
+        `${evidence.temporalAdvisory.state} | ${evidence.temporalAdvisory.score?.predictedLabel ?? 'not available'}`,
+      ],
+    ];
+    for (const [labelText, detailText] of rows) {
+      const item = document.createElement('li');
+      const label = document.createElement('strong');
+      label.textContent = labelText;
+      const detail = document.createElement('span');
+      detail.textContent = detailText;
+      item.append(label, detail);
+      list.append(item);
+    }
+  }
+
+  private renderInvestigationEvidence(): void {
+    const scenario = this.temporalScenario;
+    const investigation = this.investigation;
+    if (!scenario || !investigation) return;
+    const timeline = byId('investigation-timeline');
+    timeline.replaceChildren();
+    if (scenario.faultTimeline === null) {
+      const nominal = document.createElement('p');
+      nominal.className = 'empty-state';
+      nominal.textContent = 'Nominal scenario, no fault lifecycle was injected.';
+      timeline.append(nominal);
+    } else {
+      const definition = DECLARED_TEMPORAL_FAULTS.find(
+        ({ id }) => id === scenario.faultTimeline?.faultId,
+      );
+      for (const [label, value] of [
+        ['Scenario', definition?.label ?? scenario.faultTimeline.faultId],
+        ['Onset', `sample ${scenario.faultTimeline.onsetIndex}`],
+        [
+          'Active interval',
+          `${scenario.faultTimeline.durationSamples} samples through ${scenario.faultTimeline.activeEndIndex}`,
+        ],
+        [
+          'Recovery',
+          `${scenario.faultTimeline.recoverySamples} samples through ${scenario.faultTimeline.recoveryEndIndex}`,
+        ],
+        [
+          'Rule detection',
+          investigation.detection.deterministicIndex === null
+            ? 'not detected'
+            : `sample ${investigation.detection.deterministicIndex} | ${investigation.detection.deterministicDelaySamples} sample delay`,
+        ],
+      ] as const) {
+        const row = document.createElement('article');
+        const title = document.createElement('strong');
+        title.textContent = label;
+        const detail = document.createElement('p');
+        detail.textContent = value;
+        row.append(title, detail);
+        timeline.append(row);
+      }
+    }
+    const phaseList = byId<HTMLOListElement>('investigation-phase-log');
+    phaseList.replaceChildren();
+    if (investigation.phaseTransitions.length === 0) {
+      const empty = document.createElement('li');
+      empty.className = 'empty-state';
+      empty.textContent = 'No phase transitions were confirmed.';
+      phaseList.append(empty);
+    } else {
+      for (const transition of investigation.phaseTransitions) {
+        const item = document.createElement('li');
+        const title = document.createElement('strong');
+        title.textContent = `${phaseLabel(transition.from)} to ${phaseLabel(transition.to)}`;
+        const detail = document.createElement('span');
+        detail.textContent = `Sample ${transition.sampleIndex} | ${transition.confirmationSamples} confirmations | ${transition.hysteresisCondition}`;
+        item.append(title, detail);
+        phaseList.append(item);
+      }
+    }
+  }
+
+  private renderInvestigationHypotheses(
+    score: TemporalScenarioInvestigation['points'][number]['model']['score'],
+  ): void {
+    const list = byId<HTMLOListElement>('investigation-hypotheses');
+    list.replaceChildren();
+    if (!score || !score.activation.active) {
+      const empty = document.createElement('li');
+      empty.className = 'empty-state';
+      empty.textContent = score
+        ? 'Temporal model is inactive. Enable it in Configuration to view advisory hypotheses.'
+        : 'Temporal model is warming up the 40-sample causal window.';
+      list.append(empty);
+      return;
+    }
+    if (score.abstained) {
+      const unknown = document.createElement('li');
+      unknown.className = 'empty-state';
+      unknown.textContent =
+        'Unknown: the model abstained because support or confidence was insufficient.';
+      list.append(unknown);
+    }
+    for (const hypothesis of score.hypotheses) {
+      const item = document.createElement('li');
+      item.className = 'hypothesis-row';
+      const label = document.createElement('strong');
+      label.textContent = hypothesis.faultType.replaceAll('-', ' ');
+      const value = document.createElement('span');
+      value.textContent = `${(hypothesis.relativeScore * 100).toFixed(1)}%`;
+      const meter = document.createElement('meter');
+      meter.min = 0;
+      meter.max = 1;
+      meter.value = hypothesis.relativeScore;
+      meter.textContent = value.textContent;
+      item.append(label, value, meter);
+      list.append(item);
+    }
+  }
+
+  private renderInvestigationIndications(sampleIndex: number): void {
+    const list = byId<HTMLOListElement>('investigation-indications');
+    list.replaceChildren();
+    const indications =
+      this.investigation?.indications
+        .filter((entry) => entry.sampleIndex <= sampleIndex)
+        .slice(-8) ?? [];
+    if (indications.length === 0) {
+      const empty = document.createElement('li');
+      empty.className = 'empty-state';
+      empty.textContent = 'No deterministic indication has occurred by this sample.';
+      list.append(empty);
+      return;
+    }
+    for (const indication of indications) {
+      const item = document.createElement('li');
+      const title = document.createElement('strong');
+      title.textContent = `${indication.severity.toUpperCase()} | ${indication.ruleId}`;
+      const detail = document.createElement('span');
+      detail.textContent = `Sample ${indication.sampleIndex} | ${formatObserved(indication.observedValue)} | ${indication.expectedCondition}`;
+      item.append(title, detail);
+      list.append(item);
+    }
+  }
+
+  private setEmptyList(id: string, message: string): void {
+    const list = byId<HTMLOListElement>(id);
+    list.replaceChildren();
+    const empty = document.createElement('li');
+    empty.className = 'empty-state';
+    empty.textContent = message;
+    list.append(empty);
+  }
+
+  private downloadInvestigation(): void {
+    if (!this.temporalScenario || !this.investigation) return;
+    const includeSourceData = byId<HTMLInputElement>('include-investigation-source-export').checked;
+    const payload = {
+      schemaVersion: 'investigation-export.v1',
+      applicationVersion: APPLICATION_VERSION,
+      generatedAt: new Date().toISOString(),
+      authority: 'deterministic-rules',
+      synthetic: true,
+      dataClassification: 'SYNTHETIC_UNCLASSIFIED',
+      model: {
+        artifactVersion: this.temporalArtifact.artifactVersion,
+        modelVersion: this.temporalArtifact.modelVersion,
+        userEnabled: this.temporalModelEnabled,
+        artifactSha256: this.temporalArtifactSha256,
+        configurationSha256: this.temporalArtifact.training.configurationSha256,
+      },
+      scenario: {
+        schemaVersion: this.temporalScenario.schemaVersion,
+        profileId: this.temporalScenario.profileId,
+        scenarioId: this.temporalScenario.scenarioId,
+        seed: this.temporalScenario.seed,
+        cadenceMs: this.temporalScenario.cadenceMs,
+        startedAt: this.temporalScenario.startedAt,
+        synthetic: this.temporalScenario.synthetic,
+        dataClassification: this.temporalScenario.dataClassification,
+        faultTimeline: this.temporalScenario.faultTimeline,
+        sampleCount: this.temporalScenario.samples.length,
+      },
+      investigation: {
+        scenario: this.investigation.scenario,
+        phaseTransitions: this.investigation.phaseTransitions,
+        indications: this.investigation.indications,
+        markers: this.investigation.markers,
+        hypothesisScores: this.investigation.hypothesisScores,
+        detection: this.investigation.detection,
+      },
+      exportPolicy: {
+        sourceDataIncluded: includeSourceData,
+        note: includeSourceData
+          ? 'Generated source windows were included by explicit user selection.'
+          : 'Generated source windows, point traces, and series were excluded by default.',
+      },
+      ...(includeSourceData
+        ? {
+            sourceData: {
+              samples: this.temporalScenario.samples,
+              points: this.investigation.points,
+              series: this.investigation.series,
+            },
+          }
+        : {}),
+    };
+    downloadText(
+      `temporal-investigation-${this.temporalScenario.scenarioId}-seed-${this.temporalScenario.seed}.json`,
+      JSON.stringify(payload, null, 2),
+      'application/json',
+    );
+    this.announce(
+      includeSourceData
+        ? 'Synthetic temporal investigation exported with generated source windows by explicit selection.'
+        : 'Synthetic temporal investigation exported without generated source windows.',
+    );
+  }
+
+  private campaignSeeds(): number[] {
+    const raw = byId<HTMLInputElement>('campaign-seeds').value;
+    const tokens = raw
+      .split(',')
+      .map((token) => token.trim())
+      .filter((token) => token !== '');
+    if (tokens.length === 0 || tokens.length > 12) {
+      throw new Error('Enter between 1 and 12 comma-separated campaign seeds.');
+    }
+    const seeds = tokens.map(Number);
+    if (seeds.some((seed) => !Number.isInteger(seed) || seed < 1 || seed > 2_147_483_647)) {
+      throw new Error('Campaign seeds must be positive 32-bit integers.');
+    }
+    if (new Set(seeds).size !== seeds.length) {
+      throw new Error('Campaign seeds must be unique.');
+    }
+    return seeds;
+  }
+
+  private async runTemporalCampaign(): Promise<void> {
+    if (this.campaignRunning) return;
+    let spec;
+    try {
+      spec = buildDefaultTemporalCampaignSpec(this.campaignSeeds());
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Campaign configuration is invalid.';
+      setText('campaign-status', 'Configuration error');
+      setText('campaign-progress-label', message);
+      this.announce(message);
+      return;
+    }
+
+    this.campaignRunning = true;
+    this.campaignResult = undefined;
+    byId<HTMLButtonElement>('campaign-run').disabled = true;
+    byId<HTMLButtonElement>('campaign-cancel').disabled = false;
+    byId<HTMLButtonElement>('campaign-export').disabled = true;
+    const progress = byId<HTMLProgressElement>('campaign-progress');
+    progress.max = spec.profiles.length * spec.scenarios.length * spec.seeds.length;
+    progress.value = 0;
+    setText('campaign-status', 'Running in worker');
+    setText('campaign-progress-label', `0 of ${progress.max} cases complete.`);
+    this.renderCampaignSummaryMessage(
+      'Campaign running',
+      'The interface remains available while the inline worker evaluates synthetic cases.',
+    );
+
+    try {
+      const result = await this.campaignClient.run(spec, {
+        onProgress: (update) => this.renderCampaignProgress(update),
+      });
+      this.campaignResult = result;
+      this.renderCampaignResult(result);
+      byId<HTMLButtonElement>('campaign-export').disabled = false;
+      this.announce(
+        `Temporal campaign completed: ${result.summary.completedCases} cases and ${result.summary.failedCases} contained failures.`,
+      );
+    } catch (error) {
+      if (error instanceof CampaignCancelledError) {
+        this.campaignResult = error.partialResult;
+        this.renderCampaignResult(error.partialResult);
+        byId<HTMLButtonElement>('campaign-export').disabled = false;
+        this.announce(
+          `Temporal campaign cancelled after ${error.partialResult.summary.completedCases} completed cases with ${error.partialResult.summary.remainingCases} remaining. Partial evidence is available to export.`,
+        );
+      } else if (error instanceof Error && error.name === 'AbortError') {
+        setText('campaign-status', 'Cancelled before start');
+        setText('campaign-progress-label', error.message);
+        this.renderCampaignSummaryMessage(
+          'Campaign cancelled before start',
+          'No campaign case ran, so there is no partial result to export.',
+        );
+        this.announce('Temporal campaign cancelled before start.');
+      } else {
+        const message = error instanceof Error ? error.message : 'Temporal campaign failed.';
+        setText('campaign-status', 'Failed');
+        setText('campaign-progress-label', message);
+        this.renderCampaignSummaryMessage('Campaign failed safely', message);
+        this.announce(`Temporal campaign failed: ${message}`);
+      }
+    } finally {
+      this.campaignRunning = false;
+      byId<HTMLButtonElement>('campaign-run').disabled = false;
+      byId<HTMLButtonElement>('campaign-cancel').disabled = true;
+    }
+  }
+
+  private cancelTemporalCampaign(): void {
+    if (!this.campaignRunning) return;
+    if (this.campaignClient.cancel()) {
+      setText('campaign-status', 'Cancelling');
+      setText('campaign-progress-label', 'Cancellation requested. Finishing the active case.');
+    }
+  }
+
+  private renderCampaignProgress(update: CampaignProgress): void {
+    const progress = byId<HTMLProgressElement>('campaign-progress');
+    progress.max = Math.max(1, update.totalCases);
+    progress.value = update.completedCases;
+    const current = update.currentCaseId ? ` Last case: ${update.currentCaseId}.` : '';
+    setText(
+      'campaign-progress-label',
+      `${update.completedCases} of ${update.totalCases} cases complete.${current}`,
+    );
+  }
+
+  private renderCampaignResult(result: CampaignResult): void {
+    const { metrics, summary } = result;
+    const progress = byId<HTMLProgressElement>('campaign-progress');
+    progress.max = Math.max(1, summary.plannedCases);
+    progress.value = summary.attemptedCases;
+    setText(
+      'campaign-status',
+      result.status === 'completed'
+        ? 'Completed'
+        : result.status === 'completed-with-errors'
+          ? 'Completed with contained errors'
+          : 'Cancelled with partial evidence',
+    );
+    setText('campaign-cases', `${summary.completedCases} / ${summary.plannedCases}`);
+    setText('campaign-f1', metrics.episodes.f1 === null ? 'N/A' : metrics.episodes.f1.toFixed(3));
+    setText(
+      'campaign-far-run',
+      metrics.falseAlarmsPerRun === null ? 'N/A' : metrics.falseAlarmsPerRun.toFixed(3),
+    );
+    setText(
+      'campaign-delay',
+      metrics.timeToDetection.median === null
+        ? 'N/A'
+        : `${Math.round(metrics.timeToDetection.median / 1_000)} s`,
+    );
+    setText(
+      'campaign-abstention',
+      metrics.calibration.abstentionRate === null
+        ? 'N/A'
+        : `${(metrics.calibration.abstentionRate * 100).toFixed(1)}%`,
+    );
+    setText(
+      'campaign-progress-label',
+      `${summary.completedCases} completed, ${summary.failedCases} failed, ${summary.remainingCases} remaining.`,
+    );
+
+    const container = byId('campaign-summary');
+    container.replaceChildren();
+    const details: readonly [string, string][] = [
+      [
+        'Outcome',
+        result.status === 'cancelled'
+          ? `Cancelled with ${summary.completedCases} completed, ${summary.failedCases} failed, and ${summary.remainingCases} remaining cases. The in-flight case was not committed.`
+          : `${summary.completedCases} completed, ${summary.failedCases} contained failures, and ${summary.remainingCases} remaining cases.`,
+      ],
+      [
+        'Episode confusion',
+        `${metrics.confusion.truePositives} TP, ${metrics.confusion.falsePositives} FP, ${metrics.confusion.trueNegatives} TN, ${metrics.confusion.falseNegatives} FN`,
+      ],
+      [
+        'F1 confidence interval',
+        metrics.bootstrap.f1.lower === null || metrics.bootstrap.f1.upper === null
+          ? 'Unavailable for the completed sample'
+          : `${metrics.bootstrap.f1.lower.toFixed(3)} to ${metrics.bootstrap.f1.upper.toFixed(3)} at ${(metrics.bootstrap.f1.confidenceLevel * 100).toFixed(0)}%`,
+      ],
+      [
+        'Synthetic exposure',
+        `${metrics.syntheticHours.toFixed(3)} hours | ${metrics.falseAlarmsPerSyntheticHour?.toFixed(3) ?? 'N/A'} false alarms/hour`,
+      ],
+      [
+        'Replay evidence',
+        `${result.replayManifest.cases.length} cases | spec ${result.replayManifest.specSha256.slice(0, 16)}`,
+      ],
+    ];
+    for (const [label, detail] of details) {
+      const row = document.createElement('article');
+      const title = document.createElement('strong');
+      title.textContent = label;
+      const text = document.createElement('p');
+      text.textContent = detail;
+      row.append(title, text);
+      container.append(row);
+    }
+  }
+
+  private renderCampaignSummaryMessage(titleText: string, detailText: string): void {
+    const container = byId('campaign-summary');
+    container.replaceChildren();
+    const row = document.createElement('article');
+    const title = document.createElement('strong');
+    title.textContent = titleText;
+    const detail = document.createElement('p');
+    detail.textContent = detailText;
+    row.append(title, detail);
+    container.append(row);
+  }
+
+  private downloadCampaign(): void {
+    if (!this.campaignResult) return;
+    downloadText(
+      `${slug(this.campaignResult.campaignId)}-campaign.json`,
+      serializeCampaignResult(this.campaignResult),
+      'application/json',
+    );
+    this.announce('Versioned synthetic campaign report exported without source telemetry rows.');
+  }
+
+  private temporalModelCompatibility(
+    userEnabled = this.temporalModelEnabled,
+  ): ModelCompatibilityResult {
+    return evaluateModelCompatibility(temporalFaultRegistryEntry, {
+      schemaVersion: this.temporalArtifact.schemaVersion,
+      profile: {
+        id: this.temporalArtifact.profile.id,
+        version: this.temporalArtifact.profile.version,
+      },
+      channelUnits: this.temporalArtifact.units,
+      cadenceMs: this.temporalScenario?.cadenceMs ?? this.temporalArtifact.cadenceMs,
+      windowLength: this.temporalArtifact.windowLength,
+      artifactSha256: this.temporalArtifactSha256,
+      configurationSha256: this.temporalArtifact.training.configurationSha256,
+      userSelection: userEnabled ? 'enabled' : 'disabled',
+      qualityGatePassed: temporalModelPassesQualityGate(this.temporalArtifact),
+    });
+  }
+
+  private renderTemporalModelConfiguration(): void {
+    let compatibility = this.temporalModelCompatibility();
+    const eligible =
+      compatibility.supported && compatibility.readiness.eligibility.state === 'eligible';
+    if (!eligible && this.temporalModelEnabled) {
+      this.temporalModelEnabled = false;
+      compatibility = this.temporalModelCompatibility();
+    }
+    setText(
+      'temporal-registry-entry',
+      `${temporalFaultRegistryEntry.registryEntryId}@${temporalFaultRegistryEntry.modelVersion}`,
+    );
+    setText(
+      'temporal-compatibility',
+      compatibility.supported
+        ? compatibility.readiness.active
+          ? 'Supported and active'
+          : compatibility.readiness.eligibility.state === 'eligible'
+            ? 'Supported, user disabled'
+            : 'Supported, quality gate ineligible'
+        : 'Unsupported for active telemetry',
+    );
+    setText(
+      'temporal-artifact-hash',
+      this.temporalArtifactSha256
+        ? this.temporalArtifactSha256.slice(0, 16)
+        : 'Identity unavailable',
+    );
+    setText(
+      'temporal-config-hash',
+      temporalFaultRegistryEntry.identities.configurationSha256?.slice(0, 16) ?? 'Not registered',
+    );
+    setText(
+      'temporal-window',
+      `${this.temporalArtifact.windowLength} samples at ${this.temporalArtifact.cadenceMs} ms`,
+    );
+    setText(
+      'temporal-training-evidence',
+      `${temporalFaultRegistryEntry.evidence.training.seedSummary} | ${temporalFaultRegistryEntry.evidence.training.path}${temporalFaultRegistryEntry.evidence.training.jsonPointer}`,
+    );
+    setText(
+      'temporal-calibration-evidence',
+      `${temporalFaultRegistryEntry.evidence.calibration.seedSummary} | ${temporalFaultRegistryEntry.evidence.calibration.path}${temporalFaultRegistryEntry.evidence.calibration.jsonPointer}`,
+    );
+    setText(
+      'temporal-evaluation-evidence',
+      `${temporalFaultRegistryEntry.evidence.evaluation.seedSummary} | ${temporalFaultRegistryEntry.evidence.evaluation.path}${temporalFaultRegistryEntry.evidence.evaluation.jsonPointer}`,
+    );
+    const control = byId<HTMLInputElement>('temporal-model-enabled');
+    control.checked = this.temporalModelEnabled;
+    control.disabled = !eligible;
+    const state = byId('temporal-model-state');
+    state.dataset.quality = compatibility.readiness.active
+      ? 'good'
+      : eligible
+        ? 'warning'
+        : 'unknown';
+    state.textContent = compatibility.readiness.active
+      ? 'Active | advisory'
+      : eligible
+        ? 'Eligible | disabled'
+        : compatibility.supported
+          ? 'Gate failed | disabled'
+          : 'Incompatible | disabled';
+    const reasons = byId('temporal-compatibility-reasons');
+    reasons.replaceChildren();
+    if (compatibility.reasons.length === 0) {
+      const ready = document.createElement('p');
+      ready.textContent =
+        'Schema, profile, channels, units, cadence, window, artifact, configuration, and quality gates match.';
+      reasons.append(ready);
+    } else {
+      for (const reason of compatibility.reasons) {
+        const row = document.createElement('article');
+        const title = document.createElement('strong');
+        title.textContent = reason.code;
+        const detail = document.createElement('p');
+        detail.textContent = reason.detail;
+        row.append(title, detail);
+        reasons.append(row);
+      }
+    }
+  }
+
   private renderModelSummary(): void {
     const metrics = this.modelArtifact.evaluation.metrics;
     setText('model-version', this.modelArtifact.modelVersion);
@@ -1046,8 +2104,15 @@ export class WorkbenchController {
     setText('model-fpr', `${(metrics.falsePositiveRate * 100).toFixed(2)}%`);
     const passed = modelPassesQualityGate(this.modelArtifact);
     const state = byId('model-state');
-    state.dataset.quality = passed ? 'good' : 'warning';
-    state.textContent = passed ? 'Gate passed | experimental' : 'Gate failed | disabled';
+    const enabled = passed && this.learnedModelEnabled;
+    byId<HTMLInputElement>('learned-model-enabled').checked = this.learnedModelEnabled;
+    byId<HTMLInputElement>('learned-model-enabled').disabled = !passed;
+    state.dataset.quality = enabled ? 'good' : passed ? 'unknown' : 'warning';
+    state.textContent = enabled
+      ? 'Active | advisory'
+      : passed
+        ? 'Eligible | user disabled'
+        : 'Gate failed | disabled';
   }
 
   private renderModelScore(measurements?: Record<string, number>): void {
@@ -1061,8 +2126,16 @@ export class WorkbenchController {
       return;
     }
     try {
-      const score = scoreLearnedBaseline(this.modelArtifact, measurements, true);
-      setText('model-score', `${score.score.toFixed(2)} / ${score.threshold.toFixed(2)}`);
+      const score = scoreLearnedBaseline(
+        this.modelArtifact,
+        measurements,
+        this.learnedModelEnabled,
+      );
+      const status = this.learnedModelEnabled ? 'active' : 'preview';
+      setText(
+        'model-score',
+        `${score.score.toFixed(2)} / ${score.threshold.toFixed(2)} | ${status}`,
+      );
       for (const contribution of score.contributions) {
         const row = document.createElement('div');
         row.className = 'contribution-row';

@@ -14,7 +14,7 @@ async function capture(
   page: Page,
   name: string,
   viewport: ViewportSize,
-  tabName?: 'Diagnostics' | 'Configuration',
+  tabName?: 'Diagnostics' | 'Investigation' | 'Configuration',
 ): Promise<void> {
   await page.setViewportSize(viewport);
   await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
@@ -25,6 +25,15 @@ async function capture(
   );
   if (tabName) {
     await page.getByRole('tab', { name: new RegExp(tabName, 'i') }).click();
+    if (tabName === 'Investigation') {
+      await page.getByRole('button', { name: 'Run investigation' }).click();
+      await page.locator('#investigation-status').waitFor({ state: 'visible' });
+      await page.waitForFunction(
+        () =>
+          document.querySelector('#investigation-status')?.textContent?.includes('indications') ===
+          true,
+      );
+    }
     await page.evaluate(() => window.scrollTo(0, 0));
   }
   await page.screenshot({
@@ -40,6 +49,12 @@ try {
   const page = await browser.newPage();
   await capture(page, 'workbench-desktop.png', { width: 1440, height: 1000 });
   await capture(page, 'workbench-diagnostics.png', { width: 1440, height: 1000 }, 'Diagnostics');
+  await capture(
+    page,
+    'workbench-investigation.png',
+    { width: 1440, height: 1000 },
+    'Investigation',
+  );
   await capture(
     page,
     'workbench-configuration.png',
@@ -64,6 +79,11 @@ try {
             view: 'Diagnostics',
           },
           {
+            file: 'workbench-investigation.png',
+            viewport: { width: 1440, height: 1000 },
+            view: 'Investigation',
+          },
+          {
             file: 'workbench-configuration.png',
             viewport: { width: 1440, height: 1000 },
             view: 'Configuration',
@@ -80,4 +100,6 @@ try {
   await browser.close();
 }
 
-console.log(`screenshots: captured verified desktop and mobile views from ${applicationUrl}`);
+console.log(
+  `screenshots: captured verified desktop, Investigation, and mobile views from ${applicationUrl}`,
+);
