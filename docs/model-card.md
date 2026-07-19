@@ -67,4 +67,4 @@ These metrics describe only the recorded generated held-out seeds. They do not e
 
 ## Release evidence
 
-The generated artifacts and local tests support the recorded working-tree evaluation. A public release should attach the model artifact, evaluation JSON, model card, SBOM, checksums, and provenance from the tagged commit. If the release parity or held-out gate fails, the model must remain disabled regardless of this working-tree snapshot.
+The published [`v2.1.0` release](https://github.com/Kato-MT/Aviation-Dashboard-Project/releases/tag/v2.1.0) attaches the model artifact, evaluation JSON, model card, parity vector, SBOM, checksums, and provenance from commit `4439cbe06f5c7e85fba523e25cc04b3eba2c7f98`. The recorded artifact hashes match the committed files. See the [completed release verification](release-verification-v2.1.0.md). If a future release parity or held-out gate fails, the model must remain disabled regardless of an earlier passing evaluation.

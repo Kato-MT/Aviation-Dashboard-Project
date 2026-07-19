@@ -1,0 +1,31 @@
+{
+  "name": "Flight Diagnostics Workbench",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm@sha256:0d29e5fdc64f8397cd502223e0c4679f1e60877ca0fd2db4f2e2e0028e4271af",
+  "remoteUser": "node",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1.8.0": {
+      "version": "3.12",
+      "installTools": false
+    }
+  },
+  "containerEnv": {
+    "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0"
+  },
+  "postCreateCommand": "sudo npm install --global pnpm@11.9.0 && pnpm install --frozen-lockfile",
+  "forwardPorts": [4173, 8080],
+  "portsAttributes": {
+    "4173": {
+      "label": "Vite development server",
+      "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "Synthetic WebSocket simulator",
+      "onAutoForward": "silent"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
+    }
+  }
+}

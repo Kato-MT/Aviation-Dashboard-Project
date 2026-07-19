@@ -1,6 +1,6 @@
 {
   "schemaVersion": "mutation-summary.v1",
-  "generatedAt": "2026-07-17T09:15:31.451Z",
+  "generatedAt": "2026-07-19T22:09:53.207Z",
   "sourceRevision": "working-tree",
   "tool": {
     "name": "StrykerJS",
@@ -15,18 +15,18 @@
   ],
   "initialTestRun": {
     "status": "passed",
-    "relatedTests": 183
+    "relatedTests": 283
   },
   "results": {
     "totalMutants": 1803,
     "validMutants": 1113,
-    "killed": 690,
-    "timedOut": 20,
-    "survived": 367,
+    "killed": 698,
+    "timedOut": 6,
+    "survived": 373,
     "noCoverage": 36,
     "compileErrors": 690,
-    "mutationScorePercent": 63.79,
-    "coveredMutationScorePercent": 65.92
+    "mutationScorePercent": 63.25,
+    "coveredMutationScorePercent": 65.37
   },
   "thresholds": {
     "high": 80,
@@ -34,11 +34,11 @@
     "break": 60,
     "passed": true
   },
-  "durationSeconds": 531.7,
+  "durationSeconds": 477,
   "fullLocalReport": {
     "path": "reports/mutation/mutation.html",
-    "bytes": 1274358,
-    "sha256": "cf73d0faf41eb46567dfd8489d5c3ded2c306e5abcfbe14ebd79bd94207e9912",
+    "bytes": 1417128,
+    "sha256": "7f83f42d76013ce209c10b98198ff9b03d3e8b82e3b50b4aa72de9085c89b213",
     "tracked": false
   },
   "limitations": [

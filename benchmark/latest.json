@@ -1,9 +1,9 @@
 {
   "schemaVersion": "benchmark.v1",
-  "recordedAt": "2026-07-17T09:49:53.636Z",
+  "recordedAt": "2026-07-19T21:57:32.381Z",
   "syntheticDataOnly": true,
   "reproducibility": {
-    "applicationVersion": "2.1.0",
+    "applicationVersion": "2.2.0",
     "sourceRevision": "working-tree",
     "seed": 20260717,
     "sizes": [1000, 10000, 100000],
@@ -25,42 +25,42 @@
       "name": "profile-rule-engine",
       "sampleCount": 1000,
       "iterations": 3,
-      "durationMs": 1.6559333333333182,
-      "minimumDurationMs": 1.5212000000000216,
-      "maximumDurationMs": 1.7458999999999492,
-      "throughputPerSecond": 603889.045452721,
-      "peakHeapBytes": 71813632,
+      "durationMs": 1.1939999999999789,
+      "minimumDurationMs": 0.9432999999999652,
+      "maximumDurationMs": 1.6163000000000238,
+      "throughputPerSecond": 837520.9380234653,
+      "peakHeapBytes": 72718720,
       "findingCount": 0,
       "datasetSha256": "d7a3df0c57f116254cb4243fa49863abbd963279911ca385a3734488982796ed",
-      "configurationSha256": "704a4e388a07e0258b8ed3718dfe362c4049c7d7ec99e8678816df14c669f446"
+      "configurationSha256": "b713dd343f19880966880d951b6d3fdf38dabf25b6995ea3c7a2d8ba960f3764"
     },
     {
       "benchmarkId": "rule-engine-10000-20260717",
       "name": "profile-rule-engine",
       "sampleCount": 10000,
       "iterations": 3,
-      "durationMs": 11.839499999999987,
-      "minimumDurationMs": 10.386699999999962,
-      "maximumDurationMs": 13.50490000000002,
-      "throughputPerSecond": 844630.2631023278,
-      "peakHeapBytes": 76418072,
+      "durationMs": 10.673099999999996,
+      "minimumDurationMs": 4.430099999999982,
+      "maximumDurationMs": 14.659899999999993,
+      "throughputPerSecond": 936934.911131724,
+      "peakHeapBytes": 72249360,
       "findingCount": 0,
       "datasetSha256": "af00383801d26e2c63cf56e0bb1b5d9cb4e43f8b882ec7184e41bbab823c2a55",
-      "configurationSha256": "1a613c11a0f5da54013e93f30cd05062b691e74dd2c684e169f5fd3444a703f6"
+      "configurationSha256": "4bfaf8a2642d58e9ac770b325710c9ef4cf29f8fafd0de2b5606e9f1f304f358"
     },
     {
       "benchmarkId": "rule-engine-100000-20260717",
       "name": "profile-rule-engine",
       "sampleCount": 100000,
       "iterations": 3,
-      "durationMs": 95.651,
-      "minimumDurationMs": 78.51459999999997,
-      "maximumDurationMs": 104.70990000000006,
-      "throughputPerSecond": 1045467.376190526,
-      "peakHeapBytes": 175858864,
+      "durationMs": 68.22926666666665,
+      "minimumDurationMs": 63.373899999999935,
+      "maximumDurationMs": 74.60489999999993,
+      "throughputPerSecond": 1465646.7068384148,
+      "peakHeapBytes": 155703312,
       "findingCount": 0,
       "datasetSha256": "dc6f4d5866131806103a9298fe3d5cd401a3efacdac7e8e506e9b2f28e48db2c",
-      "configurationSha256": "310761fff442896764c7cf4508b0a380ed72294930fad88fabb74b689afd4ede"
+      "configurationSha256": "ac2c1162c65b0a24f2e41eacced2fa4bea45424115e076b4e098d945c135d90d"
     }
   ],
   "limitations": [

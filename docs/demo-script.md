@@ -1,51 +1,41 @@
 # 90-second demonstration script
 
-Use the included synthetic dataset and a prepared synthetic candidate. Do not improvise organization, operational, or real-platform claims.
+Use the included synthetic dataset and a prepared synthetic candidate. The spoken narration is approximately 200 words. Rehearse the clicks before recording, and do not improvise organization, operational, or real-platform claims.
 
 ## 0:00 to 0:12, establish scope
 
-"Flight Diagnostics Workbench is a telemetry integration and verification project. Everything shown here, including the data, profiles, thresholds, and injected faults, is synthetic and unclassified."
+**On screen:** Open Configuration and show the version and profile provenance.
 
-Show **Configuration**. Point to the application, schema, adapter, and profile versions.
+"Flight Diagnostics Workbench turns synthetic telemetry into reproducible validation, diagnostics, and verification evidence. Every dataset, profile, threshold, and injected fault shown here is synthetic and unclassified."
 
 ## 0:12 to 0:28, load and validate
 
-Load the included CSV.
+**On screen:** Load the included CSV and point to its hash, accepted count, and quarantine count.
 
-"The adapter uses an explicit field and unit mapping. Validation accounts for every row. Fatal schema problems block analysis, while recoverable row errors are quarantined and remain visible."
+"Configuration records application, schema, adapter, and profile versions. The CSV adapter uses explicit field and unit mappings. Fatal schema errors block analysis; recoverable row errors are quarantined and remain visible. Nothing is silently converted or dropped."
 
-Point to the dataset SHA-256, accepted count, and quarantine count.
+## 0:28 to 0:46, monitor
 
-## 0:28 to 0:43, monitor
+**On screen:** Open Monitor, start replay, pause with the keyboard, and focus one alert.
 
-Open **Monitor** and start replay.
+"Monitor keeps the original replay workflow while presenting it in a calmer, minimalist interface. The dataset hash and accepted count prove which synthetic fixture is being analyzed. Rate checks use actual timestamps. Keyboard controls and non-color status labels keep replay understandable without relying on a mouse or color alone."
 
-"The monitor preserves the original project's charts, gauges, alerts, scrubber, and replay speeds. Rate checks use actual timestamps instead of assuming a fixed sample cadence."
+## 0:46 to 1:02, inspect evidence
 
-Use the keyboard to pause and activate one alert.
+**On screen:** Open Diagnostics and filter to one stable rule ID.
 
-## 0:43 to 0:58, explain evidence
+"Diagnostics makes every finding inspectable through a stable rule ID, severity, source, time, observed value, expected condition, and supporting evidence. Filters isolate one rule without hiding validation context. This makes troubleshooting decisions interview-defensible instead of opaque."
 
-Open **Diagnostics** and filter to one rule.
+## 1:02 to 1:18, verify a change
 
-"Each finding records a stable rule ID, severity, source, time, observed value, expected condition, and supporting evidence. The profile supplies synthetic parameters, while the rule engine supplies deterministic semantics."
+**On screen:** Compare the prepared candidate with the baseline in Verification.
 
-## 0:58 to 1:15, verify a change
+"Verification separates resolved, persisting, and newly introduced findings. It also fails closed when candidate validation has fatal errors."
 
-Open **Verification** and compare the prepared candidate.
+## 1:18 to 1:30, export and close
 
-"The comparison classifies findings as resolved, persisting, or newly introduced. It also compares validation results, so an invalid candidate cannot pass simply because it produced fewer findings."
+**On screen:** Show the report export controls and source-data choice.
 
-Point to one item in each classification if the prepared fixture contains them.
+"Exports record versions, hashes, counts, findings, and comparison outcomes while excluding source records by default. The result is transparent test evidence built around authoritative deterministic checks."
 
-## 1:15 to 1:27, reproduce and export
-
-"The report records versions, adapter, profile, input hashes, counts, validation, findings, and comparison outcome. The normal export excludes source records by default."
-
-Export the versioned JSON report or CSV findings.
-
-## 1:27 to 1:30, close
-
-"The result is a reproducible software sustainment, diagnostics, and test-evidence workflow, built around transparent deterministic checks."
-
-If v2.1 evidence is released, optionally replace the closing line with a brief streaming health or model-comparison view. Do not demonstrate an unreleased or failing gate as complete.
+If v2.1 evidence is released, the closing screen may show streaming health or the learned-baseline comparison. Do not demonstrate an unreleased or failing gate as complete.

@@ -1,10 +1,12 @@
 node_modules/
 .pnpm-store/
 .tmp-tests/
+/tmp????????/
 .codex-vite.*.log
 dist/
 dist-offline/
 /release/
+/artifacts/
 coverage/
 playwright-report/
 test-results/

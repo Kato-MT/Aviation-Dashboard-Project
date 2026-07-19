@@ -16,7 +16,7 @@ The plugins are listed explicitly in `stryker.config.json` because pnpm's depend
 
 ## Measured working-tree result
 
-The July 17, 2026 local run instrumented 1,803 mutants. Of the 1,113 valid mutants, 690 were killed, 20 timed out, 367 survived, and 36 had no coverage. The measured mutation score was 63.79 percent, which passed the declared 60 percent break threshold.
+The July 19, 2026 local run instrumented 1,803 mutants. Of the 1,113 valid mutants, 698 were killed, 6 timed out, 373 survived, and 36 had no coverage. The measured mutation score was 63.25 percent, which passed the declared 60 percent break threshold.
 
 This is working-tree evidence. The compact artifact records the tool versions, counts, duration, full-report hash, limitations, and source status. A tagged release must rerun the command before presenting the score as release evidence.
 

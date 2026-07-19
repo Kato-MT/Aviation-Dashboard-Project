@@ -4,7 +4,7 @@
 [![CodeQL](https://github.com/Kato-MT/Aviation-Dashboard-Project/actions/workflows/codeql.yml/badge.svg)](https://github.com/Kato-MT/Aviation-Dashboard-Project/actions/workflows/codeql.yml)
 [![Pages](https://github.com/Kato-MT/Aviation-Dashboard-Project/actions/workflows/pages.yml/badge.svg)](https://kato-mt.github.io/Aviation-Dashboard-Project/)
 
-Flight Diagnostics Workbench is a browser-based telemetry integration, diagnostics, and verification project. It accepts explicitly mapped synthetic telemetry, validates and normalizes each record, runs deterministic profile-driven checks, explains every finding with evidence, and compares a baseline run with a candidate run.
+Flight Diagnostics Workbench is a browser-based telemetry integration, diagnostics, and verification project. It accepts explicitly mapped synthetic telemetry, validates and normalizes each record, runs deterministic profile-driven checks, explains every finding with evidence, and compares a baseline run with a candidate run. Version 2.2 adds phase-aware sensor fusion, temporal fault hypotheses, and reproducible synthetic evaluation campaigns.
 
 > **Data boundary:** Every bundled dataset, profile, threshold, injected fault, and stream is synthetic and unclassified. This project is an educational demonstration. It is not affiliated with any employer or government organization, does not use operational data, and is not intended for real-world flight, safety, maintenance, or certification decisions.
 
@@ -15,10 +15,17 @@ Flight Diagnostics Workbench is a browser-based telemetry integration, diagnosti
 - Stable rule IDs for value, rate, timing, sequence, freshness, schema, and profile checks
 - Seeded fault injection with reproducible evidence
 - Baseline-versus-candidate verification with resolved, persisting, and new finding classifications
-- Four accessible views: Monitor, Diagnostics, Verification, and Configuration
+- Five views in a restrained, minimalist interface with labeled controls, keyboard paths, visible statuses, and responsive styling: Monitor, Diagnostics, Verification, Investigation, and Configuration
 - Versioned JSON verification reports and CSV finding exports without source data by default
 - Reproducibility evidence, including versions, adapter, SHA-256 input hash, counts, validation results, and findings
-- Optional v2.1 streaming, history analytics, and experimental learned-baseline analysis. Deterministic checks remain authoritative.
+- Optional v2.1 streaming, history analytics, and experimental learned-baseline analysis
+- Two explicitly separated temporal evidence tracks: a v1 research-only artifact with same-population baselines and a non-gating challenge, and a v2 production-integrated advisory artifact trained on the actual Investigation projection
+- Deterministic mission-phase hysteresis, redundant-sensor Kalman estimation, innovation evidence, and ten seeded temporal fault scenarios
+- Selected-sample comparison of authoritative deterministic rules, advisory robust covariance, supporting Kalman innovations, and advisory temporal hypotheses
+- Captured Investigation waveform comparison with exact profile, cadence, sample-count, and sample-index compatibility instead of silent alignment
+- A worker-backed campaign lab with three severity, duration, and onset-phase parameter sets per fault family, partial cancellation evidence, deterministic replay manifests, confusion and calibration metrics, confidence intervals, SQLite ingestion, and minimized JSON exports
+
+Deterministic checks remain authoritative. Learned results rank declared synthetic hypotheses only. The integrated v2 metrics describe 440 balanced, selected 40-sample windows, not complete mission streams, independent flights, or real-world performance. The checked artifact records 391 true positives, 2 false positives, 38 true negatives, and 9 false negatives. Cross-sensor decoupling is the weakest named class at 33 of 40 correct selected windows; stuck value and simultaneous faults each record 39 of 40. The nominal false-positive point estimate is 2 of 40, or 5 percent, but its exact one-sided 95 percent upper bound is about 14.92 percent, so this sample does not establish a population rate at or below 5 percent.
 
 ## Preserved regression fixture
 
@@ -56,20 +63,23 @@ Open the local URL printed by Vite. The application has no runtime CDN dependenc
 
 ## Commands
 
-| Command                   | Purpose                                                                |
-| ------------------------- | ---------------------------------------------------------------------- |
-| `pnpm dev`                | Start the local Vite development server                                |
-| `pnpm validate`           | Run formatting, static checks, unit tests, and traceability validation |
-| `pnpm test:coverage`      | Run core coverage with the configured branch gate                      |
-| `pnpm test:e2e`           | Run browser, accessibility, and responsive checks                      |
-| `pnpm mutation`           | Run mutation testing for the deterministic core                        |
-| `pnpm build`              | Create the GitHub Pages build                                          |
-| `pnpm build:offline`      | Create a self-contained offline HTML artifact                          |
-| `pnpm simulator`          | Start the local synthetic WebSocket simulator                          |
-| `pnpm benchmark`          | Run reproducible parser and detection benchmarks                       |
-| `pnpm analytics`          | Build or query the local verification-history database                 |
-| `pnpm requirements:check` | Validate requirements-to-test traceability                             |
-| `pnpm sbom:generate`      | Generate the release software bill of materials                        |
+| Command                   | Purpose                                                                          |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| `pnpm dev`                | Start the local Vite development server                                          |
+| `pnpm validate`           | Run the local validation bundle; browser and accessibility gates remain separate |
+| `pnpm test:coverage`      | Run core coverage with the configured branch gate                                |
+| `pnpm test:e2e`           | Run browser, accessibility, and responsive checks                                |
+| `pnpm mutation`           | Run mutation testing for the deterministic core                                  |
+| `pnpm build`              | Create the GitHub Pages build                                                    |
+| `pnpm build:offline`      | Create a self-contained offline HTML artifact                                    |
+| `pnpm simulator`          | Start the local synthetic WebSocket simulator                                    |
+| `pnpm benchmark`          | Run reproducible parser and deterministic-rule benchmarks                        |
+| `pnpm benchmark:temporal` | Run reproducible local Node proxy temporal and campaign benchmarks               |
+| `pnpm analytics`          | Build or query the local verification-history database                           |
+| `pnpm analytics:campaign` | Query the temporal campaign-history database                                     |
+| `pnpm ml:train`           | Regenerate covariance and temporal artifacts and parity evidence                 |
+| `pnpm requirements:check` | Validate requirements-to-test traceability                                       |
+| `pnpm sbom:generate`      | Generate the release software bill of materials                                  |
 
 ## Workflow
 
@@ -77,8 +87,10 @@ Open the local URL printed by Vite. The application has no runtime CDN dependenc
 2. Load a compatible CSV or versioned JSON dataset, or start a synthetic demo stream.
 3. Review validation and quarantine results before trusting findings.
 4. Inspect evidence in Diagnostics.
-5. Load a candidate run in Verification and review resolved, persisting, and new findings.
-6. Export only the evidence needed. Source records are excluded unless explicitly selected.
+5. Use Investigation to reproduce a seeded temporal mission, review phase and fusion evidence, and optionally enable advisory hypotheses.
+6. Run a multi-seed campaign in the worker lab and review expected, missing, and unexpected detections.
+7. Load a candidate run in Verification and review resolved, persisting, and new findings.
+8. Export only the evidence needed. Source records are excluded unless explicitly selected.
 
 The workbench enforces a 10 MiB upload limit and a 250,000-sample limit with explicit errors.
 
@@ -91,20 +103,30 @@ The workbench enforces a 10 MiB upload limit and a 250,000-sample limit with exp
 - [Threat model](docs/threat-model.md)
 - [Known limitations](docs/limitations.md)
 - [Benchmark record](docs/benchmarks.md)
+- [Temporal benchmark evidence](docs/benchmarks-temporal.md)
 - [Mutation testing](docs/mutation-testing.md)
 - [Verification-history analytics queries](docs/analytics-queries.md)
 - [Experimental model card](models/MODEL_CARD.md)
 - [Learned-baseline evaluation evidence](docs/model-card.md)
-- [Release verification](docs/release-verification.md)
-- [v2.0.0 candidate release notes](docs/release-notes-v2.0.0.md)
-- [v2.1.0 candidate release notes](docs/release-notes-v2.1.0.md)
+- [Temporal fault intelligence architecture](docs/temporal-intelligence.md)
+- [Temporal model evidence](docs/temporal-model-evidence.md)
+- [Temporal research model card, v1](models/TEMPORAL_MODEL_CARD.md)
+- [Production-integrated advisory model card, v2](models/TEMPORAL_INTEGRATION_MODEL_CARD.md)
+- [Temporal test plan](docs/temporal-test-plan.md)
+- [Temporal threat model](docs/temporal-threat-model.md)
+- [v2.1.0 completed release verification](docs/release-verification-v2.1.0.md)
+- [Release verification template](docs/release-verification.md)
+- [v2.0.0 release notes](docs/release-notes-v2.0.0.md)
+- [v2.1.0 release notes](docs/release-notes-v2.1.0.md)
+- [v2.2.0 release notes](docs/release-notes-v2.2.0.md)
 - [Release screenshot protocol](docs/screenshots/README.md)
 - [Configuration management](docs/configuration-management.md)
 - [90-second demo](docs/demo-script.md)
+- [v2.2 approximately two-minute demo](docs/demo-script-v2.2.md)
 
 ## Releases
 
-`v2.0.0` is the deterministic application-ready release. `v2.1.0` adds synthetic streaming, optional learned-baseline comparison, and local SQLite analytics after the deterministic release is stable. Release numbers, coverage, performance, accessibility results, security results, and model metrics are published only when CI or signed release evidence verifies them.
+`v2.0.0` established the deterministic application-ready baseline. `v2.1.0` added synthetic streaming, optional learned-baseline comparison, and local SQLite analytics. Version 2.2 adds the Investigation and campaign workflows described above. The GitHub Releases page, protected checks, and attached exact-commit evidence are authoritative for publication status. Future coverage, performance, accessibility, security, and model claims are published only when current evidence verifies them.
 
 The normal build is deployed at [kato-mt.github.io/Aviation-Dashboard-Project](https://kato-mt.github.io/Aviation-Dashboard-Project/). Release assets include the offline HTML application, verification and traceability reports, SBOM, SHA-256 checksums, and provenance when their release gates pass.
 

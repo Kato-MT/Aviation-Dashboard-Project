@@ -5,6 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { format } from 'prettier';
 
+import { APPLICATION_VERSION } from '../../src/core/constants';
 import { analyzeTelemetryRun } from '../../src/core/rule-engine';
 import type { TelemetryRun, TelemetrySample } from '../../src/core/types';
 import { genericFixedWingProfile } from '../../src/profiles/generic-fixed-wing';
@@ -27,7 +28,16 @@ interface BenchmarkResult {
 const SIZES = [1_000, 10_000, 100_000] as const;
 const SEED = 20_260_717;
 const ITERATIONS = 3;
-const APPLICATION_VERSION = '2.1.0';
+
+function recordedAt(): string {
+  const sourceDateEpoch = process.env.SOURCE_DATE_EPOCH;
+  if (sourceDateEpoch === undefined) return new Date().toISOString();
+  const epochSeconds = Number(sourceDateEpoch);
+  if (!Number.isFinite(epochSeconds) || epochSeconds < 0) {
+    throw new Error('SOURCE_DATE_EPOCH must be a nonnegative finite number of seconds.');
+  }
+  return new Date(epochSeconds * 1_000).toISOString();
+}
 
 function sha256(value: unknown): string {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -179,7 +189,7 @@ async function main(): Promise<void> {
   const results = SIZES.map((sampleCount) => runCase(makeRun(sampleCount), sampleCount));
   const document = {
     schemaVersion: 'benchmark.v1',
-    recordedAt: new Date().toISOString(),
+    recordedAt: recordedAt(),
     syntheticDataOnly: true,
     reproducibility: {
       applicationVersion: APPLICATION_VERSION,

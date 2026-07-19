@@ -10,7 +10,6 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
-      - release:v2.0
     groups:
       production-dependencies:
         dependency-type: production
@@ -28,3 +27,14 @@ updates:
     labels:
       - dependencies
       - github-actions
+
+  - package-ecosystem: devcontainers
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '10:00'
+      timezone: America/New_York
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies

@@ -20,7 +20,7 @@ No matching records.
 
 | profile_id | profile_version | runs | passing_runs | average_quarantined_records |
 | --- | --- | --- | --- | --- |
-| included-baseline | 1.0.0 | 1 | 1 | 0.0 |
+| included-baseline | 1.0.0 | 1 | 0 | 0.0 |
 
 ## Source Message Loss
 
@@ -30,9 +30,9 @@ No matching records.
 
 | benchmark_name | sample_count | measurements | average_duration_ms | average_throughput_per_second |
 | --- | --- | --- | --- | --- |
-| profile-rule-engine | 1000 | 1 | 11.399 | 87726.481 |
-| profile-rule-engine | 10000 | 1 | 26.191 | 381809.088 |
-| profile-rule-engine | 100000 | 1 | 194.666 | 513700.213 |
+| profile-rule-engine | 1000 | 1 | 1.194 | 837520.938 |
+| profile-rule-engine | 10000 | 1 | 10.673 | 936934.911 |
+| profile-rule-engine | 100000 | 1 | 68.229 | 1465646.707 |
 
 ## Model Quality Trend
 
@@ -58,7 +58,7 @@ No matching records.
 
 | run_date | quarantined_records | validation_errors |
 | --- | --- | --- |
-| 2026-07-17 | 0 | 0 |
+| 2026-07-19 | 0 | 0 |
 
 ## Severity Distribution
 
@@ -71,13 +71,13 @@ No matching records.
 
 | benchmark_name | sample_count | duration_ms | throughput_per_second | recorded_at |
 | --- | --- | --- | --- | --- |
-| profile-rule-engine | 100000 | 194.666 | 513700.213 | 2026-07-17T08:27:01.037Z |
-| profile-rule-engine | 10000 | 26.191 | 381809.088 | 2026-07-17T08:27:01.037Z |
-| profile-rule-engine | 1000 | 11.399 | 87726.481 | 2026-07-17T08:27:01.037Z |
+| profile-rule-engine | 100000 | 68.229 | 1465646.707 | 2026-07-19T21:57:32.381Z |
+| profile-rule-engine | 10000 | 10.673 | 936934.911 | 2026-07-19T21:57:32.381Z |
+| profile-rule-engine | 1000 | 1.194 | 837520.938 | 2026-07-19T21:57:32.381Z |
 
 ## Verification Outcomes
 
 | verification_status | runs | average_accepted_records | average_validation_errors |
 | --- | --- | --- | --- |
-| pass | 1 | 85.0 | 0.0 |
+| not-run | 1 | 85.0 | 0.0 |
 
