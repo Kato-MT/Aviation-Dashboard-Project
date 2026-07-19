@@ -1,0 +1,272 @@
+{
+  "artifactSha256": "4cdea6792b8d302a8cc0197caccbb4498b18d136b1c2ed93fe798d66a82633af",
+  "artifactVersion": "temporal-fault-model.v1",
+  "configurationSha256": "30300e753e278f3ea8633fe71fb6ecdcdecf5a52146c85d2c22c6e2facbe956c",
+  "corpus": {
+    "projection": {
+      "cadenceMs": 1000,
+      "featureNames": [
+        "airspeed.mean",
+        "airspeed.std",
+        "airspeed.half-shift",
+        "airspeed.d1-rms",
+        "airspeed.d2-rms",
+        "airspeed.d4-rms",
+        "airspeed.curvature-rms",
+        "airspeed.freeze-ratio",
+        "airspeed.missing-fraction",
+        "altitude.mean",
+        "altitude.std",
+        "altitude.half-shift",
+        "altitude.d1-rms",
+        "altitude.d2-rms",
+        "altitude.d4-rms",
+        "altitude.curvature-rms",
+        "altitude.freeze-ratio",
+        "altitude.missing-fraction",
+        "verticalRate.mean",
+        "verticalRate.std",
+        "verticalRate.half-shift",
+        "verticalRate.d1-rms",
+        "verticalRate.d2-rms",
+        "verticalRate.d4-rms",
+        "verticalRate.curvature-rms",
+        "verticalRate.freeze-ratio",
+        "verticalRate.missing-fraction",
+        "fuel.mean",
+        "fuel.std",
+        "fuel.half-shift",
+        "fuel.d1-rms",
+        "fuel.d2-rms",
+        "fuel.d4-rms",
+        "fuel.curvature-rms",
+        "fuel.freeze-ratio",
+        "fuel.missing-fraction",
+        "vibration.mean",
+        "vibration.std",
+        "vibration.half-shift",
+        "vibration.d1-rms",
+        "vibration.d2-rms",
+        "vibration.d4-rms",
+        "vibration.curvature-rms",
+        "vibration.freeze-ratio",
+        "vibration.missing-fraction",
+        "cross.altitude-vertical-rate-correlation",
+        "cross.altitude-vertical-rate-best-lag",
+        "cross.altitude-vertical-rate-lag-improvement",
+        "cross.airspeed-altitude-correlation",
+        "cross.fuel-slope",
+        "cross.vibration-growth-ratio"
+      ],
+      "id": "investigation-model-projection",
+      "sampleCount": 180,
+      "version": "1.0.0",
+      "windowLength": 40
+    },
+    "schemaVersion": "temporal-integration-corpus.v1",
+    "splitSeedsDisjoint": true
+  },
+  "enabledByDefault": true,
+  "evaluation": {
+    "abstentionRate": 0.009090909091,
+    "answeredObservations": 436,
+    "bootstrapConfidenceIntervals": {
+      "confidenceLevel": 0.95,
+      "intervals": {
+        "classificationMacroF1": {
+          "lower95": 0.976720288326,
+          "upper95": 0.992436708861
+        },
+        "f1": {
+          "lower95": 0.97845373891,
+          "upper95": 0.992481203008
+        },
+        "minimumPerFaultClassificationRecall": {
+          "lower95": 0.7,
+          "upper95": 0.925
+        },
+        "precision": {
+          "lower95": 0.987405541562,
+          "upper95": 1.0
+        },
+        "recall": {
+          "lower95": 0.965,
+          "upper95": 0.99
+        }
+      },
+      "iterations": 1000,
+      "method": "deterministic-cluster-bootstrap-by-held-out-seed",
+      "resamplingUnit": "synthetic mission seed with all eleven selected label windows",
+      "seed": 22073
+    },
+    "byFault": {
+      "cross-sensor-decoupling": {
+        "abstained": 0,
+        "answered": 40,
+        "classificationRecall": 0.825,
+        "correctlyClassified": 33,
+        "detected": 33,
+        "detectionRecall": 0.825,
+        "observations": 40
+      },
+      "fuel-leak": {
+        "abstained": 0,
+        "answered": 40,
+        "classificationRecall": 1.0,
+        "correctlyClassified": 40,
+        "detected": 40,
+        "detectionRecall": 1.0,
+        "observations": 40
+      },
+      "gain-error": {
+        "abstained": 0,
+        "answered": 40,
+        "classificationRecall": 1.0,
+        "correctlyClassified": 40,
+        "detected": 40,
+        "detectionRecall": 1.0,
+        "observations": 40
+      },
+      "gradual-drift": {
+        "abstained": 0,
+        "answered": 40,
+        "classificationRecall": 1.0,
+        "correctlyClassified": 40,
+        "detected": 40,
+        "detectionRecall": 1.0,
+        "observations": 40
+      },
+      "intermittent-dropout": {
+        "abstained": 0,
+        "answered": 40,
+        "classificationRecall": 1.0,
+        "correctlyClassified": 40,
+        "detected": 40,
+        "detectionRecall": 1.0,
+        "observations": 40
+      },
+      "noise-growth": {
+        "abstained": 0,
+        "answered": 40,
+        "classificationRecall": 1.0,
+        "correctlyClassified": 40,
+        "detected": 40,
+        "detectionRecall": 1.0,
+        "observations": 40
+      },
+      "oscillation": {
+        "abstained": 0,
+        "answered": 40,
+        "classificationRecall": 1.0,
+        "correctlyClassified": 40,
+        "detected": 40,
+        "detectionRecall": 1.0,
+        "observations": 40
+      },
+      "sensor-lag": {
+        "abstained": 0,
+        "answered": 40,
+        "classificationRecall": 1.0,
+        "correctlyClassified": 40,
+        "detected": 40,
+        "detectionRecall": 1.0,
+        "observations": 40
+      },
+      "simultaneous-faults": {
+        "abstained": 1,
+        "answered": 39,
+        "classificationRecall": 0.975,
+        "correctlyClassified": 39,
+        "detected": 39,
+        "detectionRecall": 0.975,
+        "observations": 40
+      },
+      "stuck-value": {
+        "abstained": 1,
+        "answered": 39,
+        "classificationRecall": 0.975,
+        "correctlyClassified": 39,
+        "detected": 39,
+        "detectionRecall": 0.975,
+        "observations": 40
+      }
+    },
+    "classificationMacroF1": 0.98546835443,
+    "evaluationUnit": "selected causal 40-sample window",
+    "examples": 440,
+    "falsePositiveRateEvidence": {
+      "exactOneSidedUpper95": 0.149151961273,
+      "falsePositiveWindows": 2,
+      "method": "Clopper-Pearson exact binomial upper bound",
+      "nominalWindows": 40,
+      "observedRate": 0.05,
+      "populationRateAtMostFivePercentEstablished": false
+    },
+    "seeds": [
+      9101,
+      9102,
+      9103,
+      9104,
+      9105,
+      9106,
+      9107,
+      9108,
+      9109,
+      9110,
+      9111,
+      9112,
+      9113,
+      9114,
+      9115,
+      9116,
+      9117,
+      9118,
+      9119,
+      9120,
+      9121,
+      9122,
+      9123,
+      9124,
+      9125,
+      9126,
+      9127,
+      9128,
+      9129,
+      9130,
+      9131,
+      9132,
+      9133,
+      9134,
+      9135,
+      9136,
+      9137,
+      9138,
+      9139,
+      9140
+    ],
+    "selectedWindowMetrics": {
+      "f1": 0.986128625473,
+      "falseNegatives": 9,
+      "falsePositiveRate": 0.05,
+      "falsePositives": 2,
+      "precision": 0.994910941476,
+      "recall": 0.9775,
+      "trueNegatives": 38,
+      "truePositives": 391
+    }
+  },
+  "generatedAt": "2026-07-17T00:00:00.000Z",
+  "modelVersion": "2.0.0",
+  "qualityGate": {
+    "maximumAbstentionRate": 0.8,
+    "maximumSelectedWindowFalsePositiveRate": 0.05,
+    "minimumAnsweredObservations": 1,
+    "minimumClassificationMacroF1": 0.65,
+    "minimumPerFaultClassificationRecall": 0.65,
+    "minimumSelectedWindowF1": 0.85,
+    "observedAbstentionRate": 0.009090909091,
+    "observedAnsweredObservations": 436,
+    "observedMinimumPerFaultClassificationRecall": 0.825,
+    "passed": true
+  }
+}

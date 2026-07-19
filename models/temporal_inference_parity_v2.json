@@ -1,0 +1,895 @@
+{
+  "absoluteTolerance": 1e-09,
+  "artifactVersion": "temporal-fault-model.v1",
+  "cases": [
+    {
+      "caseId": "heldOut:nominal:9101",
+      "endIndex": 90,
+      "expected": {
+        "abstained": false,
+        "anomalous": false,
+        "distance": 0.035272036937,
+        "nearestLabel": "nominal",
+        "predictedLabel": "nominal",
+        "relativeScore": 0.266362103958
+      },
+      "label": "nominal",
+      "seed": 9101,
+      "window": [
+        {
+          "airspeed": 127.93495,
+          "altitude": 3885.671415560214,
+          "fuel": 89.995774,
+          "verticalRate": 1327.942707645424,
+          "vibration": 0.226627
+        },
+        {
+          "airspeed": 130.586509,
+          "altitude": 4045.885803043972,
+          "fuel": 89.852054,
+          "verticalRate": 1309.944531682235,
+          "vibration": 0.232038
+        },
+        {
+          "airspeed": 131.218263,
+          "altitude": 4186.875990727553,
+          "fuel": 89.686812,
+          "verticalRate": 1295.114897499345,
+          "vibration": 0.225285
+        },
+        {
+          "airspeed": 132.0825135,
+          "altitude": 4333.830482598138,
+          "fuel": 89.454955,
+          "verticalRate": 1275.277024015775,
+          "vibration": 0.224942
+        },
+        {
+          "airspeed": 133.459627,
+          "altitude": 4492.504456194544,
+          "fuel": 89.222706,
+          "verticalRate": 1266.122225485353,
+          "vibration": 0.228262
+        },
+        {
+          "airspeed": 133.6779535,
+          "altitude": 4647.532952060165,
+          "fuel": 89.074768,
+          "verticalRate": 1249.449531416543,
+          "vibration": 0.227802
+        },
+        {
+          "airspeed": 134.6538265,
+          "altitude": 4795.80289961614,
+          "fuel": 88.835569,
+          "verticalRate": 1227.84857065767,
+          "vibration": 0.229187
+        },
+        {
+          "airspeed": 136.317861,
+          "altitude": 4944.569425571932,
+          "fuel": 88.681733,
+          "verticalRate": 1210.22005666533,
+          "vibration": 0.225002
+        },
+        {
+          "airspeed": 137.5878355,
+          "altitude": 5092.503231570498,
+          "fuel": 88.469084,
+          "verticalRate": 1194.504846515319,
+          "vibration": 0.222422
+        },
+        {
+          "airspeed": 137.0504645,
+          "altitude": 5232.23662218419,
+          "fuel": 88.25809,
+          "verticalRate": 1182.01006702808,
+          "vibration": 0.233765
+        },
+        {
+          "airspeed": 137.64216,
+          "altitude": 5398.833957428797,
+          "fuel": 88.020698,
+          "verticalRate": 1170.156127035218,
+          "vibration": 0.225139
+        },
+        {
+          "airspeed": 137.904985,
+          "altitude": 5542.959806065211,
+          "fuel": 87.883764,
+          "verticalRate": 1149.683131601891,
+          "vibration": 0.226927
+        },
+        {
+          "airspeed": 138.844793,
+          "altitude": 5691.283014954517,
+          "fuel": 87.704971,
+          "verticalRate": 1129.62550416486,
+          "vibration": 0.231154
+        },
+        {
+          "airspeed": 140.153777,
+          "altitude": 5861.066631340448,
+          "fuel": 87.478928,
+          "verticalRate": 1121.009162297942,
+          "vibration": 0.227241
+        },
+        {
+          "airspeed": 141.547671,
+          "altitude": 6005.760848632928,
+          "fuel": 87.292283,
+          "verticalRate": 1093.637972533415,
+          "vibration": 0.22649
+        },
+        {
+          "airspeed": 141.5338435,
+          "altitude": 6154.173010473294,
+          "fuel": 87.112845,
+          "verticalRate": 1078.23567892366,
+          "vibration": 0.229826
+        },
+        {
+          "airspeed": 141.9253905,
+          "altitude": 6310.727540662286,
+          "fuel": 86.906951,
+          "verticalRate": 1059.462050933353,
+          "vibration": 0.2296
+        },
+        {
+          "airspeed": 143.2363725,
+          "altitude": 6458.188384393146,
+          "fuel": 86.715661,
+          "verticalRate": 1041.503387635784,
+          "vibration": 0.227886
+        },
+        {
+          "airspeed": 142.9325765,
+          "altitude": 6603.618824997877,
+          "fuel": 86.466528,
+          "verticalRate": 1023.734159111165,
+          "vibration": 0.233973
+        },
+        {
+          "airspeed": 144.738502,
+          "altitude": 6761.117344654518,
+          "fuel": 86.25039,
+          "verticalRate": 1007.789868329349,
+          "vibration": 0.232724
+        },
+        {
+          "airspeed": 145.2270045,
+          "altitude": 6911.87180659587,
+          "fuel": 86.097537,
+          "verticalRate": 982.096847210509,
+          "vibration": 0.229843
+        },
+        {
+          "airspeed": 145.9246085,
+          "altitude": 6995.117209572799,
+          "fuel": 85.905522,
+          "verticalRate": 692.23663137147,
+          "vibration": 0.221238
+        },
+        {
+          "airspeed": 146.2997365,
+          "altitude": 7001.323082868549,
+          "fuel": 85.668532,
+          "verticalRate": 479.273575533137,
+          "vibration": 0.214295
+        },
+        {
+          "airspeed": 145.9741555,
+          "altitude": 7010.789978579382,
+          "fuel": 85.499148,
+          "verticalRate": 332.581215524613,
+          "vibration": 0.2191
+        },
+        {
+          "airspeed": 146.960092,
+          "altitude": 7003.370566208995,
+          "fuel": 85.328208,
+          "verticalRate": 226.238927816309,
+          "vibration": 0.217219
+        },
+        {
+          "airspeed": 147.3626935,
+          "altitude": 7013.655933960499,
+          "fuel": 85.15391,
+          "verticalRate": 161.333050350484,
+          "vibration": 0.21179
+        },
+        {
+          "airspeed": 145.990115,
+          "altitude": 7007.37189722174,
+          "fuel": 84.936751,
+          "verticalRate": 114.789592752327,
+          "vibration": 0.215932
+        },
+        {
+          "airspeed": 147.0660105,
+          "altitude": 7015.145077316341,
+          "fuel": 84.764105,
+          "verticalRate": 79.234594780586,
+          "vibration": 0.216265
+        },
+        {
+          "airspeed": 146.1720595,
+          "altitude": 7018.877602282536,
+          "fuel": 84.532764,
+          "verticalRate": 59.1674672926,
+          "vibration": 0.218962
+        },
+        {
+          "airspeed": 147.499121,
+          "altitude": 7024.046135301061,
+          "fuel": 84.343936,
+          "verticalRate": 42.226852488286,
+          "vibration": 0.22351
+        },
+        {
+          "airspeed": 146.8973625,
+          "altitude": 7019.24616306726,
+          "fuel": 84.157468,
+          "verticalRate": 31.640714553993,
+          "vibration": 0.217971
+        },
+        {
+          "airspeed": 147.5080225,
+          "altitude": 7024.331131326731,
+          "fuel": 83.954698,
+          "verticalRate": 21.800805872616,
+          "vibration": 0.216924
+        },
+        {
+          "airspeed": 148.1509125,
+          "altitude": 7015.196911133557,
+          "fuel": 83.784682,
+          "verticalRate": 7.373207940042,
+          "vibration": 0.220794
+        },
+        {
+          "airspeed": 147.651007,
+          "altitude": 7023.199948439646,
+          "fuel": 83.602425,
+          "verticalRate": 5.68883068598,
+          "vibration": 0.217002
+        },
+        {
+          "airspeed": 147.9246655,
+          "altitude": 7012.093865918143,
+          "fuel": 83.380147,
+          "verticalRate": -7.257110330643,
+          "vibration": 0.226523
+        },
+        {
+          "airspeed": 148.533406,
+          "altitude": 7012.967750254835,
+          "fuel": 83.199746,
+          "verticalRate": -11.500520401929,
+          "vibration": 0.222662
+        },
+        {
+          "airspeed": 146.3613295,
+          "altitude": 7017.247666375606,
+          "fuel": 83.027831,
+          "verticalRate": -13.126580689518,
+          "vibration": 0.22577
+        },
+        {
+          "airspeed": 145.422449,
+          "altitude": 6997.325362198639,
+          "fuel": 82.822331,
+          "verticalRate": -12.916052693942,
+          "vibration": 0.223466
+        },
+        {
+          "airspeed": 146.2224015,
+          "altitude": 6998.063045608568,
+          "fuel": 82.595301,
+          "verticalRate": -20.021143395314,
+          "vibration": 0.216653
+        },
+        {
+          "airspeed": 145.8610965,
+          "altitude": 6982.861778663047,
+          "fuel": 82.43507,
+          "verticalRate": -22.417399619342,
+          "vibration": 0.2197
+        }
+      ]
+    },
+    {
+      "caseId": "heldOut:sensor-lag:9102",
+      "endIndex": 47,
+      "expected": {
+        "abstained": false,
+        "anomalous": true,
+        "distance": 0.034522813044,
+        "nearestLabel": "sensor-lag",
+        "predictedLabel": "sensor-lag",
+        "relativeScore": 0.832047473136
+      },
+      "label": "sensor-lag",
+      "seed": 9102,
+      "window": [
+        {
+          "airspeed": 9.588457,
+          "altitude": 0.018040499406,
+          "fuel": 98.453227,
+          "verticalRate": 6.935236773752,
+          "vibration": 0.208303
+        },
+        {
+          "airspeed": 11.7774695,
+          "altitude": 10.748779461191,
+          "fuel": 98.283958,
+          "verticalRate": 1.273935531489,
+          "vibration": 0.211024
+        },
+        {
+          "airspeed": 12.904342,
+          "altitude": 4.044539040032,
+          "fuel": 98.026679,
+          "verticalRate": -3.789115118271,
+          "vibration": 0.201997
+        },
+        {
+          "airspeed": 14.6246365,
+          "altitude": 0.019385162579,
+          "fuel": 97.815804,
+          "verticalRate": -7.805127523663,
+          "vibration": 0.210967
+        },
+        {
+          "airspeed": 14.449476,
+          "altitude": 4.161723807086,
+          "fuel": 97.652571,
+          "verticalRate": -4.556115557788,
+          "vibration": 0.211473
+        },
+        {
+          "airspeed": 16.6565675,
+          "altitude": 6.079795308805,
+          "fuel": 97.475077,
+          "verticalRate": -7.765765307851,
+          "vibration": 0.218387
+        },
+        {
+          "airspeed": 17.695628,
+          "altitude": 5.127354588642,
+          "fuel": 97.235017,
+          "verticalRate": -8.967722026628,
+          "vibration": 0.210755
+        },
+        {
+          "airspeed": 21.302613,
+          "altitude": 11.845640269092,
+          "fuel": 97.106232,
+          "verticalRate": 104.409704744708,
+          "vibration": 0.235434
+        },
+        {
+          "airspeed": 29.029351,
+          "altitude": 74.005087307741,
+          "fuel": 96.875371,
+          "verticalRate": 204.029469693773,
+          "vibration": 0.236748
+        },
+        {
+          "airspeed": 35.440968,
+          "altitude": 97.678079422509,
+          "fuel": 96.723353,
+          "verticalRate": 278.6231682796,
+          "vibration": 0.236254
+        },
+        {
+          "airspeed": 41.9423135,
+          "altitude": 141.090153441727,
+          "fuel": 96.452931,
+          "verticalRate": 350.774405793195,
+          "vibration": 0.228505
+        },
+        {
+          "airspeed": 49.22094,
+          "altitude": 163.858351564275,
+          "fuel": 96.314133,
+          "verticalRate": 399.954915363487,
+          "vibration": 0.23359
+        },
+        {
+          "airspeed": 54.773101,
+          "altitude": 198.945033755856,
+          "fuel": 96.037716,
+          "verticalRate": 453.36715780245,
+          "vibration": 0.227538
+        },
+        {
+          "airspeed": 61.881122,
+          "altitude": 229.085054598247,
+          "fuel": 95.903828,
+          "verticalRate": 502.210518555263,
+          "vibration": 0.236902
+        },
+        {
+          "airspeed": 68.946518,
+          "altitude": 273.206696480896,
+          "fuel": 95.71324,
+          "verticalRate": 548.933518749757,
+          "vibration": 0.231496
+        },
+        {
+          "airspeed": 74.758658,
+          "altitude": 298.739726034126,
+          "fuel": 95.455331,
+          "verticalRate": 597.700142308886,
+          "vibration": 0.232073
+        },
+        {
+          "airspeed": 80.99303,
+          "altitude": 329.118169839066,
+          "fuel": 95.302767,
+          "verticalRate": 632.385853558489,
+          "vibration": 0.232486
+        },
+        {
+          "airspeed": 78.458627,
+          "altitude": 372.222191463406,
+          "fuel": 95.082275,
+          "verticalRate": 675.758099374153,
+          "vibration": 0.23337
+        },
+        {
+          "airspeed": 84.907864,
+          "altitude": 410.433446301784,
+          "fuel": 94.939001,
+          "verticalRate": 714.466737878527,
+          "vibration": 0.236386
+        },
+        {
+          "airspeed": 90.209232,
+          "altitude": 449.029390296823,
+          "fuel": 94.753341,
+          "verticalRate": 750.779518091239,
+          "vibration": 0.238238
+        },
+        {
+          "airspeed": 98.6146675,
+          "altitude": 475.172674876389,
+          "fuel": 94.536556,
+          "verticalRate": 798.820038494463,
+          "vibration": 0.234722
+        },
+        {
+          "airspeed": 103.929768,
+          "altitude": 557.578801668338,
+          "fuel": 94.34524,
+          "verticalRate": 1062.136515367202,
+          "vibration": 0.223785
+        },
+        {
+          "airspeed": 107.8912135,
+          "altitude": 708.542790871689,
+          "fuel": 94.145796,
+          "verticalRate": 1253.21026122241,
+          "vibration": 0.234363
+        },
+        {
+          "airspeed": 110.4399475,
+          "altitude": 853.272736212237,
+          "fuel": 93.931816,
+          "verticalRate": 1377.103494364585,
+          "vibration": 0.227705
+        },
+        {
+          "airspeed": 113.668409,
+          "altitude": 1012.438386351801,
+          "fuel": 93.732205,
+          "verticalRate": 1460.738626090788,
+          "vibration": 0.224609
+        },
+        {
+          "airspeed": 114.6644075,
+          "altitude": 1152.220591593314,
+          "fuel": 93.583216,
+          "verticalRate": 1501.783187523144,
+          "vibration": 0.228474
+        },
+        {
+          "airspeed": 115.4600615,
+          "altitude": 1304.067983879678,
+          "fuel": 93.39654,
+          "verticalRate": 1540.465924760197,
+          "vibration": 0.225735
+        },
+        {
+          "airspeed": 115.553389,
+          "altitude": 1472.967122437444,
+          "fuel": 93.138555,
+          "verticalRate": 1554.595940614632,
+          "vibration": 0.221334
+        },
+        {
+          "airspeed": 117.2855085,
+          "altitude": 1607.566622829738,
+          "fuel": 93.020606,
+          "verticalRate": 1551.883227239112,
+          "vibration": 0.229464
+        },
+        {
+          "airspeed": 117.9487185,
+          "altitude": 1756.180017981277,
+          "fuel": 92.72271,
+          "verticalRate": 1554.429935584781,
+          "vibration": 0.226406
+        },
+        {
+          "airspeed": 118.941928,
+          "altitude": 1908.609863597872,
+          "fuel": 92.575673,
+          "verticalRate": 1541.313672288603,
+          "vibration": 0.229228
+        },
+        {
+          "airspeed": 119.304374,
+          "altitude": 2066.12093972971,
+          "fuel": 92.387368,
+          "verticalRate": 1523.036220518735,
+          "vibration": 0.232061
+        },
+        {
+          "airspeed": 119.2062165,
+          "altitude": 2219.719066592559,
+          "fuel": 92.206923,
+          "verticalRate": 1506.111289612284,
+          "vibration": 0.226074
+        },
+        {
+          "airspeed": 120.1845235,
+          "altitude": 2375.737754650757,
+          "fuel": 91.994748,
+          "verticalRate": 1496.715719744042,
+          "vibration": 0.226518
+        },
+        {
+          "airspeed": 122.343687,
+          "altitude": 2524.927047529741,
+          "fuel": 91.790836,
+          "verticalRate": 1488.377487399413,
+          "vibration": 0.23577
+        },
+        {
+          "airspeed": 122.981015,
+          "altitude": 2683.188030616799,
+          "fuel": 91.587493,
+          "verticalRate": 1473.249306164876,
+          "vibration": 0.228755
+        },
+        {
+          "airspeed": 122.2681765,
+          "altitude": 2811.68236012213,
+          "fuel": 91.448159,
+          "verticalRate": 1452.8736474647,
+          "vibration": 0.227667
+        },
+        {
+          "airspeed": 123.6780845,
+          "altitude": 2977.323425287942,
+          "fuel": 91.220013,
+          "verticalRate": 1441.16329191404,
+          "vibration": 0.227271
+        },
+        {
+          "airspeed": 123.9803115,
+          "altitude": 3125.092182653484,
+          "fuel": 91.026439,
+          "verticalRate": 1414.84542453531,
+          "vibration": 0.232776
+        },
+        {
+          "airspeed": 124.064752,
+          "altitude": 3275.555699447782,
+          "fuel": 90.785011,
+          "verticalRate": 1403.523313449675,
+          "vibration": 0.228714
+        }
+      ]
+    },
+    {
+      "caseId": "heldOut:simultaneous-faults:9103",
+      "endIndex": 112,
+      "expected": {
+        "abstained": false,
+        "anomalous": true,
+        "distance": 0.055837332637,
+        "nearestLabel": "simultaneous-faults",
+        "predictedLabel": "simultaneous-faults",
+        "relativeScore": 0.872342332951
+      },
+      "label": "simultaneous-faults",
+      "seed": 9103,
+      "window": [
+        {
+          "airspeed": 147.1678305,
+          "altitude": 7026.503870530602,
+          "fuel": 84.906007,
+          "verticalRate": 501.928868397104,
+          "vibration": 0.220712
+        },
+        {
+          "airspeed": 147.002444,
+          "altitude": 7035.86273369617,
+          "fuel": 84.576952,
+          "verticalRate": 356.914385229805,
+          "vibration": 0.225148
+        },
+        {
+          "airspeed": 146.525618,
+          "altitude": 7032.012325712728,
+          "fuel": 84.2614,
+          "verticalRate": 209.92116609659,
+          "vibration": 0.221638
+        },
+        {
+          "airspeed": 147.400189,
+          "altitude": 7052.328961390246,
+          "fuel": 83.914119,
+          "verticalRate": 157.200238509994,
+          "vibration": 0.222684
+        },
+        {
+          "airspeed": 147.8867675,
+          "altitude": 7065.680065761545,
+          "fuel": 83.578843,
+          "verticalRate": 152.544821826683,
+          "vibration": 0.217205
+        },
+        {
+          "airspeed": 147.430433,
+          "altitude": 7054.218415420706,
+          "fuel": 83.220856,
+          "verticalRate": 107.324335550318,
+          "vibration": 0.218969
+        },
+        {
+          "airspeed": 147.4603945,
+          "altitude": 7066.048600847812,
+          "fuel": 82.875562,
+          "verticalRate": 37.17848212616,
+          "vibration": 0.225375
+        },
+        {
+          "airspeed": 147.9136425,
+          "altitude": 7075.74981474744,
+          "fuel": 82.600502,
+          "verticalRate": 34.541583109858,
+          "vibration": 0.221027
+        },
+        {
+          "airspeed": 146.339971,
+          "altitude": 7080.872570346751,
+          "fuel": 82.173435,
+          "verticalRate": 62.79189642776,
+          "vibration": 0.217934
+        },
+        {
+          "airspeed": 147.334194,
+          "altitude": 7075.761039330681,
+          "fuel": 81.896364,
+          "verticalRate": 36.961680989354,
+          "vibration": 0.216134
+        },
+        {
+          "airspeed": 147.769529,
+          "altitude": 7092.190287055815,
+          "fuel": 81.594101,
+          "verticalRate": -7.517252907891,
+          "vibration": 0.223
+        },
+        {
+          "airspeed": 147.7969315,
+          "altitude": 7089.582849933153,
+          "fuel": 81.26956,
+          "verticalRate": -8.372305092561,
+          "vibration": 0.221809
+        },
+        {
+          "airspeed": 147.749557,
+          "altitude": 7090.323676000804,
+          "fuel": 80.877528,
+          "verticalRate": 25.894814811164,
+          "vibration": 0.21878
+        },
+        {
+          "airspeed": 146.34302,
+          "altitude": 7094.683742758139,
+          "fuel": 80.593185,
+          "verticalRate": 3.031775786949,
+          "vibration": 0.219473
+        },
+        {
+          "airspeed": 147.2017055,
+          "altitude": 7082.241839621287,
+          "fuel": 80.213172,
+          "verticalRate": -51.938281204873,
+          "vibration": 0.226585
+        },
+        {
+          "airspeed": 145.6528345,
+          "altitude": 7093.400795983063,
+          "fuel": 79.878304,
+          "verticalRate": -36.863456417949,
+          "vibration": 0.221705
+        },
+        {
+          "airspeed": 146.27542,
+          "altitude": 7084.348538720194,
+          "fuel": 79.522799,
+          "verticalRate": -7.688341306005,
+          "vibration": 0.216472
+        },
+        {
+          "airspeed": 145.4459445,
+          "altitude": 7082.857360913198,
+          "fuel": 79.228792,
+          "verticalRate": -15.17737395493,
+          "vibration": 0.221429
+        },
+        {
+          "airspeed": 145.7070225,
+          "altitude": 7081.883638854712,
+          "fuel": 78.942783,
+          "verticalRate": -55.668365787917,
+          "vibration": 0.215383
+        },
+        {
+          "airspeed": 146.1498725,
+          "altitude": 7091.137601648811,
+          "fuel": 78.529146,
+          "verticalRate": -37.644701803175,
+          "vibration": 0.226666
+        },
+        {
+          "airspeed": 145.028984,
+          "altitude": 7088.760754851176,
+          "fuel": 78.211509,
+          "verticalRate": -0.544389415848,
+          "vibration": 0.215483
+        },
+        {
+          "airspeed": 144.074368,
+          "altitude": 7090.228231937738,
+          "fuel": 77.862878,
+          "verticalRate": -7.918924441696,
+          "vibration": 0.217381
+        },
+        {
+          "airspeed": 145.404509,
+          "altitude": 7093.055061237915,
+          "fuel": 77.519782,
+          "verticalRate": -45.231862702361,
+          "vibration": 0.220545
+        },
+        {
+          "airspeed": 143.823781,
+          "altitude": 7091.399450064162,
+          "fuel": 77.165137,
+          "verticalRate": -37.741107036576,
+          "vibration": 0.21819
+        },
+        {
+          "airspeed": 144.746458,
+          "altitude": 7090.275478923126,
+          "fuel": 76.88082,
+          "verticalRate": 11.399383447942,
+          "vibration": 0.230857
+        },
+        {
+          "airspeed": 143.965375,
+          "altitude": 7098.310057830086,
+          "fuel": 76.519734,
+          "verticalRate": 8.849352726072,
+          "vibration": 0.214429
+        },
+        {
+          "airspeed": 143.820351,
+          "altitude": 7097.611599048854,
+          "fuel": 76.230255,
+          "verticalRate": -24.390116996876,
+          "vibration": 0.220817
+        },
+        {
+          "airspeed": 144.8861605,
+          "altitude": 7115.758451270687,
+          "fuel": 75.930759,
+          "verticalRate": -9.576468152535,
+          "vibration": 0.22166
+        },
+        {
+          "airspeed": 143.758659,
+          "altitude": 7112.550264610086,
+          "fuel": 75.516788,
+          "verticalRate": 30.071156393299,
+          "vibration": 0.211049
+        },
+        {
+          "airspeed": 143.9922375,
+          "altitude": 7105.100274728223,
+          "fuel": 75.153839,
+          "verticalRate": 22.50672093905,
+          "vibration": 0.214198
+        },
+        {
+          "airspeed": 144.3855625,
+          "altitude": 7134.94650293481,
+          "fuel": 74.889254,
+          "verticalRate": -7.238953257865,
+          "vibration": 0.217106
+        },
+        {
+          "airspeed": 145.4634515,
+          "altitude": 7129.204851396352,
+          "fuel": 74.933125,
+          "verticalRate": -1.500510810474,
+          "vibration": 0.221861
+        },
+        {
+          "airspeed": 145.4177175,
+          "altitude": 7116.090663380038,
+          "fuel": 75.066433,
+          "verticalRate": 35.668151065127,
+          "vibration": 0.217882
+        },
+        {
+          "airspeed": 146.7635235,
+          "altitude": 7121.292235693484,
+          "fuel": 75.038281,
+          "verticalRate": 32.309444332011,
+          "vibration": 0.226066
+        },
+        {
+          "airspeed": 145.763699,
+          "altitude": 7108.037819618668,
+          "fuel": 75.225675,
+          "verticalRate": 5.760052876101,
+          "vibration": 0.2197
+        },
+        {
+          "airspeed": 144.766334,
+          "altitude": 7002.442603816416,
+          "fuel": 75.255339,
+          "verticalRate": -316.847428414576,
+          "vibration": 0.206933
+        },
+        {
+          "airspeed": 144.5278355,
+          "altitude": 6842.863475218698,
+          "fuel": 75.339758,
+          "verticalRate": -516.608652201407,
+          "vibration": 0.21218
+        },
+        {
+          "airspeed": 144.60242,
+          "altitude": 6680.808295220291,
+          "fuel": 75.403658,
+          "verticalRate": -681.667275101485,
+          "vibration": 0.216257
+        },
+        {
+          "airspeed": 143.632065,
+          "altitude": 6515.385932438257,
+          "fuel": 75.533428,
+          "verticalRate": -812.126651675714,
+          "vibration": 0.2156
+        },
+        {
+          "airspeed": 142.1970235,
+          "altitude": 6346.40437207691,
+          "fuel": 75.579047,
+          "verticalRate": -878.34207335393,
+          "vibration": 0.219869
+        }
+      ]
+    }
+  ],
+  "modelVersion": "2.0.0"
+}
