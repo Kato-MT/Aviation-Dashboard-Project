@@ -173,6 +173,83 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+  temporal-evidence:
+    name: Temporal model, campaign, and analytics evidence
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+
+      - name: Set deterministic evidence timestamp
+        shell: bash
+        run: echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> "$GITHUB_ENV"
+
+      - name: Install pinned pnpm
+        run: npm install --global pnpm@${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Reproduce model artifacts and parity evidence
+        run: |
+          pnpm ml:train
+          git diff --exit-code -- \
+            models/robust_covariance_v1.json \
+            models/evaluation_v1.json \
+            models/inference_parity_v1.json \
+            models/MODEL_CARD.md \
+            models/model_configuration_manifest_v1.json \
+            models/temporal_fault_model_v1.json \
+            models/temporal_evaluation_v1.json \
+            models/temporal_inference_parity_v1.json \
+            models/TEMPORAL_MODEL_CARD.md \
+            models/temporal_fault_model_v2.json \
+            models/temporal_evaluation_v2.json \
+            models/temporal_inference_parity_v2.json \
+            models/TEMPORAL_INTEGRATION_MODEL_CARD.md
+
+      - name: Run temporal benchmark and campaign evidence
+        run: |
+          pnpm benchmark:temporal
+          pnpm campaign:report
+
+      - name: Verify temporal campaign history
+        run: |
+          python tools/analytics/temporal_campaign.py migrate
+          python tools/analytics/temporal_campaign.py ingest artifacts/temporal-campaign-report.json
+          python tools/analytics/temporal_campaign.py integrity > analytics/temporal-campaign-integrity.json
+          node scripts/release/verify-integrity-report.mjs analytics/temporal-campaign-integrity.json
+          python tools/analytics/temporal_campaign.py report > analytics/temporal-campaign-history.json
+
+      - name: Upload temporal evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: temporal-evidence-${{ github.sha }}
+          path: |
+            artifacts/temporal-campaign-report.json
+            analytics/temporal-campaign-history.json
+            analytics/temporal-campaign-integrity.json
+            benchmark/temporal-latest.json
+            docs/benchmarks-temporal.md
+            models/model_configuration_manifest_v1.json
+            models/temporal_*.json
+            models/TEMPORAL_MODEL_CARD.md
+            models/TEMPORAL_INTEGRATION_MODEL_CARD.md
+          if-no-files-found: error
+          retention-days: 14
+
   dependency-audit:
     name: High and critical dependency audit
     runs-on: ubuntu-latest
@@ -193,6 +270,24 @@ jobs:
       - name: Audit production and development dependencies
         run: pnpm audit --audit-level high
 
+  development-container:
+    name: Optional development container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Build and validate the pinned development container
+        uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca # v0.3.1900000450
+        with:
+          push: never
+          runCmd: |
+            pnpm validate
+            pnpm build
+            pnpm build:offline
+
   ci-required:
     name: CI required
     if: always()
@@ -201,7 +296,9 @@ jobs:
       - core-coverage
       - build-artifacts
       - browser-assurance
+      - temporal-evidence
       - dependency-audit
+      - development-container
     runs-on: ubuntu-latest
     steps:
       - name: Confirm all required jobs succeeded
@@ -211,4 +308,6 @@ jobs:
           test "${{ needs.core-coverage.result }}" = "success"
           test "${{ needs.build-artifacts.result }}" = "success"
           test "${{ needs.browser-assurance.result }}" = "success"
+          test "${{ needs.temporal-evidence.result }}" = "success"
           test "${{ needs.dependency-audit.result }}" = "success"
+          test "${{ needs.development-container.result }}" = "success"

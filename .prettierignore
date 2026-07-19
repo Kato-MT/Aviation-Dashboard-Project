@@ -5,9 +5,12 @@ coverage
 node_modules
 .pnpm-store
 .tmp-tests/
+tmp????????/
 analytics/latest-report.md
 artifacts/
 models/*.json
+models/TEMPORAL_MODEL_CARD.md
+models/TEMPORAL_INTEGRATION_MODEL_CARD.md
 pnpm-lock.yaml
 data/flight.csv
 LICENSE

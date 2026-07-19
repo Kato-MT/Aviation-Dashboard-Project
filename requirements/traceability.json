@@ -341,6 +341,199 @@
         "TC-DEV-002"
       ],
       "evidencePaths": ["tests/core", "tests/performance", ".devcontainer"]
+    },
+    {
+      "area": "temporal-model-registry",
+      "requirements": ["FDW-REG-001", "FDW-REG-002", "FDW-REG-003", "FDW-REG-004", "FDW-REG-005"],
+      "tests": [
+        "TC-REG-001",
+        "TC-REG-002",
+        "TC-REG-003",
+        "TC-REG-004",
+        "TC-REG-005",
+        "TC-REG-006",
+        "TC-REG-007",
+        "TC-REG-008",
+        "TC-TML-010",
+        "TC-TML-013"
+      ],
+      "evidencePaths": ["tests/model-registry", "tests/ml", "tests/browser", "models"]
+    },
+    {
+      "area": "mission-phase-and-sensor-fusion",
+      "requirements": [
+        "FDW-PHA-001",
+        "FDW-PHA-002",
+        "FDW-PHA-003",
+        "FDW-FUS-001",
+        "FDW-FUS-002",
+        "FDW-FUS-003",
+        "FDW-FUS-004"
+      ],
+      "tests": [
+        "TC-PHA-001",
+        "TC-PHA-002",
+        "TC-PHA-003",
+        "TC-FUS-001",
+        "TC-FUS-002",
+        "TC-FUS-003",
+        "TC-FUS-004",
+        "TC-INV-003"
+      ],
+      "evidencePaths": ["tests/temporal", "tests/investigation"]
+    },
+    {
+      "area": "seeded-temporal-scenarios",
+      "requirements": [
+        "FDW-TMP-001",
+        "FDW-TMP-002",
+        "FDW-TMP-003",
+        "FDW-TMP-004",
+        "FDW-TMP-005",
+        "FDW-TMP-006"
+      ],
+      "tests": [
+        "TC-TMP-001",
+        "TC-TMP-002",
+        "TC-TMP-003",
+        "TC-TMP-004",
+        "TC-TMP-005",
+        "TC-TMP-006",
+        "TC-TMP-007",
+        "TC-TMP-008",
+        "TC-INV-002"
+      ],
+      "evidencePaths": ["tests/temporal", "tests/investigation"]
+    },
+    {
+      "area": "investigation-analysis-and-charts",
+      "requirements": ["FDW-INV-003", "FDW-INV-004", "FDW-INV-005", "FDW-INV-006"],
+      "tests": [
+        "TC-INV-001",
+        "TC-INV-002",
+        "TC-INV-003",
+        "TC-INV-004",
+        "TC-INV-005",
+        "TC-INV-006",
+        "TC-INV-007",
+        "TC-INV-008",
+        "TC-INV-009",
+        "TC-INV-010",
+        "TC-INV-011"
+      ],
+      "evidencePaths": ["tests/investigation", "tests/ui"]
+    },
+    {
+      "area": "investigation-browser-workspace",
+      "requirements": ["FDW-INV-001", "FDW-INV-002", "FDW-INV-007"],
+      "tests": ["TC-INV-012", "TC-INV-013", "TC-INV-014", "TC-TACC-001", "TC-TACC-003"],
+      "evidencePaths": ["tests/browser", "tests/accessibility"]
+    },
+    {
+      "area": "temporal-learned-model",
+      "requirements": [
+        "FDW-TML-001",
+        "FDW-TML-002",
+        "FDW-TML-003",
+        "FDW-TML-004",
+        "FDW-TML-005",
+        "FDW-TML-006",
+        "FDW-TML-007",
+        "FDW-TML-008",
+        "FDW-TML-009",
+        "FDW-TML-010",
+        "FDW-TML-011"
+      ],
+      "tests": [
+        "TC-TML-001",
+        "TC-TML-002",
+        "TC-TML-003",
+        "TC-TML-004",
+        "TC-TML-005",
+        "TC-TML-006",
+        "TC-TML-007",
+        "TC-TML-008",
+        "TC-TML-009",
+        "TC-TML-010",
+        "TC-TML-011",
+        "TC-TML-012",
+        "TC-TML-013",
+        "TC-TML-014",
+        "TC-TML-015",
+        "TC-TML-016",
+        "TC-TML-017",
+        "TC-TML-018",
+        "TC-TML-019",
+        "TC-TML-020",
+        "TC-TML-021"
+      ],
+      "evidencePaths": ["tests/ml", "tools/ml", "models", "tests/browser"]
+    },
+    {
+      "area": "temporal-campaign-core-and-worker",
+      "requirements": [
+        "FDW-CAM-001",
+        "FDW-CAM-002",
+        "FDW-CAM-003",
+        "FDW-CAM-004",
+        "FDW-CAM-005",
+        "FDW-CAM-006",
+        "FDW-CAM-007",
+        "FDW-CAM-009"
+      ],
+      "tests": [
+        "TC-CAM-001",
+        "TC-CAM-002",
+        "TC-CAM-003",
+        "TC-CAM-004",
+        "TC-CAM-005",
+        "TC-CAM-006",
+        "TC-CAM-007",
+        "TC-CAM-008",
+        "TC-CAM-009",
+        "TC-CAM-010",
+        "TC-CAM-011",
+        "TC-CAM-012",
+        "TC-CAM-014"
+      ],
+      "evidencePaths": ["tests/campaign", "src/workers"]
+    },
+    {
+      "area": "temporal-campaign-browser-ui",
+      "requirements": ["FDW-CAM-008"],
+      "tests": ["TC-CAM-012", "TC-CAM-013", "TC-TACC-001", "TC-TACC-002", "TC-TACC-003"],
+      "evidencePaths": ["tests/campaign", "tests/browser", "tests/accessibility"]
+    },
+    {
+      "area": "temporal-campaign-history",
+      "requirements": [
+        "FDW-TDB-001",
+        "FDW-TDB-002",
+        "FDW-TDB-003",
+        "FDW-TDB-004",
+        "FDW-TDB-005",
+        "FDW-TDB-006"
+      ],
+      "tests": ["TC-TDB-001", "TC-TDB-002", "TC-TDB-003", "TC-TDB-004", "TC-TDB-005", "TC-TDB-006"],
+      "evidencePaths": ["tests/analytics", "tools/analytics"]
+    },
+    {
+      "area": "temporal-data-boundary",
+      "requirements": ["FDW-BND-001", "FDW-BND-002", "FDW-BND-003"],
+      "tests": ["TC-BND-001", "TC-BND-002", "TC-BND-003", "TC-BND-004", "TC-INV-006", "TC-INV-014"],
+      "evidencePaths": ["tests/temporal", "tests/investigation", "tests/campaign", "tests/browser"]
+    },
+    {
+      "area": "temporal-accessibility-and-responsive",
+      "requirements": ["FDW-SEC-010", "FDW-SEC-011"],
+      "tests": ["TC-INV-013", "TC-TACC-001", "TC-TACC-002", "TC-TACC-003"],
+      "evidencePaths": ["tests/accessibility", "tests/browser"]
+    },
+    {
+      "area": "temporal-offline-browser-assurance",
+      "requirements": ["FDW-CM-011", "FDW-CM-012"],
+      "tests": ["TC-TOFF-001", "TC-TOFF-002", "TC-TOFF-003"],
+      "evidencePaths": ["tests/browser", "vite.config.ts", "vite.offline.config.ts"]
     }
   ]
 }

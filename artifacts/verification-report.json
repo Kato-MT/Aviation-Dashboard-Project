@@ -1,22 +1,28 @@
 {
   "reportSchemaVersion": "release-verification.v1",
   "runId": "included-baseline-release-evidence",
-  "createdAt": "2026-07-17T09:51:14.376Z",
-  "status": "pass",
+  "createdAt": "2026-07-19T22:17:33.695Z",
+  "status": "candidate",
   "dataBoundary": "All telemetry, profiles, thresholds, and injected scenarios are synthetic and unclassified.",
-  "applicationVersion": "2.1.0",
+  "applicationVersion": "2.2.0",
   "profileId": "included-baseline",
   "profileVersion": "1.0.0",
   "adapter": "legacy-csv@2.0.0",
   "datasetHash": "b3b50781afde9b3895707109e40e86b2fae82ed8e38cc4e964d9cb2de327b700",
   "provenance": {
-    "applicationVersion": "2.1.0",
-    "sourceRevision": "working-tree-v2.1-verification",
+    "applicationVersion": "2.2.0",
+    "sourceRevision": "working-tree",
     "adapter": "legacy-csv@2.0.0",
     "datasetHash": "b3b50781afde9b3895707109e40e86b2fae82ed8e38cc4e964d9cb2de327b700",
     "profileId": "included-baseline",
     "profileVersion": "1.0.0",
-    "generatedAt": "2026-07-17T09:51:14.376Z"
+    "generatedAt": "2026-07-19T22:17:33.695Z"
+  },
+  "releaseContext": {
+    "exactTagReleaseContext": false,
+    "ci": false,
+    "refType": "local",
+    "note": "Candidate component evidence only. This is not a CI, browser, accessibility, security, release, or deployment result."
   },
   "recordCounts": {
     "total": 85,
@@ -293,28 +299,28 @@
   },
   "coverage": {
     "lines": {
-      "total": 602,
-      "covered": 593,
+      "total": 2027,
+      "covered": 1940,
       "skipped": 0,
-      "pct": 98.5
+      "pct": 95.7
     },
     "statements": {
-      "total": 655,
-      "covered": 643,
+      "total": 2208,
+      "covered": 2100,
       "skipped": 0,
-      "pct": 98.16
+      "pct": 95.1
     },
     "functions": {
-      "total": 96,
-      "covered": 92,
+      "total": 427,
+      "covered": 413,
       "skipped": 0,
-      "pct": 95.83
+      "pct": 96.72
     },
     "branches": {
-      "total": 573,
-      "covered": 523,
+      "total": 1752,
+      "covered": 1580,
       "skipped": 0,
-      "pct": 91.27
+      "pct": 90.18
     },
     "branchesTrue": {
       "total": 0,
@@ -325,10 +331,10 @@
   },
   "benchmark": {
     "schemaVersion": "benchmark.v1",
-    "recordedAt": "2026-07-17T09:49:53.636Z",
+    "recordedAt": "2026-07-19T21:57:32.381Z",
     "syntheticDataOnly": true,
     "reproducibility": {
-      "applicationVersion": "2.1.0",
+      "applicationVersion": "2.2.0",
       "sourceRevision": "working-tree",
       "seed": 20260717,
       "sizes": [
@@ -357,42 +363,42 @@
         "name": "profile-rule-engine",
         "sampleCount": 1000,
         "iterations": 3,
-        "durationMs": 1.6559333333333182,
-        "minimumDurationMs": 1.5212000000000216,
-        "maximumDurationMs": 1.7458999999999492,
-        "throughputPerSecond": 603889.045452721,
-        "peakHeapBytes": 71813632,
+        "durationMs": 1.1939999999999789,
+        "minimumDurationMs": 0.9432999999999652,
+        "maximumDurationMs": 1.6163000000000238,
+        "throughputPerSecond": 837520.9380234653,
+        "peakHeapBytes": 72718720,
         "findingCount": 0,
         "datasetSha256": "d7a3df0c57f116254cb4243fa49863abbd963279911ca385a3734488982796ed",
-        "configurationSha256": "704a4e388a07e0258b8ed3718dfe362c4049c7d7ec99e8678816df14c669f446"
+        "configurationSha256": "b713dd343f19880966880d951b6d3fdf38dabf25b6995ea3c7a2d8ba960f3764"
       },
       {
         "benchmarkId": "rule-engine-10000-20260717",
         "name": "profile-rule-engine",
         "sampleCount": 10000,
         "iterations": 3,
-        "durationMs": 11.839499999999987,
-        "minimumDurationMs": 10.386699999999962,
-        "maximumDurationMs": 13.50490000000002,
-        "throughputPerSecond": 844630.2631023278,
-        "peakHeapBytes": 76418072,
+        "durationMs": 10.673099999999996,
+        "minimumDurationMs": 4.430099999999982,
+        "maximumDurationMs": 14.659899999999993,
+        "throughputPerSecond": 936934.911131724,
+        "peakHeapBytes": 72249360,
         "findingCount": 0,
         "datasetSha256": "af00383801d26e2c63cf56e0bb1b5d9cb4e43f8b882ec7184e41bbab823c2a55",
-        "configurationSha256": "1a613c11a0f5da54013e93f30cd05062b691e74dd2c684e169f5fd3444a703f6"
+        "configurationSha256": "4bfaf8a2642d58e9ac770b325710c9ef4cf29f8fafd0de2b5606e9f1f304f358"
       },
       {
         "benchmarkId": "rule-engine-100000-20260717",
         "name": "profile-rule-engine",
         "sampleCount": 100000,
         "iterations": 3,
-        "durationMs": 95.651,
-        "minimumDurationMs": 78.51459999999997,
-        "maximumDurationMs": 104.70990000000006,
-        "throughputPerSecond": 1045467.376190526,
-        "peakHeapBytes": 175858864,
+        "durationMs": 68.22926666666665,
+        "minimumDurationMs": 63.373899999999935,
+        "maximumDurationMs": 74.60489999999993,
+        "throughputPerSecond": 1465646.7068384148,
+        "peakHeapBytes": 155703312,
         "findingCount": 0,
         "datasetSha256": "dc6f4d5866131806103a9298fe3d5cd401a3efacdac7e8e506e9b2f28e48db2c",
-        "configurationSha256": "310761fff442896764c7cf4508b0a380ed72294930fad88fabb74b689afd4ede"
+        "configurationSha256": "ac2c1162c65b0a24f2e41eacced2fa4bea45424115e076b4e098d945c135d90d"
       }
     ],
     "limitations": [
@@ -459,10 +465,3463 @@
       "passed": true
     }
   },
+  "temporalEvidence": {
+    "benchmark": {
+      "schemaVersion": "temporal-benchmark.v1",
+      "evidenceKind": "node-proxy",
+      "recordedAt": "2026-07-19T21:52:47.702Z",
+      "syntheticDataOnly": true,
+      "dataClassification": "SYNTHETIC_UNCLASSIFIED",
+      "reproducibility": {
+        "applicationVersion": "2.2.0",
+        "sourceRevision": "working-tree",
+        "startedAt": "2026-07-17T12:00:00.000Z",
+        "inferenceSeed": 22201,
+        "investigationSeed": 22202,
+        "campaignSeedBase": 32001,
+        "model": {
+          "role": "integrated-production-advisory",
+          "modelVersion": "2.0.0",
+          "artifactVersion": "temporal-fault-model.v1",
+          "modelType": "causal-multiscale-feature-nearest-prototype",
+          "artifactPath": "models/temporal_fault_model_v2.json",
+          "artifactSha256": "4cdea6792b8d302a8cc0197caccbb4498b18d136b1c2ed93fe798d66a82633af",
+          "projection": {
+            "id": "investigation-model-projection",
+            "version": "1.0.0"
+          },
+          "authority": "deterministic-rules"
+        },
+        "modelWindowLength": 40,
+        "configuration": {
+          "warmupIterations": 1,
+          "measuredRepetitions": 3,
+          "inferenceSampleCounts": [
+            180,
+            1000,
+            10000
+          ],
+          "investigationSampleCounts": [
+            180,
+            1000,
+            10000
+          ],
+          "campaignSeedCounts": [
+            1,
+            3
+          ],
+          "campaignScenarioIds": [
+            "nominal",
+            "gradual-drift",
+            "noise-growth",
+            "oscillation",
+            "lag",
+            "intermittent-dropout",
+            "stuck-value",
+            "gain-error",
+            "fuel-leak",
+            "cross-sensor-decoupling",
+            "simultaneous-faults"
+          ]
+        }
+      },
+      "environment": {
+        "runtime": "node-proxy",
+        "node": "v24.14.0",
+        "v8": "13.6.233.17-node.41",
+        "platform": "win32",
+        "release": "10.0.26200",
+        "architecture": "x64",
+        "logicalCpuCount": 12,
+        "cpuModel": "AMD Ryzen 5 5600X 6-Core Processor",
+        "ci": false
+      },
+      "results": [
+        {
+          "benchmarkId": "temporal-model-inference-180",
+          "operation": "temporal-model-inference",
+          "workUnits": 141,
+          "workUnitLabel": "model windows",
+          "warmupIterations": 1,
+          "measuredRepetitions": 3,
+          "durationsMs": [
+            17.9707,
+            15.1079,
+            13.8267
+          ],
+          "meanDurationMs": 15.6351,
+          "minimumDurationMs": 13.8267,
+          "maximumDurationMs": 17.9707,
+          "medianDurationMs": 15.1079,
+          "p95DurationMs": 17.9707,
+          "throughputPerSecond": 9018.170654,
+          "maximumObservedHeapBytes": 59175080,
+          "inputSha256": "46bc75959dbc25c623afd8d01a73bd5442f9bb07c90becaa6db40731008e9c87",
+          "configurationSha256": "c8c1763000d0c821f251813d79003b9f5cca6f23c437cbce3ae9f68679565b83",
+          "outputSha256": "56ef791fa0ff8a948994869dcb1bff6025bf4c56f690daa24453c4eabc63592d",
+          "outputDigestStable": true,
+          "outputSummary": {
+            "modelVersion": "2.0.0",
+            "modelRole": "integrated-production-advisory",
+            "authority": "deterministic-rules",
+            "scoreCount": 141,
+            "anomalousCount": 37,
+            "abstainedCount": 95,
+            "labelCounts": {
+              "sensor-lag": 20,
+              "unknown": 95,
+              "nominal": 9,
+              "gradual-drift": 4,
+              "noise-growth": 5,
+              "simultaneous-faults": 8
+            },
+            "scoreIdentitySha256": "59b31f18d9818af817f9a393e324e42720ed4e855d6ca862123f84d90676ca34"
+          }
+        },
+        {
+          "benchmarkId": "temporal-model-inference-1000",
+          "operation": "temporal-model-inference",
+          "workUnits": 961,
+          "workUnitLabel": "model windows",
+          "warmupIterations": 1,
+          "measuredRepetitions": 3,
+          "durationsMs": [
+            92.9807,
+            132.6972,
+            107.5548
+          ],
+          "meanDurationMs": 111.077567,
+          "minimumDurationMs": 92.9807,
+          "maximumDurationMs": 132.6972,
+          "medianDurationMs": 107.5548,
+          "p95DurationMs": 132.6972,
+          "throughputPerSecond": 8651.611922,
+          "maximumObservedHeapBytes": 73801784,
+          "inputSha256": "0e9cb46de2ea3b98b1672c3a26da56892c1e0881950971089cfe95c09b4cd1f1",
+          "configurationSha256": "ebf7731867a3760db0161401ad25d119019779df36830c8805a3887a78e6bc29",
+          "outputSha256": "48a090886055f3a901bb94322d7b271b7bf114235c218241b74e30c9b66a5788",
+          "outputDigestStable": true,
+          "outputSummary": {
+            "modelVersion": "2.0.0",
+            "modelRole": "integrated-production-advisory",
+            "authority": "deterministic-rules",
+            "scoreCount": 961,
+            "anomalousCount": 256,
+            "abstainedCount": 705,
+            "labelCounts": {
+              "unknown": 705,
+              "noise-growth": 221,
+              "sensor-lag": 35
+            },
+            "scoreIdentitySha256": "73f0f3fb19546be2cf374e744bce72be599e171e2b8ba9cee91eae29fbde5b0b"
+          }
+        },
+        {
+          "benchmarkId": "temporal-model-inference-10000",
+          "operation": "temporal-model-inference",
+          "workUnits": 9961,
+          "workUnitLabel": "model windows",
+          "warmupIterations": 1,
+          "measuredRepetitions": 3,
+          "durationsMs": [
+            490.0727,
+            544.3989,
+            602.5439
+          ],
+          "meanDurationMs": 545.671833,
+          "minimumDurationMs": 490.0727,
+          "maximumDurationMs": 602.5439,
+          "medianDurationMs": 544.3989,
+          "p95DurationMs": 602.5439,
+          "throughputPerSecond": 18254.561426,
+          "maximumObservedHeapBytes": 121821624,
+          "inputSha256": "c5b286bf76c124e4100e76889cee50f63d2414978c717018febe5f28b5dc9c28",
+          "configurationSha256": "6255201834113374d57cad8ac1947bbd3d5999a537033ae3e5bed9fe24bd52b0",
+          "outputSha256": "9c499fbf93cfb930fccde3377c86c4600982209080afcd82ae3cede00906526c",
+          "outputDigestStable": true,
+          "outputSummary": {
+            "modelVersion": "2.0.0",
+            "modelRole": "integrated-production-advisory",
+            "authority": "deterministic-rules",
+            "scoreCount": 9961,
+            "anomalousCount": 2060,
+            "abstainedCount": 7901,
+            "labelCounts": {
+              "unknown": 7901,
+              "noise-growth": 2029,
+              "sensor-lag": 31
+            },
+            "scoreIdentitySha256": "9481e4f41057118befa970acab8ce5bdee0bbf4936d99008ae2fa41c6e937c3c"
+          }
+        },
+        {
+          "benchmarkId": "temporal-investigation-180",
+          "operation": "temporal-investigation",
+          "workUnits": 180,
+          "workUnitLabel": "telemetry samples",
+          "warmupIterations": 1,
+          "measuredRepetitions": 3,
+          "durationsMs": [
+            14.4809,
+            15.5679,
+            9.3699
+          ],
+          "meanDurationMs": 13.139567,
+          "minimumDurationMs": 9.3699,
+          "maximumDurationMs": 15.5679,
+          "medianDurationMs": 14.4809,
+          "p95DurationMs": 15.5679,
+          "throughputPerSecond": 13699.081908,
+          "maximumObservedHeapBytes": 116044056,
+          "inputSha256": "bbae4d898da25da334dd21a406dc46007d77e2e3c909d434c8d83e1aadc3c168",
+          "configurationSha256": "c9f3aaea45582e0e3498ea1f5c1d0ded4fa99428a42f0ae0d5c5957aad832f45",
+          "outputSha256": "4e633708572363e6e19fa81b397c8a26bdf95feac93a5163d57c452bd2bd2fd2",
+          "outputDigestStable": true,
+          "outputSummary": {
+            "modelVersion": "2.0.0",
+            "modelRole": "integrated-production-advisory",
+            "authority": "deterministic-rules",
+            "pointCount": 180,
+            "indicationCount": 121,
+            "phaseTransitionCount": 6,
+            "deterministicDetectionIndex": 69,
+            "modelDetectionIndex": 68,
+            "analysisIdentitySha256": "e934fb0c57002fd05d96a21e6193c36ed0362aad787ce96e89508e5c51690d5d"
+          }
+        },
+        {
+          "benchmarkId": "temporal-investigation-1000",
+          "operation": "temporal-investigation",
+          "workUnits": 1000,
+          "workUnitLabel": "telemetry samples",
+          "warmupIterations": 1,
+          "measuredRepetitions": 3,
+          "durationsMs": [
+            67.3168,
+            59.3178,
+            64.219
+          ],
+          "meanDurationMs": 63.617867,
+          "minimumDurationMs": 59.3178,
+          "maximumDurationMs": 67.3168,
+          "medianDurationMs": 64.219,
+          "p95DurationMs": 67.3168,
+          "throughputPerSecond": 15718.854661,
+          "maximumObservedHeapBytes": 87602352,
+          "inputSha256": "a0f2c583c2f2e6b31d75a91b831b57d240819e0e7a65a01fceb5cb43b754c497",
+          "configurationSha256": "8067b14a5ea62518af37e03c5b1e98ae8c3cfcf1a5b5f88d40a87d3178485351",
+          "outputSha256": "7e33f85fe2e38be821fb18f4335766c7d101395c291b9f6296b834caf3238f67",
+          "outputDigestStable": true,
+          "outputSummary": {
+            "modelVersion": "2.0.0",
+            "modelRole": "integrated-production-advisory",
+            "authority": "deterministic-rules",
+            "pointCount": 1000,
+            "indicationCount": 516,
+            "phaseTransitionCount": 6,
+            "deterministicDetectionIndex": 381,
+            "modelDetectionIndex": 380,
+            "analysisIdentitySha256": "b618fd8a348ff74d35052649f9d104b47a509217cf0e3ba88bf09d0f00daa88e"
+          }
+        },
+        {
+          "benchmarkId": "temporal-investigation-10000",
+          "operation": "temporal-investigation",
+          "workUnits": 10000,
+          "workUnitLabel": "telemetry samples",
+          "warmupIterations": 1,
+          "measuredRepetitions": 3,
+          "durationsMs": [
+            582.8981,
+            624.6487,
+            730.0623
+          ],
+          "meanDurationMs": 645.8697,
+          "minimumDurationMs": 582.8981,
+          "maximumDurationMs": 730.0623,
+          "medianDurationMs": 624.6487,
+          "p95DurationMs": 730.0623,
+          "throughputPerSecond": 15482.999125,
+          "maximumObservedHeapBytes": 298016440,
+          "inputSha256": "a25f041d99a700cb3243050afdde41d17753bc5f686b3148625884de1d5c8c2c",
+          "configurationSha256": "bb01c17c9a5b7b0a0f6166b0a955488ccfbdf9374b586cdd672896d2b71fe865",
+          "outputSha256": "2ac300b1745718be2cfbda43f8d477a51d474b142589c0c8e0266040ef1278ce",
+          "outputDigestStable": true,
+          "outputSummary": {
+            "modelVersion": "2.0.0",
+            "modelRole": "integrated-production-advisory",
+            "authority": "deterministic-rules",
+            "pointCount": 10000,
+            "indicationCount": 5041,
+            "phaseTransitionCount": 6,
+            "deterministicDetectionIndex": 3801,
+            "modelDetectionIndex": 3800,
+            "analysisIdentitySha256": "7f05a6af7f2868b15e0b74647590701cfb2e092bb6c448b0933aa5adc624c748"
+          }
+        },
+        {
+          "benchmarkId": "temporal-campaign-11",
+          "operation": "temporal-campaign",
+          "workUnits": 11,
+          "workUnitLabel": "campaign cases",
+          "warmupIterations": 1,
+          "measuredRepetitions": 3,
+          "durationsMs": [
+            168.1854,
+            143.6898,
+            142.9526
+          ],
+          "meanDurationMs": 151.609267,
+          "minimumDurationMs": 142.9526,
+          "maximumDurationMs": 168.1854,
+          "medianDurationMs": 143.6898,
+          "p95DurationMs": 168.1854,
+          "throughputPerSecond": 72.554932,
+          "maximumObservedHeapBytes": 328378496,
+          "inputSha256": "1269c09bcaae170da453a121d55135a39d58010296e5f72f2d59240599ccb474",
+          "configurationSha256": "a0723bd34ea1b09f8717e9920254a6bb51bff58288cca4d9d17dfe25196e6ee1",
+          "outputSha256": "3f12aff4116795a8a2491643cce9d97763d2916b90f5f57d5500bf1d1d15f198",
+          "outputDigestStable": true,
+          "outputSummary": {
+            "modelVersion": "2.0.0",
+            "modelRole": "integrated-production-advisory",
+            "authority": "deterministic-rules",
+            "runId": "temporal-node-proxy-11-b8b20d0641374847",
+            "status": "completed",
+            "plannedCases": 11,
+            "completedCases": 11,
+            "failedCases": 0,
+            "detectionCount": 24,
+            "calibrationObservationCount": 1551,
+            "replaySpecSha256": "b8b20d0641374847193e875a413dd8988ec2e2616cdaf3b23cc8285e81f9046c",
+            "campaignIdentitySha256": "042deeba2fb1bee7203edcd7d8df01b30b0d6423f0aab8e1cc5075186ff1dda3"
+          }
+        },
+        {
+          "benchmarkId": "temporal-campaign-33",
+          "operation": "temporal-campaign",
+          "workUnits": 33,
+          "workUnitLabel": "campaign cases",
+          "warmupIterations": 1,
+          "measuredRepetitions": 3,
+          "durationsMs": [
+            352.8832,
+            319.723,
+            340.4648
+          ],
+          "meanDurationMs": 337.690333,
+          "minimumDurationMs": 319.723,
+          "maximumDurationMs": 352.8832,
+          "medianDurationMs": 340.4648,
+          "p95DurationMs": 352.8832,
+          "throughputPerSecond": 97.722667,
+          "maximumObservedHeapBytes": 336552888,
+          "inputSha256": "7b28ee2ac7828f5bb1cd7278286b841cd7cc1dc0f35d9ce5fc06c544ac311f91",
+          "configurationSha256": "15b97b96462b744344f58c42fed4bf58b3ef8a79ddcb80accbb09cd5c0a53ea6",
+          "outputSha256": "382f1e33d67c29396383178e408e5af386e9b59ccfd78a66791fad7d1976d6fc",
+          "outputDigestStable": true,
+          "outputSummary": {
+            "modelVersion": "2.0.0",
+            "modelRole": "integrated-production-advisory",
+            "authority": "deterministic-rules",
+            "runId": "temporal-node-proxy-33-c5c47577509dbd16",
+            "status": "completed",
+            "plannedCases": 33,
+            "completedCases": 33,
+            "failedCases": 0,
+            "detectionCount": 75,
+            "calibrationObservationCount": 4653,
+            "replaySpecSha256": "c5c47577509dbd16cdd7e064a117da54d0266d7c1348dc514cec1cea9fa87ee1",
+            "campaignIdentitySha256": "3c3177bdcb742c1f1d5130c6b0157721db27cb7e5a089dd8d6330230493ae1c5"
+          }
+        }
+      ],
+      "limitations": [
+        "These are local Node.js proxy measurements, not browser rendering or interaction latency.",
+        "Results depend on hardware, operating system, Node.js version, and background load.",
+        "All inputs are generated synthetic and unclassified demonstration data.",
+        "Campaign timing includes scenario generation, investigation, model advisory scoring, and campaign aggregation.",
+        "maximumObservedHeapBytes is the absolute Node.js heap sampled at measurement boundaries, not incremental allocation or a guaranteed peak.",
+        "No timing threshold is a release gate; deterministic output identity and completed execution are the correctness invariants."
+      ]
+    },
+    "campaign": {
+      "schemaVersion": "campaign.v1",
+      "artifactPath": "artifacts/temporal-campaign-report.json",
+      "artifactSha256": "8d99f3880d5173d8a1c3c2c0d17389d7133894c3bfccf959aeb39abbf665609a",
+      "runId": "temporal-20260717000000-3101-3102-3103-67f8c395f14a34be",
+      "campaignId": "temporal-20260717000000-3101-3102-3103",
+      "createdAt": "2026-07-17T00:00:00.000Z",
+      "status": "completed",
+      "replaySpecSha256": "67f8c395f14a34be2113b5be29c1b5a284b6cd7abbc6ac2b2a4f23152257205c",
+      "summary": {
+        "plannedCases": 93,
+        "attemptedCases": 93,
+        "completedCases": 93,
+        "failedCases": 0,
+        "remainingCases": 0
+      },
+      "metrics": {
+        "confusion": {
+          "truePositives": 145,
+          "falsePositives": 27,
+          "trueNegatives": 564,
+          "falseNegatives": 8
+        },
+        "episodes": {
+          "precision": 0.8430232558139535,
+          "recall": 0.9477124183006536,
+          "f1": 0.8923076923076924
+        },
+        "confusionByProfile": [
+          {
+            "groupId": "generic-fixed-wing@1.0.0",
+            "completedCases": 93,
+            "confusion": {
+              "truePositives": 145,
+              "falsePositives": 27,
+              "trueNegatives": 564,
+              "falseNegatives": 8
+            },
+            "episodes": {
+              "precision": 0.8430232558139535,
+              "recall": 0.9477124183006536,
+              "f1": 0.8923076923076924
+            }
+          }
+        ],
+        "confusionByPhase": [
+          {
+            "groupId": "all",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 0,
+              "falsePositives": 1,
+              "trueNegatives": 23,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0,
+              "recall": null,
+              "f1": null
+            }
+          },
+          {
+            "groupId": "climb",
+            "completedCases": 30,
+            "confusion": {
+              "truePositives": 46,
+              "falsePositives": 9,
+              "trueNegatives": 180,
+              "falseNegatives": 5
+            },
+            "episodes": {
+              "precision": 0.8363636363636363,
+              "recall": 0.9019607843137255,
+              "f1": 0.8679245283018867
+            }
+          },
+          {
+            "groupId": "cruise",
+            "completedCases": 30,
+            "confusion": {
+              "truePositives": 48,
+              "falsePositives": 9,
+              "trueNegatives": 180,
+              "falseNegatives": 3
+            },
+            "episodes": {
+              "precision": 0.8421052631578947,
+              "recall": 0.9411764705882353,
+              "f1": 0.8888888888888888
+            }
+          },
+          {
+            "groupId": "descent",
+            "completedCases": 30,
+            "confusion": {
+              "truePositives": 51,
+              "falsePositives": 8,
+              "trueNegatives": 181,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.864406779661017,
+              "recall": 1,
+              "f1": 0.9272727272727274
+            }
+          }
+        ],
+        "confusionByFault": [
+          {
+            "groupId": "cross-sensor-decoupling--high-long-descent",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 6,
+              "falsePositives": 1,
+              "trueNegatives": 17,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.8571428571428571,
+              "recall": 1,
+              "f1": 0.923076923076923
+            }
+          },
+          {
+            "groupId": "cross-sensor-decoupling--low-short-climb",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 6,
+              "falsePositives": 1,
+              "trueNegatives": 17,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.8571428571428571,
+              "recall": 1,
+              "f1": 0.923076923076923
+            }
+          },
+          {
+            "groupId": "cross-sensor-decoupling--standard-cruise",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 6,
+              "falsePositives": 1,
+              "trueNegatives": 17,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.8571428571428571,
+              "recall": 1,
+              "f1": 0.923076923076923
+            }
+          },
+          {
+            "groupId": "fuel-leak--high-long-descent",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "fuel-leak--low-short-climb",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "fuel-leak--standard-cruise",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "gain-error--high-long-descent",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "gain-error--low-short-climb",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "gain-error--standard-cruise",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "gradual-drift--high-long-descent",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 6,
+              "falsePositives": 1,
+              "trueNegatives": 17,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.8571428571428571,
+              "recall": 1,
+              "f1": 0.923076923076923
+            }
+          },
+          {
+            "groupId": "gradual-drift--low-short-climb",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 6,
+              "falsePositives": 1,
+              "trueNegatives": 17,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.8571428571428571,
+              "recall": 1,
+              "f1": 0.923076923076923
+            }
+          },
+          {
+            "groupId": "gradual-drift--standard-cruise",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 6,
+              "falsePositives": 1,
+              "trueNegatives": 17,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.8571428571428571,
+              "recall": 1,
+              "f1": 0.923076923076923
+            }
+          },
+          {
+            "groupId": "intermittent-dropout--high-long-descent",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "intermittent-dropout--low-short-climb",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "intermittent-dropout--standard-cruise",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "lag--high-long-descent",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "lag--low-short-climb",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 0,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 3
+            },
+            "episodes": {
+              "precision": 0,
+              "recall": 0,
+              "f1": 0
+            }
+          },
+          {
+            "groupId": "lag--standard-cruise",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 0,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 3
+            },
+            "episodes": {
+              "precision": 0,
+              "recall": 0,
+              "f1": 0
+            }
+          },
+          {
+            "groupId": "noise-growth--high-long-descent",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "noise-growth--low-short-climb",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "noise-growth--standard-cruise",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "nominal",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 0,
+              "falsePositives": 1,
+              "trueNegatives": 23,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0,
+              "recall": null,
+              "f1": null
+            }
+          },
+          {
+            "groupId": "oscillation--high-long-descent",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "oscillation--low-short-climb",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "oscillation--standard-cruise",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 3,
+              "falsePositives": 1,
+              "trueNegatives": 20,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            }
+          },
+          {
+            "groupId": "simultaneous-faults--high-long-descent",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 12,
+              "falsePositives": 0,
+              "trueNegatives": 12,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          {
+            "groupId": "simultaneous-faults--low-short-climb",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 12,
+              "falsePositives": 1,
+              "trueNegatives": 11,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.9230769230769231,
+              "recall": 1,
+              "f1": 0.9600000000000001
+            }
+          },
+          {
+            "groupId": "simultaneous-faults--standard-cruise",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 12,
+              "falsePositives": 1,
+              "trueNegatives": 11,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 0.9230769230769231,
+              "recall": 1,
+              "f1": 0.9600000000000001
+            }
+          },
+          {
+            "groupId": "stuck-value--high-long-descent",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 9,
+              "falsePositives": 0,
+              "trueNegatives": 15,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          },
+          {
+            "groupId": "stuck-value--low-short-climb",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 7,
+              "falsePositives": 0,
+              "trueNegatives": 15,
+              "falseNegatives": 2
+            },
+            "episodes": {
+              "precision": 1,
+              "recall": 0.7777777777777778,
+              "f1": 0.8750000000000001
+            }
+          },
+          {
+            "groupId": "stuck-value--standard-cruise",
+            "completedCases": 3,
+            "confusion": {
+              "truePositives": 9,
+              "falsePositives": 0,
+              "trueNegatives": 15,
+              "falseNegatives": 0
+            },
+            "episodes": {
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            }
+          }
+        ],
+        "scenarioCoverage": [
+          {
+            "scenarioId": "nominal",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 0,
+            "detectedExpectedEpisodes": 0,
+            "coverage": null
+          },
+          {
+            "scenarioId": "gradual-drift--low-short-climb",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 6,
+            "detectedExpectedEpisodes": 6,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "gradual-drift--standard-cruise",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 6,
+            "detectedExpectedEpisodes": 6,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "gradual-drift--high-long-descent",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 6,
+            "detectedExpectedEpisodes": 6,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "noise-growth--low-short-climb",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "noise-growth--standard-cruise",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "noise-growth--high-long-descent",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "oscillation--low-short-climb",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "oscillation--standard-cruise",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "oscillation--high-long-descent",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "lag--low-short-climb",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 0,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 0,
+            "coverage": 0
+          },
+          {
+            "scenarioId": "lag--standard-cruise",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 0,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 0,
+            "coverage": 0
+          },
+          {
+            "scenarioId": "lag--high-long-descent",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "intermittent-dropout--low-short-climb",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "intermittent-dropout--standard-cruise",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "intermittent-dropout--high-long-descent",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "stuck-value--low-short-climb",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 1,
+            "expectedEpisodes": 9,
+            "detectedExpectedEpisodes": 7,
+            "coverage": 0.7777777777777778
+          },
+          {
+            "scenarioId": "stuck-value--standard-cruise",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 9,
+            "detectedExpectedEpisodes": 9,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "stuck-value--high-long-descent",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 9,
+            "detectedExpectedEpisodes": 9,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "gain-error--low-short-climb",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "gain-error--standard-cruise",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "gain-error--high-long-descent",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "fuel-leak--low-short-climb",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "fuel-leak--standard-cruise",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "fuel-leak--high-long-descent",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 3,
+            "detectedExpectedEpisodes": 3,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "cross-sensor-decoupling--low-short-climb",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 6,
+            "detectedExpectedEpisodes": 6,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "cross-sensor-decoupling--standard-cruise",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 6,
+            "detectedExpectedEpisodes": 6,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "cross-sensor-decoupling--high-long-descent",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 6,
+            "detectedExpectedEpisodes": 6,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "simultaneous-faults--low-short-climb",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 12,
+            "detectedExpectedEpisodes": 12,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "simultaneous-faults--standard-cruise",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 12,
+            "detectedExpectedEpisodes": 12,
+            "coverage": 1
+          },
+          {
+            "scenarioId": "simultaneous-faults--high-long-descent",
+            "plannedCases": 3,
+            "completedCases": 3,
+            "casesWithAllExpected": 3,
+            "expectedEpisodes": 12,
+            "detectedExpectedEpisodes": 12,
+            "coverage": 1
+          }
+        ],
+        "falseAlarmsPerRun": 0.2903225806451613,
+        "falseAlarmsPerSyntheticHour": 5.838889890070283,
+        "syntheticHours": 4.6241666666666665,
+        "timeToDetection": {
+          "count": 145,
+          "minimum": 0,
+          "maximum": 134000,
+          "mean": 6662.068965517241,
+          "median": 2000,
+          "p95": 34000
+        },
+        "calibration": {
+          "observations": 13113,
+          "answered": 5713,
+          "abstained": 7400,
+          "abstentionRate": 0.5643254785327537,
+          "meanConfidence": 0.5697128877903608,
+          "meanConfidenceCorrect": 0.6564298969207432,
+          "meanConfidenceIncorrect": 0.5265703233527574,
+          "brierScore": 0.31350315467075046,
+          "expectedCalibrationError": 0.29149941220046055
+        },
+        "bootstrap": {
+          "precision": {
+            "estimate": 0.8430232558139535,
+            "lower": 0.7925531914893617,
+            "upper": 0.8901734104046243,
+            "confidenceLevel": 0.95,
+            "iterations": 300
+          },
+          "recall": {
+            "estimate": 0.9477124183006536,
+            "lower": 0.9135802469135802,
+            "upper": 0.9790209790209791,
+            "confidenceLevel": 0.95,
+            "iterations": 300
+          },
+          "f1": {
+            "estimate": 0.8923076923076924,
+            "lower": 0.858974358974359,
+            "upper": 0.9244186046511628,
+            "confidenceLevel": 0.95,
+            "iterations": 300
+          }
+        }
+      },
+      "boundary": {
+        "applicationFeature": "temporal-fault-intelligence",
+        "cadenceMs": 1000,
+        "dataClassification": "SYNTHETIC_UNCLASSIFIED",
+        "declaredScenarioCount": 30,
+        "deterministicAuthority": true,
+        "durationScales": [
+          0.75,
+          1,
+          1.25
+        ],
+        "faultFamilyCount": 10,
+        "faultVariationCount": 3,
+        "onsetPhases": [
+          "climb",
+          "cruise",
+          "descent"
+        ],
+        "sampleCount": 180,
+        "severityScales": [
+          0.65,
+          1,
+          1.35
+        ],
+        "supportedGeneratorProfile": "generic-fixed-wing@1.0.0",
+        "synthetic": true,
+        "unsupportedProfilesFailClosed": true
+      },
+      "evidencePolicy": {
+        "fullCampaignEmbedded": false,
+        "note": "The complete versioned campaign is published as a separate release artifact."
+      }
+    },
+    "authorityBoundary": "Both learned artifacts are advisory. Deterministic rules remain authoritative for verification status.",
+    "models": {
+      "research": {
+        "role": "research-evidence-only",
+        "productionPath": false,
+        "authority": "deterministic-rules",
+        "modelVersion": "1.0.0",
+        "artifactVersion": "temporal-fault-model.v1",
+        "modelType": "causal-dilated-convolution-nearest-centroid",
+        "artifactPath": "models/temporal_fault_model_v1.json",
+        "artifactSha256": "8d238523f942ccc2b4f60a0048ff413018059dd1e583a1be216653bc3ef60cf4",
+        "configurationSha256": "9c7639745597b7b5a1b1ea7d498dfb83ae9da045316445b4d77ffbb7696fa230",
+        "qualityGatePassed": true,
+        "evaluation": {
+          "artifactVersion": "temporal-fault-model.v1",
+          "baselineComparison": {
+            "comparability": {
+              "directlyComparable": [
+                "held-out seeds and magnitude distribution",
+                "binary episode precision, recall, F1, and false-positive rate"
+              ],
+              "groundTruthUse": "Fault labels and onset indices are used only to select the evaluation interval and score episode outcomes; detector inputs contain observations only.",
+              "interpretation": "Comparison metrics describe behavior on this declared synthetic projection only. They do not establish operational, aircraft, or safety performance.",
+              "notDirectlyComparable": [
+                "temporal fault classification, which only the temporal model provides",
+                "original robust covariance point-level metrics from its separate evaluation distribution",
+                "the six investigation rules excluded because required production signals are absent"
+              ]
+            },
+            "episodeDetectionDefinition": "A fault episode is positive when the detector emits at least one eligible anomaly at or after the declared onset; a nominal episode is positive when it emits at least one anomaly anywhere in the window.",
+            "evaluationPopulation": {
+              "cadenceMs": 1000,
+              "episodeUnit": "one generated 40-sample window for one seed and one label",
+              "episodes": 440,
+              "labels": [
+                "nominal",
+                "gradual-drift",
+                "noise-growth",
+                "oscillation",
+                "sensor-lag",
+                "intermittent-dropout",
+                "stuck-value",
+                "gain-error",
+                "fuel-leak",
+                "cross-sensor-decoupling",
+                "simultaneous-faults"
+              ],
+              "samplesPerEpisode": 40,
+              "seeds": [
+                3101,
+                3102,
+                3103,
+                3104,
+                3105,
+                3106,
+                3107,
+                3108,
+                3109,
+                3110,
+                3111,
+                3112,
+                3113,
+                3114,
+                3115,
+                3116,
+                3117,
+                3118,
+                3119,
+                3120,
+                3121,
+                3122,
+                3123,
+                3124,
+                3125,
+                3126,
+                3127,
+                3128,
+                3129,
+                3130,
+                3131,
+                3132,
+                3133,
+                3134,
+                3135,
+                3136,
+                3137,
+                3138,
+                3139,
+                3140
+              ],
+              "split": "held-out",
+              "unseenMagnitudeRange": [
+                0.72,
+                1.32
+              ]
+            },
+            "schemaVersion": "temporal-baseline-comparison.v1",
+            "systems": {
+              "deterministicInvestigationRules": {
+                "authority": "deterministic-rules",
+                "byFault": {
+                  "cross-sensor-decoupling": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "fuel-leak": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "gain-error": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "gradual-drift": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "intermittent-dropout": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "noise-growth": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "oscillation": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "sensor-lag": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "simultaneous-faults": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "stuck-value": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  }
+                },
+                "compatibleRuleDefinitions": {
+                  "investigation.sensor.missing": {
+                    "condition": "any available projected channel is null"
+                  },
+                  "investigation.vibration.rolling-noise": {
+                    "comparison": "greater-than",
+                    "statistic": "population-standard-deviation",
+                    "threshold": 0.025,
+                    "unit": "g",
+                    "windowSamples": 8
+                  }
+                },
+                "compatibleRuleIndications": {
+                  "investigation.sensor.missing": 468,
+                  "investigation.vibration.rolling-noise": 521
+                },
+                "compatibleRules": [
+                  "investigation.sensor.missing",
+                  "investigation.vibration.rolling-noise"
+                ],
+                "eligibleEpisodes": 440,
+                "excludedEpisodes": 0,
+                "excludedRules": [
+                  {
+                    "reason": "requires the production fusion estimator and normalized innovations from redundant altitude and vertical-rate sensors",
+                    "ruleId": "investigation.fusion.innovation"
+                  },
+                  {
+                    "reason": "requires separate barometricAltitude and gpsAltitude observations",
+                    "ruleId": "investigation.redundancy.altitude-disagreement"
+                  },
+                  {
+                    "reason": "requires separate indicatedAirspeed and gpsGroundSpeed observations",
+                    "ruleId": "investigation.redundancy.speed-disagreement"
+                  },
+                  {
+                    "reason": "requires separate inertialVerticalRate and barometricVerticalRate observations",
+                    "ruleId": "investigation.redundancy.vertical-rate-disagreement"
+                  },
+                  {
+                    "reason": "requires separate barometricAltitude and gpsAltitude histories",
+                    "ruleId": "investigation.sensor.stuck-barometric-altitude"
+                  },
+                  {
+                    "reason": "requires fuelQuantity and fuelFlow while the compact model window contains fuel only",
+                    "ruleId": "investigation.fuel.quantity-flow-relationship"
+                  }
+                ],
+                "implementationSource": "src/investigation/analyze.ts",
+                "implementationSourceSha256": "2022e49ef1c1d39cefb83a7f5afae9d7a261dd67f50476c6b566f995c4965b53",
+                "limitations": [
+                  "Only two of eight current investigation rules are compatible with the compact five-channel windows.",
+                  "The result cannot be used to rank the complete deterministic rule engine against either learned model."
+                ],
+                "mapping": "An episode is positive when either compatible observed-only rule emits at or after onset. This is a partial rule-suite result, not a score for the full production investigation engine.",
+                "metrics": {
+                  "f1": 0.333333333333,
+                  "falseNegatives": 320,
+                  "falsePositiveRate": 0,
+                  "falsePositives": 0,
+                  "precision": 1,
+                  "recall": 0.2,
+                  "trueNegatives": 40,
+                  "truePositives": 80
+                },
+                "status": "partially-evaluated"
+              },
+              "linearPredictionBaseline": {
+                "byFault": {
+                  "cross-sensor-decoupling": {
+                    "detected": 34,
+                    "detectionRecall": 0.85,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "fuel-leak": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "gain-error": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "gradual-drift": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "intermittent-dropout": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "noise-growth": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "oscillation": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "sensor-lag": {
+                    "detected": 25,
+                    "detectionRecall": 0.625,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "simultaneous-faults": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "stuck-value": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  }
+                },
+                "calibrationMethod": "99th percentile of nominal episode maximum scores",
+                "calibrationSeeds": [
+                  2101,
+                  2102,
+                  2103,
+                  2104,
+                  2105,
+                  2106,
+                  2107,
+                  2108,
+                  2109,
+                  2110,
+                  2111,
+                  2112,
+                  2113,
+                  2114,
+                  2115,
+                  2116,
+                  2117,
+                  2118,
+                  2119,
+                  2120
+                ],
+                "eligibleEpisodes": 440,
+                "excludedChannelObservations": 1102,
+                "excludedEpisodes": 0,
+                "limitations": [
+                  "This simple predictor is not the production sensor-fusion estimator.",
+                  "Missing channel values are excluded rather than treated as anomalies."
+                ],
+                "mapping": "Each channel is predicted from its two prior samples. The episode score is the maximum absolute robust-standardized one-step residual in the eligible evaluation interval.",
+                "method": "two-sample-linear-extrapolation-max-standardized-residual",
+                "metrics": {
+                  "f1": 0.618307426598,
+                  "falseNegatives": 221,
+                  "falsePositiveRate": 0,
+                  "falsePositives": 0,
+                  "precision": 1,
+                  "recall": 0.4475,
+                  "trueNegatives": 40,
+                  "truePositives": 179
+                },
+                "parameters": {
+                  "channels": [
+                    "airspeed",
+                    "altitude",
+                    "verticalRate",
+                    "fuel",
+                    "vibration"
+                  ],
+                  "episodeAggregation": "maximum channel score across eligible samples",
+                  "prediction": "value[t] = 2 * value[t-1] - value[t-2]",
+                  "residualCenter": {
+                    "airspeed": -0.08459510749,
+                    "altitude": -0.565565092301,
+                    "fuel": 0.000412559544,
+                    "verticalRate": -1.412238680205,
+                    "vibration": -0.000121837325
+                  },
+                  "residualScale": {
+                    "airspeed": 4.423826956718,
+                    "altitude": 51.878930892946,
+                    "fuel": 0.164372141446,
+                    "verticalRate": 84.123482727517,
+                    "vibration": 0.012547564021
+                  }
+                },
+                "status": "evaluated",
+                "threshold": 4.312707321424,
+                "trainingSeeds": [
+                  1101,
+                  1102,
+                  1103,
+                  1104,
+                  1105,
+                  1106,
+                  1107,
+                  1108,
+                  1109,
+                  1110,
+                  1111,
+                  1112,
+                  1113,
+                  1114,
+                  1115,
+                  1116,
+                  1117,
+                  1118,
+                  1119,
+                  1120,
+                  1121,
+                  1122,
+                  1123,
+                  1124,
+                  1125,
+                  1126,
+                  1127,
+                  1128,
+                  1129,
+                  1130,
+                  1131,
+                  1132,
+                  1133,
+                  1134,
+                  1135,
+                  1136,
+                  1137,
+                  1138,
+                  1139,
+                  1140
+                ]
+              },
+              "persistencePredictionBaseline": {
+                "byFault": {
+                  "cross-sensor-decoupling": {
+                    "detected": 35,
+                    "detectionRecall": 0.875,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "fuel-leak": {
+                    "detected": 29,
+                    "detectionRecall": 0.725,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "gain-error": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "gradual-drift": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "intermittent-dropout": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "noise-growth": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "oscillation": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "sensor-lag": {
+                    "detected": 27,
+                    "detectionRecall": 0.675,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "simultaneous-faults": {
+                    "detected": 29,
+                    "detectionRecall": 0.725,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "stuck-value": {
+                    "detected": 0,
+                    "detectionRecall": 0,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  }
+                },
+                "calibrationMethod": "99th percentile of nominal episode maximum scores",
+                "calibrationSeeds": [
+                  2101,
+                  2102,
+                  2103,
+                  2104,
+                  2105,
+                  2106,
+                  2107,
+                  2108,
+                  2109,
+                  2110,
+                  2111,
+                  2112,
+                  2113,
+                  2114,
+                  2115,
+                  2116,
+                  2117,
+                  2118,
+                  2119,
+                  2120
+                ],
+                "eligibleEpisodes": 440,
+                "excludedChannelObservations": 929,
+                "excludedEpisodes": 0,
+                "limitations": [
+                  "Persistence cannot model expected trend or periodic motion.",
+                  "Missing channel values are excluded rather than treated as anomalies."
+                ],
+                "mapping": "Each channel prediction is its prior observed value. The episode score is the maximum absolute robust-standardized one-step residual in the eligible evaluation interval.",
+                "method": "one-sample-persistence-max-standardized-residual",
+                "metrics": {
+                  "f1": 0.75,
+                  "falseNegatives": 160,
+                  "falsePositiveRate": 0,
+                  "falsePositives": 0,
+                  "precision": 1,
+                  "recall": 0.6,
+                  "trueNegatives": 40,
+                  "truePositives": 240
+                },
+                "parameters": {
+                  "channels": [
+                    "airspeed",
+                    "altitude",
+                    "verticalRate",
+                    "fuel",
+                    "vibration"
+                  ],
+                  "episodeAggregation": "maximum channel score across eligible samples",
+                  "prediction": "value[t] = value[t-1]",
+                  "residualCenter": {
+                    "airspeed": 0.020234275713,
+                    "altitude": 7.170370924494,
+                    "fuel": -0.015137948929,
+                    "verticalRate": -1.02939831833,
+                    "vibration": 0.000125598189
+                  },
+                  "residualScale": {
+                    "airspeed": 2.685935983377,
+                    "altitude": 37.491509084792,
+                    "fuel": 0.089425886157,
+                    "verticalRate": 50.50632380482,
+                    "vibration": 0.007610677708
+                  }
+                },
+                "status": "evaluated",
+                "threshold": 3.858281254216,
+                "trainingSeeds": [
+                  1101,
+                  1102,
+                  1103,
+                  1104,
+                  1105,
+                  1106,
+                  1107,
+                  1108,
+                  1109,
+                  1110,
+                  1111,
+                  1112,
+                  1113,
+                  1114,
+                  1115,
+                  1116,
+                  1117,
+                  1118,
+                  1119,
+                  1120,
+                  1121,
+                  1122,
+                  1123,
+                  1124,
+                  1125,
+                  1126,
+                  1127,
+                  1128,
+                  1129,
+                  1130,
+                  1131,
+                  1132,
+                  1133,
+                  1134,
+                  1135,
+                  1136,
+                  1137,
+                  1138,
+                  1139,
+                  1140
+                ]
+              },
+              "robustCovarianceDetector": {
+                "artifactSha256": "6b8f286e2b2d7db49a8953cae5e301c40bc3f6154cd0b3197afad5647310ce66",
+                "artifactVersion": "learned-baseline.v1",
+                "byFault": {
+                  "cross-sensor-decoupling": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "fuel-leak": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "gain-error": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "gradual-drift": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "intermittent-dropout": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "noise-growth": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "oscillation": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "sensor-lag": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "simultaneous-faults": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "stuck-value": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  }
+                },
+                "eligibleEpisodes": 440,
+                "eligiblePointObservations": 12152,
+                "excludedEpisodes": 0,
+                "excludedPointObservations": 468,
+                "limitations": [
+                  "The artifact was trained and calibrated on a different synthetic point distribution.",
+                  "Episode-level any-point aggregation differs from its original point-level evaluation.",
+                  "Incomplete samples cannot be scored and are excluded without imputation."
+                ],
+                "mapping": "The fixed pointwise artifact scores every complete sample at or after onset; an episode is positive when any eligible score meets its checked-in threshold.",
+                "metrics": {
+                  "f1": 0.952380952381,
+                  "falseNegatives": 0,
+                  "falsePositiveRate": 1,
+                  "falsePositives": 40,
+                  "precision": 0.909090909091,
+                  "recall": 1,
+                  "trueNegatives": 0,
+                  "truePositives": 400
+                },
+                "modelVersion": "1.0.0",
+                "recalibratedOnTemporalPopulation": false,
+                "status": "evaluated-with-transfer-limitations",
+                "threshold": 11.473097972204
+              },
+              "temporalModel": {
+                "byFault": {
+                  "cross-sensor-decoupling": {
+                    "detected": 37,
+                    "detectionRecall": 0.925,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "fuel-leak": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "gain-error": {
+                    "detected": 38,
+                    "detectionRecall": 0.95,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "gradual-drift": {
+                    "detected": 36,
+                    "detectionRecall": 0.9,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "intermittent-dropout": {
+                    "detected": 38,
+                    "detectionRecall": 0.95,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "noise-growth": {
+                    "detected": 38,
+                    "detectionRecall": 0.95,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "oscillation": {
+                    "detected": 38,
+                    "detectionRecall": 0.95,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "sensor-lag": {
+                    "detected": 28,
+                    "detectionRecall": 0.7,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "simultaneous-faults": {
+                    "detected": 40,
+                    "detectionRecall": 1,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  },
+                  "stuck-value": {
+                    "detected": 38,
+                    "detectionRecall": 0.95,
+                    "eligibleEpisodes": 40,
+                    "episodes": 40
+                  }
+                },
+                "eligibleEpisodes": 440,
+                "excludedEpisodes": 0,
+                "mapping": "The model emits one window-level anomaly decision. Unknown and abstained outputs map to no detection.",
+                "metrics": {
+                  "f1": 0.961139896373,
+                  "falseNegatives": 29,
+                  "falsePositiveRate": 0.025,
+                  "falsePositives": 1,
+                  "precision": 0.997311827957,
+                  "recall": 0.9275,
+                  "trueNegatives": 39,
+                  "truePositives": 371
+                },
+                "role": "candidate",
+                "status": "evaluated"
+              }
+            }
+          },
+          "enabledByDefault": true,
+          "evaluation": {
+            "abstentionRate": 0.043181818182,
+            "byFault": {
+              "cross-sensor-decoupling": {
+                "abstained": 1,
+                "classificationRecall": 0.9,
+                "correctlyClassified": 36,
+                "detected": 37,
+                "detectionRecall": 0.925,
+                "episodes": 40
+              },
+              "fuel-leak": {
+                "abstained": 0,
+                "classificationRecall": 1,
+                "correctlyClassified": 40,
+                "detected": 40,
+                "detectionRecall": 1,
+                "episodes": 40
+              },
+              "gain-error": {
+                "abstained": 2,
+                "classificationRecall": 0.925,
+                "correctlyClassified": 37,
+                "detected": 38,
+                "detectionRecall": 0.95,
+                "episodes": 40
+              },
+              "gradual-drift": {
+                "abstained": 2,
+                "classificationRecall": 0.9,
+                "correctlyClassified": 36,
+                "detected": 36,
+                "detectionRecall": 0.9,
+                "episodes": 40
+              },
+              "intermittent-dropout": {
+                "abstained": 2,
+                "classificationRecall": 0.95,
+                "correctlyClassified": 38,
+                "detected": 38,
+                "detectionRecall": 0.95,
+                "episodes": 40
+              },
+              "noise-growth": {
+                "abstained": 2,
+                "classificationRecall": 0.95,
+                "correctlyClassified": 38,
+                "detected": 38,
+                "detectionRecall": 0.95,
+                "episodes": 40
+              },
+              "oscillation": {
+                "abstained": 2,
+                "classificationRecall": 0.95,
+                "correctlyClassified": 38,
+                "detected": 38,
+                "detectionRecall": 0.95,
+                "episodes": 40
+              },
+              "sensor-lag": {
+                "abstained": 4,
+                "classificationRecall": 0.675,
+                "correctlyClassified": 27,
+                "detected": 28,
+                "detectionRecall": 0.7,
+                "episodes": 40
+              },
+              "simultaneous-faults": {
+                "abstained": 0,
+                "classificationRecall": 0.95,
+                "correctlyClassified": 38,
+                "detected": 40,
+                "detectionRecall": 1,
+                "episodes": 40
+              },
+              "stuck-value": {
+                "abstained": 2,
+                "classificationRecall": 0.95,
+                "correctlyClassified": 38,
+                "detected": 38,
+                "detectionRecall": 0.95,
+                "episodes": 40
+              }
+            },
+            "classificationMacroF1": 0.94734856407,
+            "episodeMetrics": {
+              "f1": 0.961139896373,
+              "falseNegatives": 29,
+              "falsePositiveRate": 0.025,
+              "falsePositives": 1,
+              "precision": 0.997311827957,
+              "recall": 0.9275,
+              "trueNegatives": 39,
+              "truePositives": 371
+            },
+            "examples": 440,
+            "f1ConfidenceInterval": {
+              "iterations": 300,
+              "lower95": 0.94405347036,
+              "method": "deterministic-bootstrap",
+              "seed": 22072,
+              "upper95": 0.973354940533
+            },
+            "seeds": [
+              3101,
+              3102,
+              3103,
+              3104,
+              3105,
+              3106,
+              3107,
+              3108,
+              3109,
+              3110,
+              3111,
+              3112,
+              3113,
+              3114,
+              3115,
+              3116,
+              3117,
+              3118,
+              3119,
+              3120,
+              3121,
+              3122,
+              3123,
+              3124,
+              3125,
+              3126,
+              3127,
+              3128,
+              3129,
+              3130,
+              3131,
+              3132,
+              3133,
+              3134,
+              3135,
+              3136,
+              3137,
+              3138,
+              3139,
+              3140
+            ],
+            "unseenMagnitudeRange": [
+              0.72,
+              1.32
+            ]
+          },
+          "generatedAt": "2026-07-17T00:00:00.000Z",
+          "modelVersion": "1.0.0",
+          "postHocGeneralizationChallenge": {
+            "dimensions": {
+              "activeDurationAndOnsetPhase": {
+                "configurations": [
+                  {
+                    "activeDurationSamples": 7,
+                    "activeEndSample": 9,
+                    "challengeId": "early-transient",
+                    "magnitude": 1,
+                    "onsetPhase": "early-window",
+                    "onsetSample": 3,
+                    "recoverySamples": 30
+                  },
+                  {
+                    "activeDurationSamples": 6,
+                    "activeEndSample": 22,
+                    "challengeId": "middle-transient",
+                    "magnitude": 1,
+                    "onsetPhase": "middle-window",
+                    "onsetSample": 17,
+                    "recoverySamples": 17
+                  },
+                  {
+                    "activeDurationSamples": 7,
+                    "activeEndSample": 34,
+                    "challengeId": "late-transient",
+                    "magnitude": 1,
+                    "onsetPhase": "late-window",
+                    "onsetSample": 28,
+                    "recoverySamples": 5
+                  },
+                  {
+                    "activeDurationSamples": 10,
+                    "activeEndSample": 39,
+                    "challengeId": "late-persistent",
+                    "magnitude": 1,
+                    "onsetPhase": "late-window",
+                    "onsetSample": 30,
+                    "recoverySamples": 0
+                  }
+                ],
+                "results": {
+                  "abstentionRate": 0.30487804878,
+                  "byConfiguration": {
+                    "early-transient": {
+                      "abstained": 39,
+                      "abstentionRate": 0.39,
+                      "classificationRecall": 0.26,
+                      "correctlyClassified": 26,
+                      "detected": 35,
+                      "detectionRecall": 0.35,
+                      "episodes": 100
+                    },
+                    "late-persistent": {
+                      "abstained": 10,
+                      "abstentionRate": 0.1,
+                      "classificationRecall": 0.41,
+                      "correctlyClassified": 41,
+                      "detected": 50,
+                      "detectionRecall": 0.5,
+                      "episodes": 100
+                    },
+                    "late-transient": {
+                      "abstained": 38,
+                      "abstentionRate": 0.38,
+                      "classificationRecall": 0.2,
+                      "correctlyClassified": 20,
+                      "detected": 34,
+                      "detectionRecall": 0.34,
+                      "episodes": 100
+                    },
+                    "middle-transient": {
+                      "abstained": 37,
+                      "abstentionRate": 0.37,
+                      "classificationRecall": 0.18,
+                      "correctlyClassified": 18,
+                      "detected": 31,
+                      "detectionRecall": 0.31,
+                      "episodes": 100
+                    }
+                  },
+                  "byFault": {
+                    "cross-sensor-decoupling": {
+                      "abstained": 7,
+                      "abstentionRate": 0.175,
+                      "classificationRecall": 0.75,
+                      "correctlyClassified": 30,
+                      "detected": 30,
+                      "detectionRecall": 0.75,
+                      "episodes": 40
+                    },
+                    "fuel-leak": {
+                      "abstained": 31,
+                      "abstentionRate": 0.775,
+                      "classificationRecall": 0,
+                      "correctlyClassified": 0,
+                      "detected": 0,
+                      "detectionRecall": 0,
+                      "episodes": 40
+                    },
+                    "gain-error": {
+                      "abstained": 5,
+                      "abstentionRate": 0.125,
+                      "classificationRecall": 0.85,
+                      "correctlyClassified": 34,
+                      "detected": 34,
+                      "detectionRecall": 0.85,
+                      "episodes": 40
+                    },
+                    "gradual-drift": {
+                      "abstained": 31,
+                      "abstentionRate": 0.775,
+                      "classificationRecall": 0.225,
+                      "correctlyClassified": 9,
+                      "detected": 9,
+                      "detectionRecall": 0.225,
+                      "episodes": 40
+                    },
+                    "intermittent-dropout": {
+                      "abstained": 4,
+                      "abstentionRate": 0.1,
+                      "classificationRecall": 0,
+                      "correctlyClassified": 0,
+                      "detected": 0,
+                      "detectionRecall": 0,
+                      "episodes": 40
+                    },
+                    "noise-growth": {
+                      "abstained": 4,
+                      "abstentionRate": 0.1,
+                      "classificationRecall": 0.225,
+                      "correctlyClassified": 9,
+                      "detected": 9,
+                      "detectionRecall": 0.225,
+                      "episodes": 40
+                    },
+                    "oscillation": {
+                      "abstained": 4,
+                      "abstentionRate": 0.1,
+                      "classificationRecall": 0.225,
+                      "correctlyClassified": 9,
+                      "detected": 36,
+                      "detectionRecall": 0.9,
+                      "episodes": 40
+                    },
+                    "sensor-lag": {
+                      "abstained": 3,
+                      "abstentionRate": 0.075,
+                      "classificationRecall": 0.325,
+                      "correctlyClassified": 13,
+                      "detected": 22,
+                      "detectionRecall": 0.55,
+                      "episodes": 40
+                    },
+                    "simultaneous-faults": {
+                      "abstained": 31,
+                      "abstentionRate": 0.775,
+                      "classificationRecall": 0,
+                      "correctlyClassified": 0,
+                      "detected": 9,
+                      "detectionRecall": 0.225,
+                      "episodes": 40
+                    },
+                    "stuck-value": {
+                      "abstained": 4,
+                      "abstentionRate": 0.1,
+                      "classificationRecall": 0.025,
+                      "correctlyClassified": 1,
+                      "detected": 1,
+                      "detectionRecall": 0.025,
+                      "episodes": 40
+                    }
+                  },
+                  "bySyntheticPhase": {
+                    "climb": {
+                      "abstained": 20,
+                      "abstentionRate": 0.25,
+                      "classificationRecall": 0.25,
+                      "correctlyClassified": 20,
+                      "detected": 28,
+                      "detectionRecall": 0.35,
+                      "episodes": 80
+                    },
+                    "cruise": {
+                      "abstained": 19,
+                      "abstentionRate": 0.2375,
+                      "classificationRecall": 0.275,
+                      "correctlyClassified": 22,
+                      "detected": 31,
+                      "detectionRecall": 0.3875,
+                      "episodes": 80
+                    },
+                    "descent": {
+                      "abstained": 48,
+                      "abstentionRate": 0.6,
+                      "classificationRecall": 0.1875,
+                      "correctlyClassified": 15,
+                      "detected": 21,
+                      "detectionRecall": 0.2625,
+                      "episodes": 80
+                    },
+                    "landing": {
+                      "abstained": 19,
+                      "abstentionRate": 0.2375,
+                      "classificationRecall": 0.3125,
+                      "correctlyClassified": 25,
+                      "detected": 36,
+                      "detectionRecall": 0.45,
+                      "episodes": 80
+                    },
+                    "takeoff": {
+                      "abstained": 18,
+                      "abstentionRate": 0.225,
+                      "classificationRecall": 0.2875,
+                      "correctlyClassified": 23,
+                      "detected": 34,
+                      "detectionRecall": 0.425,
+                      "episodes": 80
+                    }
+                  },
+                  "classificationMacroF1": 0.302221904014,
+                  "episodeMetrics": {
+                    "f1": 0.545454545455,
+                    "falseNegatives": 250,
+                    "falsePositiveRate": 0,
+                    "falsePositives": 0,
+                    "precision": 1,
+                    "recall": 0.375,
+                    "trueNegatives": 10,
+                    "truePositives": 150
+                  },
+                  "faultEpisodeAbstentionRate": 0.31,
+                  "population": {
+                    "faultEpisodes": 400,
+                    "nominalEpisodes": 10,
+                    "totalEpisodes": 410
+                  }
+                },
+                "syntheticPhaseLabels": [
+                  "climb",
+                  "cruise",
+                  "descent",
+                  "landing",
+                  "takeoff"
+                ],
+                "trainingActiveDurationRange": [
+                  25,
+                  30
+                ],
+                "trainingOnsetRange": [
+                  10,
+                  15
+                ]
+              },
+              "novelFaultCombinations": {
+                "activeDurationRule": "40 - onset",
+                "configurations": [
+                  {
+                    "challengeId": "drift-plus-noise",
+                    "components": [
+                      "gradual-drift",
+                      "noise-growth"
+                    ]
+                  },
+                  {
+                    "challengeId": "oscillation-plus-fuel-leak",
+                    "components": [
+                      "oscillation",
+                      "fuel-leak"
+                    ]
+                  },
+                  {
+                    "challengeId": "lag-plus-gain",
+                    "components": [
+                      "sensor-lag",
+                      "gain-error"
+                    ]
+                  },
+                  {
+                    "challengeId": "dropout-plus-decoupling",
+                    "components": [
+                      "intermittent-dropout",
+                      "cross-sensor-decoupling"
+                    ]
+                  },
+                  {
+                    "challengeId": "stuck-plus-fuel-leak",
+                    "components": [
+                      "stuck-value",
+                      "fuel-leak"
+                    ]
+                  }
+                ],
+                "knownTrainingCombination": {
+                  "components": [
+                    "gradual-drift",
+                    "fuel-leak"
+                  ],
+                  "label": "simultaneous-faults"
+                },
+                "magnitude": 1,
+                "onsetRule": "10 + seed modulo 6",
+                "results": {
+                  "byCombination": {
+                    "drift-plus-noise": {
+                      "abstained": 0,
+                      "abstentionRate": 0,
+                      "detected": 10,
+                      "detectionRecall": 1,
+                      "episodes": 10,
+                      "topOneComponentHypothesis": 10,
+                      "topOneComponentRate": 1,
+                      "topThreeComponentCoverage": 1,
+                      "topThreeContainsComponent": 10
+                    },
+                    "dropout-plus-decoupling": {
+                      "abstained": 3,
+                      "abstentionRate": 0.3,
+                      "detected": 7,
+                      "detectionRecall": 0.7,
+                      "episodes": 10,
+                      "topOneComponentHypothesis": 7,
+                      "topOneComponentRate": 0.7,
+                      "topThreeComponentCoverage": 1,
+                      "topThreeContainsComponent": 10
+                    },
+                    "lag-plus-gain": {
+                      "abstained": 1,
+                      "abstentionRate": 0.1,
+                      "detected": 9,
+                      "detectionRecall": 0.9,
+                      "episodes": 10,
+                      "topOneComponentHypothesis": 9,
+                      "topOneComponentRate": 0.9,
+                      "topThreeComponentCoverage": 1,
+                      "topThreeContainsComponent": 10
+                    },
+                    "oscillation-plus-fuel-leak": {
+                      "abstained": 10,
+                      "abstentionRate": 1,
+                      "detected": 0,
+                      "detectionRecall": 0,
+                      "episodes": 10,
+                      "topOneComponentHypothesis": 0,
+                      "topOneComponentRate": 0,
+                      "topThreeComponentCoverage": 1,
+                      "topThreeContainsComponent": 10
+                    },
+                    "stuck-plus-fuel-leak": {
+                      "abstained": 7,
+                      "abstentionRate": 0.7,
+                      "detected": 3,
+                      "detectionRecall": 0.3,
+                      "episodes": 10,
+                      "topOneComponentHypothesis": 3,
+                      "topOneComponentRate": 0.3,
+                      "topThreeComponentCoverage": 1,
+                      "topThreeContainsComponent": 10
+                    }
+                  },
+                  "classificationMetric": "not-scored-no-declared-combination-class",
+                  "componentHypothesisSummary": {
+                    "abstained": 21,
+                    "abstentionRate": 0.42,
+                    "detected": 29,
+                    "detectionRecall": 0.58,
+                    "episodes": 50,
+                    "topOneComponentHypothesis": 29,
+                    "topOneComponentRate": 0.58,
+                    "topThreeComponentCoverage": 1,
+                    "topThreeContainsComponent": 50
+                  },
+                  "episodeMetrics": {
+                    "f1": 0.73417721519,
+                    "falseNegatives": 21,
+                    "falsePositiveRate": 0,
+                    "falsePositives": 0,
+                    "precision": 1,
+                    "recall": 0.58,
+                    "trueNegatives": 10,
+                    "truePositives": 29
+                  },
+                  "population": {
+                    "faultEpisodes": 50,
+                    "nominalEpisodes": 10,
+                    "totalEpisodes": 60
+                  },
+                  "predictedLabelDistribution": {
+                    "cross-sensor-decoupling": 1,
+                    "fuel-leak": 3,
+                    "gain-error": 6,
+                    "intermittent-dropout": 6,
+                    "noise-growth": 10,
+                    "sensor-lag": 3,
+                    "unknown": 21
+                  }
+                }
+              },
+              "unseenMagnitude": {
+                "configurations": [
+                  {
+                    "challengeId": "low-outside-evaluation-range",
+                    "magnitude": 0.45
+                  },
+                  {
+                    "challengeId": "high-outside-evaluation-range",
+                    "magnitude": 1.6
+                  }
+                ],
+                "primaryHeldOutMagnitudeRange": [
+                  0.72,
+                  1.32
+                ],
+                "results": {
+                  "abstentionRate": 0.2,
+                  "byConfiguration": {
+                    "high-outside-evaluation-range": {
+                      "abstained": 27,
+                      "abstentionRate": 0.27,
+                      "classificationRecall": 0.73,
+                      "correctlyClassified": 73,
+                      "detected": 73,
+                      "detectionRecall": 0.73,
+                      "episodes": 100
+                    },
+                    "low-outside-evaluation-range": {
+                      "abstained": 14,
+                      "abstentionRate": 0.14,
+                      "classificationRecall": 0.3,
+                      "correctlyClassified": 30,
+                      "detected": 41,
+                      "detectionRecall": 0.41,
+                      "episodes": 100
+                    }
+                  },
+                  "byFault": {
+                    "cross-sensor-decoupling": {
+                      "abstained": 2,
+                      "abstentionRate": 0.1,
+                      "classificationRecall": 0.9,
+                      "correctlyClassified": 18,
+                      "detected": 18,
+                      "detectionRecall": 0.9,
+                      "episodes": 20
+                    },
+                    "fuel-leak": {
+                      "abstained": 3,
+                      "abstentionRate": 0.15,
+                      "classificationRecall": 0.4,
+                      "correctlyClassified": 8,
+                      "detected": 8,
+                      "detectionRecall": 0.4,
+                      "episodes": 20
+                    },
+                    "gain-error": {
+                      "abstained": 5,
+                      "abstentionRate": 0.25,
+                      "classificationRecall": 0.35,
+                      "correctlyClassified": 7,
+                      "detected": 9,
+                      "detectionRecall": 0.45,
+                      "episodes": 20
+                    },
+                    "gradual-drift": {
+                      "abstained": 2,
+                      "abstentionRate": 0.1,
+                      "classificationRecall": 0.5,
+                      "correctlyClassified": 10,
+                      "detected": 10,
+                      "detectionRecall": 0.5,
+                      "episodes": 20
+                    },
+                    "intermittent-dropout": {
+                      "abstained": 2,
+                      "abstentionRate": 0.1,
+                      "classificationRecall": 0.9,
+                      "correctlyClassified": 18,
+                      "detected": 18,
+                      "detectionRecall": 0.9,
+                      "episodes": 20
+                    },
+                    "noise-growth": {
+                      "abstained": 3,
+                      "abstentionRate": 0.15,
+                      "classificationRecall": 0.45,
+                      "correctlyClassified": 9,
+                      "detected": 9,
+                      "detectionRecall": 0.45,
+                      "episodes": 20
+                    },
+                    "oscillation": {
+                      "abstained": 4,
+                      "abstentionRate": 0.2,
+                      "classificationRecall": 0.35,
+                      "correctlyClassified": 7,
+                      "detected": 15,
+                      "detectionRecall": 0.75,
+                      "episodes": 20
+                    },
+                    "sensor-lag": {
+                      "abstained": 12,
+                      "abstentionRate": 0.6,
+                      "classificationRecall": 0.05,
+                      "correctlyClassified": 1,
+                      "detected": 1,
+                      "detectionRecall": 0.05,
+                      "episodes": 20
+                    },
+                    "simultaneous-faults": {
+                      "abstained": 6,
+                      "abstentionRate": 0.3,
+                      "classificationRecall": 0.35,
+                      "correctlyClassified": 7,
+                      "detected": 8,
+                      "detectionRecall": 0.4,
+                      "episodes": 20
+                    },
+                    "stuck-value": {
+                      "abstained": 2,
+                      "abstentionRate": 0.1,
+                      "classificationRecall": 0.9,
+                      "correctlyClassified": 18,
+                      "detected": 18,
+                      "detectionRecall": 0.9,
+                      "episodes": 20
+                    }
+                  },
+                  "bySyntheticPhase": {
+                    "climb": {
+                      "abstained": 5,
+                      "abstentionRate": 0.125,
+                      "classificationRecall": 0.575,
+                      "correctlyClassified": 23,
+                      "detected": 25,
+                      "detectionRecall": 0.625,
+                      "episodes": 40
+                    },
+                    "cruise": {
+                      "abstained": 4,
+                      "abstentionRate": 0.1,
+                      "classificationRecall": 0.575,
+                      "correctlyClassified": 23,
+                      "detected": 25,
+                      "detectionRecall": 0.625,
+                      "episodes": 40
+                    },
+                    "descent": {
+                      "abstained": 21,
+                      "abstentionRate": 0.525,
+                      "classificationRecall": 0.3,
+                      "correctlyClassified": 12,
+                      "detected": 13,
+                      "detectionRecall": 0.325,
+                      "episodes": 40
+                    },
+                    "landing": {
+                      "abstained": 6,
+                      "abstentionRate": 0.15,
+                      "classificationRecall": 0.55,
+                      "correctlyClassified": 22,
+                      "detected": 25,
+                      "detectionRecall": 0.625,
+                      "episodes": 40
+                    },
+                    "takeoff": {
+                      "abstained": 5,
+                      "abstentionRate": 0.125,
+                      "classificationRecall": 0.575,
+                      "correctlyClassified": 23,
+                      "detected": 26,
+                      "detectionRecall": 0.65,
+                      "episodes": 40
+                    }
+                  },
+                  "classificationMacroF1": 0.615713713198,
+                  "episodeMetrics": {
+                    "f1": 0.726114649682,
+                    "falseNegatives": 86,
+                    "falsePositiveRate": 0,
+                    "falsePositives": 0,
+                    "precision": 1,
+                    "recall": 0.57,
+                    "trueNegatives": 10,
+                    "truePositives": 114
+                  },
+                  "faultEpisodeAbstentionRate": 0.205,
+                  "population": {
+                    "faultEpisodes": 200,
+                    "nominalEpisodes": 10,
+                    "totalEpisodes": 210
+                  }
+                }
+              }
+            },
+            "frozenInference": {
+              "anomalyMarginThreshold": 0.019807710791,
+              "artifactSha256": "8d238523f942ccc2b4f60a0048ff413018059dd1e583a1be216653bc3ef60cf4",
+              "artifactVersion": "temporal-fault-model.v1",
+              "confidenceThreshold": 0.201783008564,
+              "configurationSha256": "9c7639745597b7b5a1b1ea7d498dfb83ae9da045316445b4d77ffbb7696fa230",
+              "fitOrCalibrationOnChallenge": false,
+              "inferenceInputs": [
+                "airspeed",
+                "altitude",
+                "verticalRate",
+                "fuel",
+                "vibration"
+              ],
+              "modelVersion": "1.0.0",
+              "temperature": 0.35
+            },
+            "groundTruthUse": "Fault labels, magnitude, onset, duration, and combination membership are retained outside inference and used only to construct synthetic observations and score results. The frozen predictor receives the five observed channels only.",
+            "heldOutSeeds": [
+              4101,
+              4102,
+              4103,
+              4104,
+              4105,
+              4106,
+              4107,
+              4108,
+              4109,
+              4110
+            ],
+            "limitations": [
+              "All challenge telemetry is generated, synthetic, and unclassified.",
+              "Challenge configurations were selected post hoc and are not an independent release gate.",
+              "Each dimension uses ten seeds, with two seeds for each synthetic phase label.",
+              "Onset phase describes location within the 40-sample window; phase labels are generator metadata, not a flight-dynamics simulation.",
+              "Novel combinations compose known synthetic effects and do not represent previously unseen physical fault mechanisms.",
+              "Exact classification is undefined for novel combinations because the model has no matching combination classes."
+            ],
+            "releaseGate": {
+              "included": false,
+              "reason": "The challenge was designed after the primary held-out gate and has no pre-registered acceptance threshold. Results are evidence and limitations only."
+            },
+            "schemaVersion": "temporal-generalization-challenge.v1",
+            "seedPartition": {
+              "disjointFromCalibration": true,
+              "disjointFromPrimaryHeldOut": true,
+              "disjointFromTraining": true
+            },
+            "status": "post-hoc-non-gating"
+          },
+          "qualityGate": {
+            "maximumFalsePositiveRate": 0.05,
+            "minimumClassificationMacroF1": 0.65,
+            "minimumEpisodeF1": 0.8,
+            "minimumPerFaultClassificationRecall": 0.65,
+            "observedMinimumPerFaultClassificationRecall": 0.675,
+            "passed": true
+          }
+        },
+        "registry": {
+          "registryEntryId": "generic-fixed-wing.temporal-fault",
+          "modelVersion": "1.0.0",
+          "profile": {
+            "id": "generic-fixed-wing",
+            "version": "1.0.0"
+          },
+          "artifact": {
+            "family": "temporal",
+            "artifactVersion": "temporal-fault-model.v1",
+            "modelType": "causal-dilated-convolution-nearest-centroid"
+          },
+          "compatibility": {
+            "schemaVersion": "telemetry.v1",
+            "requiredChannels": [
+              {
+                "channel": "airspeed",
+                "unit": "kts"
+              },
+              {
+                "channel": "altitude",
+                "unit": "ft"
+              },
+              {
+                "channel": "verticalRate",
+                "unit": "ft/min"
+              },
+              {
+                "channel": "fuel",
+                "unit": "%"
+              },
+              {
+                "channel": "vibration",
+                "unit": "g"
+              }
+            ],
+            "cadenceMs": 1000,
+            "cadenceToleranceMs": 100,
+            "windowLength": 40
+          },
+          "identities": {
+            "artifactSha256": "8d238523f942ccc2b4f60a0048ff413018059dd1e583a1be216653bc3ef60cf4",
+            "configurationSha256": "9c7639745597b7b5a1b1ea7d498dfb83ae9da045316445b4d77ffbb7696fa230"
+          },
+          "evidence": {
+            "training": {
+              "path": "models/temporal_fault_model_v1.json",
+              "jsonPointer": "/training",
+              "split": "training",
+              "seedSummary": "1101 through 1140"
+            },
+            "calibration": {
+              "path": "models/temporal_fault_model_v1.json",
+              "jsonPointer": "/calibration",
+              "split": "calibration",
+              "seedSummary": "2101 through 2120"
+            },
+            "evaluation": {
+              "path": "models/temporal_evaluation_v1.json",
+              "jsonPointer": "/evaluation",
+              "split": "held-out-evaluation",
+              "seedSummary": "3101 through 3140"
+            },
+            "modelCardPath": "models/TEMPORAL_MODEL_CARD.md",
+            "qualityGateJsonPointer": "/qualityGate"
+          },
+          "availability": "registered",
+          "defaultUserSelection": "disabled",
+          "authority": "deterministic-rules"
+        },
+        "registryEvidence": {
+          "registryEntryId": "generic-fixed-wing.temporal-fault",
+          "modelVersion": "1.0.0",
+          "valid": true,
+          "checkedReferences": [
+            {
+              "path": "models/temporal_fault_model_v1.json",
+              "jsonPointer": "/training",
+              "split": "training"
+            },
+            {
+              "path": "models/temporal_fault_model_v1.json",
+              "jsonPointer": "/calibration",
+              "split": "calibration"
+            },
+            {
+              "path": "models/temporal_evaluation_v1.json",
+              "jsonPointer": "/evaluation",
+              "split": "held-out-evaluation"
+            }
+          ],
+          "modelCardPath": "models/TEMPORAL_MODEL_CARD.md",
+          "qualityGateJsonPointer": "/qualityGate",
+          "errors": []
+        },
+        "evaluationExtensionIntegrity": {
+          "valid": true,
+          "errors": [],
+          "persistenceBaselinePresent": true,
+          "generalizationChallengePresent": true,
+          "challengePerformanceGated": false
+        }
+      },
+      "integrated": {
+        "role": "production-integrated-advisory",
+        "productionPath": true,
+        "authority": "deterministic-rules",
+        "modelVersion": "2.0.0",
+        "artifactVersion": "temporal-fault-model.v1",
+        "modelType": "causal-multiscale-feature-nearest-prototype",
+        "artifactPath": "models/temporal_fault_model_v2.json",
+        "artifactSha256": "4cdea6792b8d302a8cc0197caccbb4498b18d136b1c2ed93fe798d66a82633af",
+        "configurationSha256": "30300e753e278f3ea8633fe71fb6ecdcdecf5a52146c85d2c22c6e2facbe956c",
+        "qualityGatePassed": true,
+        "eligibility": {
+          "passed": true,
+          "metricScope": "selected-window",
+          "evaluationUnit": "selected causal 40-sample window",
+          "declaredArtifactGatePassed": true,
+          "thresholds": {
+            "minimumF1": 0.85,
+            "maximumFalsePositiveRate": 0.05,
+            "minimumClassificationMacroF1": 0.65,
+            "minimumPerFaultClassificationRecall": 0.65,
+            "minimumAnsweredObservations": 1,
+            "maximumAbstentionRate": 0.8
+          },
+          "observed": {
+            "f1": 0.986128625473,
+            "falsePositiveRate": 0.05,
+            "classificationMacroF1": 0.98546835443,
+            "minimumPerFaultClassificationRecall": 0.825,
+            "answeredObservations": 436,
+            "abstentionRate": 0.009090909091
+          }
+        },
+        "evaluation": {
+          "artifactSha256": "4cdea6792b8d302a8cc0197caccbb4498b18d136b1c2ed93fe798d66a82633af",
+          "artifactVersion": "temporal-fault-model.v1",
+          "configurationSha256": "30300e753e278f3ea8633fe71fb6ecdcdecf5a52146c85d2c22c6e2facbe956c",
+          "corpus": {
+            "projection": {
+              "cadenceMs": 1000,
+              "featureNames": [
+                "airspeed.mean",
+                "airspeed.std",
+                "airspeed.half-shift",
+                "airspeed.d1-rms",
+                "airspeed.d2-rms",
+                "airspeed.d4-rms",
+                "airspeed.curvature-rms",
+                "airspeed.freeze-ratio",
+                "airspeed.missing-fraction",
+                "altitude.mean",
+                "altitude.std",
+                "altitude.half-shift",
+                "altitude.d1-rms",
+                "altitude.d2-rms",
+                "altitude.d4-rms",
+                "altitude.curvature-rms",
+                "altitude.freeze-ratio",
+                "altitude.missing-fraction",
+                "verticalRate.mean",
+                "verticalRate.std",
+                "verticalRate.half-shift",
+                "verticalRate.d1-rms",
+                "verticalRate.d2-rms",
+                "verticalRate.d4-rms",
+                "verticalRate.curvature-rms",
+                "verticalRate.freeze-ratio",
+                "verticalRate.missing-fraction",
+                "fuel.mean",
+                "fuel.std",
+                "fuel.half-shift",
+                "fuel.d1-rms",
+                "fuel.d2-rms",
+                "fuel.d4-rms",
+                "fuel.curvature-rms",
+                "fuel.freeze-ratio",
+                "fuel.missing-fraction",
+                "vibration.mean",
+                "vibration.std",
+                "vibration.half-shift",
+                "vibration.d1-rms",
+                "vibration.d2-rms",
+                "vibration.d4-rms",
+                "vibration.curvature-rms",
+                "vibration.freeze-ratio",
+                "vibration.missing-fraction",
+                "cross.altitude-vertical-rate-correlation",
+                "cross.altitude-vertical-rate-best-lag",
+                "cross.altitude-vertical-rate-lag-improvement",
+                "cross.airspeed-altitude-correlation",
+                "cross.fuel-slope",
+                "cross.vibration-growth-ratio"
+              ],
+              "id": "investigation-model-projection",
+              "sampleCount": 180,
+              "version": "1.0.0",
+              "windowLength": 40
+            },
+            "schemaVersion": "temporal-integration-corpus.v1",
+            "splitSeedsDisjoint": true
+          },
+          "enabledByDefault": true,
+          "evaluation": {
+            "abstentionRate": 0.009090909091,
+            "answeredObservations": 436,
+            "bootstrapConfidenceIntervals": {
+              "confidenceLevel": 0.95,
+              "intervals": {
+                "classificationMacroF1": {
+                  "lower95": 0.976720288326,
+                  "upper95": 0.992436708861
+                },
+                "f1": {
+                  "lower95": 0.97845373891,
+                  "upper95": 0.992481203008
+                },
+                "minimumPerFaultClassificationRecall": {
+                  "lower95": 0.7,
+                  "upper95": 0.925
+                },
+                "precision": {
+                  "lower95": 0.987405541562,
+                  "upper95": 1
+                },
+                "recall": {
+                  "lower95": 0.965,
+                  "upper95": 0.99
+                }
+              },
+              "iterations": 1000,
+              "method": "deterministic-cluster-bootstrap-by-held-out-seed",
+              "resamplingUnit": "synthetic mission seed with all eleven selected label windows",
+              "seed": 22073
+            },
+            "byFault": {
+              "cross-sensor-decoupling": {
+                "abstained": 0,
+                "answered": 40,
+                "classificationRecall": 0.825,
+                "correctlyClassified": 33,
+                "detected": 33,
+                "detectionRecall": 0.825,
+                "observations": 40
+              },
+              "fuel-leak": {
+                "abstained": 0,
+                "answered": 40,
+                "classificationRecall": 1,
+                "correctlyClassified": 40,
+                "detected": 40,
+                "detectionRecall": 1,
+                "observations": 40
+              },
+              "gain-error": {
+                "abstained": 0,
+                "answered": 40,
+                "classificationRecall": 1,
+                "correctlyClassified": 40,
+                "detected": 40,
+                "detectionRecall": 1,
+                "observations": 40
+              },
+              "gradual-drift": {
+                "abstained": 0,
+                "answered": 40,
+                "classificationRecall": 1,
+                "correctlyClassified": 40,
+                "detected": 40,
+                "detectionRecall": 1,
+                "observations": 40
+              },
+              "intermittent-dropout": {
+                "abstained": 0,
+                "answered": 40,
+                "classificationRecall": 1,
+                "correctlyClassified": 40,
+                "detected": 40,
+                "detectionRecall": 1,
+                "observations": 40
+              },
+              "noise-growth": {
+                "abstained": 0,
+                "answered": 40,
+                "classificationRecall": 1,
+                "correctlyClassified": 40,
+                "detected": 40,
+                "detectionRecall": 1,
+                "observations": 40
+              },
+              "oscillation": {
+                "abstained": 0,
+                "answered": 40,
+                "classificationRecall": 1,
+                "correctlyClassified": 40,
+                "detected": 40,
+                "detectionRecall": 1,
+                "observations": 40
+              },
+              "sensor-lag": {
+                "abstained": 0,
+                "answered": 40,
+                "classificationRecall": 1,
+                "correctlyClassified": 40,
+                "detected": 40,
+                "detectionRecall": 1,
+                "observations": 40
+              },
+              "simultaneous-faults": {
+                "abstained": 1,
+                "answered": 39,
+                "classificationRecall": 0.975,
+                "correctlyClassified": 39,
+                "detected": 39,
+                "detectionRecall": 0.975,
+                "observations": 40
+              },
+              "stuck-value": {
+                "abstained": 1,
+                "answered": 39,
+                "classificationRecall": 0.975,
+                "correctlyClassified": 39,
+                "detected": 39,
+                "detectionRecall": 0.975,
+                "observations": 40
+              }
+            },
+            "classificationMacroF1": 0.98546835443,
+            "evaluationUnit": "selected causal 40-sample window",
+            "examples": 440,
+            "falsePositiveRateEvidence": {
+              "exactOneSidedUpper95": 0.149151961273,
+              "falsePositiveWindows": 2,
+              "method": "Clopper-Pearson exact binomial upper bound",
+              "nominalWindows": 40,
+              "observedRate": 0.05,
+              "populationRateAtMostFivePercentEstablished": false
+            },
+            "seeds": [
+              9101,
+              9102,
+              9103,
+              9104,
+              9105,
+              9106,
+              9107,
+              9108,
+              9109,
+              9110,
+              9111,
+              9112,
+              9113,
+              9114,
+              9115,
+              9116,
+              9117,
+              9118,
+              9119,
+              9120,
+              9121,
+              9122,
+              9123,
+              9124,
+              9125,
+              9126,
+              9127,
+              9128,
+              9129,
+              9130,
+              9131,
+              9132,
+              9133,
+              9134,
+              9135,
+              9136,
+              9137,
+              9138,
+              9139,
+              9140
+            ],
+            "selectedWindowMetrics": {
+              "f1": 0.986128625473,
+              "falseNegatives": 9,
+              "falsePositiveRate": 0.05,
+              "falsePositives": 2,
+              "precision": 0.994910941476,
+              "recall": 0.9775,
+              "trueNegatives": 38,
+              "truePositives": 391
+            }
+          },
+          "generatedAt": "2026-07-17T00:00:00.000Z",
+          "modelVersion": "2.0.0",
+          "qualityGate": {
+            "maximumAbstentionRate": 0.8,
+            "maximumSelectedWindowFalsePositiveRate": 0.05,
+            "minimumAnsweredObservations": 1,
+            "minimumClassificationMacroF1": 0.65,
+            "minimumPerFaultClassificationRecall": 0.65,
+            "minimumSelectedWindowF1": 0.85,
+            "observedAbstentionRate": 0.009090909091,
+            "observedAnsweredObservations": 436,
+            "observedMinimumPerFaultClassificationRecall": 0.825,
+            "passed": true
+          }
+        },
+        "registry": {
+          "registryEntryId": "generic-fixed-wing.temporal-fault",
+          "modelVersion": "2.0.0",
+          "profile": {
+            "id": "generic-fixed-wing",
+            "version": "1.0.0"
+          },
+          "artifact": {
+            "family": "temporal",
+            "artifactVersion": "temporal-fault-model.v1",
+            "modelType": "causal-multiscale-feature-nearest-prototype"
+          },
+          "compatibility": {
+            "schemaVersion": "telemetry.v1",
+            "requiredChannels": [
+              {
+                "channel": "airspeed",
+                "unit": "kts"
+              },
+              {
+                "channel": "altitude",
+                "unit": "ft"
+              },
+              {
+                "channel": "verticalRate",
+                "unit": "ft/min"
+              },
+              {
+                "channel": "fuel",
+                "unit": "%"
+              },
+              {
+                "channel": "vibration",
+                "unit": "g"
+              }
+            ],
+            "cadenceMs": 1000,
+            "cadenceToleranceMs": 100,
+            "windowLength": 40
+          },
+          "identities": {
+            "artifactSha256": "4cdea6792b8d302a8cc0197caccbb4498b18d136b1c2ed93fe798d66a82633af",
+            "configurationSha256": "30300e753e278f3ea8633fe71fb6ecdcdecf5a52146c85d2c22c6e2facbe956c"
+          },
+          "evidence": {
+            "training": {
+              "path": "models/temporal_fault_model_v2.json",
+              "jsonPointer": "/training",
+              "split": "training",
+              "seedSummary": "1101 through 1140"
+            },
+            "calibration": {
+              "path": "models/temporal_fault_model_v2.json",
+              "jsonPointer": "/calibration",
+              "split": "calibration",
+              "seedSummary": "2101 through 2120"
+            },
+            "evaluation": {
+              "path": "models/temporal_evaluation_v2.json",
+              "jsonPointer": "/evaluation",
+              "split": "held-out-evaluation",
+              "seedSummary": "9101 through 9140"
+            },
+            "modelCardPath": "models/TEMPORAL_INTEGRATION_MODEL_CARD.md",
+            "qualityGateJsonPointer": "/qualityGate"
+          },
+          "availability": "registered",
+          "defaultUserSelection": "disabled",
+          "authority": "deterministic-rules"
+        },
+        "registryEvidence": {
+          "registryEntryId": "generic-fixed-wing.temporal-fault",
+          "modelVersion": "2.0.0",
+          "valid": true,
+          "checkedReferences": [
+            {
+              "path": "models/temporal_fault_model_v2.json",
+              "jsonPointer": "/training",
+              "split": "training"
+            },
+            {
+              "path": "models/temporal_fault_model_v2.json",
+              "jsonPointer": "/calibration",
+              "split": "calibration"
+            },
+            {
+              "path": "models/temporal_evaluation_v2.json",
+              "jsonPointer": "/evaluation",
+              "split": "held-out-evaluation"
+            }
+          ],
+          "modelCardPath": "models/TEMPORAL_INTEGRATION_MODEL_CARD.md",
+          "qualityGateJsonPointer": "/qualityGate",
+          "errors": []
+        }
+      }
+    }
+  },
   "traceability": {
     "schemaVersion": "1.0.0",
-    "requirementCount": 100,
-    "declaredTestIdCount": 159
+    "requirementCount": 158,
+    "declaredTestIdCount": 247
+  },
+  "registryEvidence": {
+    "robustCovariance": {
+      "registryEntryId": "generic-fixed-wing.robust-covariance",
+      "modelVersion": "1.0.0",
+      "valid": true,
+      "checkedReferences": [
+        {
+          "path": "models/robust_covariance_v1.json",
+          "jsonPointer": "/training",
+          "split": "training"
+        },
+        {
+          "path": "models/robust_covariance_v1.json",
+          "jsonPointer": "/calibration",
+          "split": "calibration"
+        },
+        {
+          "path": "models/evaluation_v1.json",
+          "jsonPointer": "/evaluation",
+          "split": "held-out-evaluation"
+        }
+      ],
+      "modelCardPath": "models/MODEL_CARD.md",
+      "qualityGateJsonPointer": "/qualityGate",
+      "errors": []
+    },
+    "temporalFaultResearch": {
+      "registryEntryId": "generic-fixed-wing.temporal-fault",
+      "modelVersion": "1.0.0",
+      "valid": true,
+      "checkedReferences": [
+        {
+          "path": "models/temporal_fault_model_v1.json",
+          "jsonPointer": "/training",
+          "split": "training"
+        },
+        {
+          "path": "models/temporal_fault_model_v1.json",
+          "jsonPointer": "/calibration",
+          "split": "calibration"
+        },
+        {
+          "path": "models/temporal_evaluation_v1.json",
+          "jsonPointer": "/evaluation",
+          "split": "held-out-evaluation"
+        }
+      ],
+      "modelCardPath": "models/TEMPORAL_MODEL_CARD.md",
+      "qualityGateJsonPointer": "/qualityGate",
+      "errors": []
+    },
+    "temporalFaultIntegrated": {
+      "registryEntryId": "generic-fixed-wing.temporal-fault",
+      "modelVersion": "2.0.0",
+      "valid": true,
+      "checkedReferences": [
+        {
+          "path": "models/temporal_fault_model_v2.json",
+          "jsonPointer": "/training",
+          "split": "training"
+        },
+        {
+          "path": "models/temporal_fault_model_v2.json",
+          "jsonPointer": "/calibration",
+          "split": "calibration"
+        },
+        {
+          "path": "models/temporal_evaluation_v2.json",
+          "jsonPointer": "/evaluation",
+          "split": "held-out-evaluation"
+        }
+      ],
+      "modelCardPath": "models/TEMPORAL_INTEGRATION_MODEL_CARD.md",
+      "qualityGateJsonPointer": "/qualityGate",
+      "errors": []
+    }
   },
   "requirementResults": [
     {
@@ -491,7 +3950,7 @@
       "testIds": [
         "TC-CM-001"
       ],
-      "evidence": "Extracted-core branch coverage is 91.27 percent."
+      "evidence": "Extracted-core branch coverage is 90.18 percent."
     },
     {
       "requirementId": "FDW-ML-005",
@@ -501,6 +3960,34 @@
         "TC-ML-003"
       ],
       "evidence": "Committed held-out evaluation satisfies the declared F1 and false-positive gates."
+    },
+    {
+      "requirementId": "FDW-REG-001",
+      "status": "pass",
+      "testIds": [
+        "TC-REG-001",
+        "TC-REG-007"
+      ],
+      "evidence": "The v1 research and v2 integrated temporal artifact bytes and canonical configurations each recompute to their version-specific registered SHA-256 identities."
+    },
+    {
+      "requirementId": "FDW-TML-004",
+      "status": "pass",
+      "testIds": [
+        "TC-TML-005",
+        "TC-TML-012"
+      ],
+      "evidence": "The v2 production-integrated advisory artifact is evaluated on selected-window evidence and must satisfy the FDW-TML-004 thresholds plus any stricter artifact-declared threshold. The v1 research artifact is reported separately and cannot satisfy this requirement."
+    },
+    {
+      "requirementId": "FDW-CAM-005",
+      "status": "pass",
+      "testIds": [
+        "TC-CAM-001",
+        "TC-CAM-006",
+        "TC-CAM-009"
+      ],
+      "evidence": "The release campaign completed its declared matrix with a versioned specification hash and ordered replay manifest."
     }
   ],
   "releaseGates": {
@@ -513,7 +4000,26 @@
     "rapidDescent": true,
     "fuelChange": true,
     "branchCoverage": true,
-    "modelQuality": true
+    "modelQuality": true,
+    "modelEvidenceReferences": true,
+    "benchmarkApplicationVersion": true,
+    "benchmarkSourceRevision": true,
+    "temporalResearchModelQuality": true,
+    "temporalIntegratedDeclaredArtifactGate": true,
+    "temporalIntegratedModelQuality": true,
+    "temporalResearchModelEvidenceReferences": true,
+    "temporalIntegratedModelEvidenceReferences": true,
+    "temporalResearchEvaluationExtensions": true,
+    "temporalResearchArtifactIdentity": true,
+    "temporalIntegratedArtifactIdentity": true,
+    "temporalResearchConfigurationIdentity": true,
+    "temporalIntegratedConfigurationIdentity": true,
+    "temporalCampaignComplete": true,
+    "temporalBenchmarkBoundary": true,
+    "temporalBenchmarkApplicationVersion": true,
+    "temporalBenchmarkSourceRevision": true,
+    "temporalBenchmarkIntegratedModel": true,
+    "temporalCampaignBoundary": true
   },
   "exportPolicy": {
     "sourceDataIncluded": false,

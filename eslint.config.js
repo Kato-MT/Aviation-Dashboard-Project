@@ -36,6 +36,7 @@ export default tseslint.config(
       '.git/**',
       '.pnpm-store/**',
       '.tmp-tests/**',
+      'tmp????????/**',
       'dist/**',
       'dist-offline/**',
       'coverage/**',
