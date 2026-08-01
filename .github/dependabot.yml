@@ -10,6 +10,10 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
+    ignore:
+      - dependency-name: typescript
+        versions:
+          - '7.x'
     groups:
       production-dependencies:
         dependency-type: production
