@@ -42,8 +42,8 @@
     "validate": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm test:python && pnpm requirements:check && pnpm build && pnpm build:offline"
   },
   "dependencies": {
-    "@fontsource/inter": "5.2.8",
-    "@fontsource/jetbrains-mono": "5.2.8",
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0",
     "chart.js": "4.5.1",
     "papaparse": "5.5.4",
     "ws": "8.21.1"
