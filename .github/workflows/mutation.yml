@@ -4,14 +4,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'src/adapters/**'
-      - 'src/core/**'
-      - 'src/faults/**'
-      - 'tests/core/**'
-      - 'stryker.config.json'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
   workflow_dispatch:
 
 permissions:
