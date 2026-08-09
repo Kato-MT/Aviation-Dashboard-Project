@@ -36,12 +36,22 @@ describe('CSV parsing primitives', () => {
     expect(parseCsv('a,b\n\n1,2\n   ,  \n').records).toHaveLength(2);
   });
 
-  it('reports an unclosed quoted field', () => {
-    expect(parseCsv('a\n"x').errors[0]?.message).toContain('not closed');
+  it('TC-CSV-021 reports the record ordinal for an unclosed quoted field', () => {
+    expect(parseCsv('a\n"x').errors[0]).toEqual({
+      rowNumber: 2,
+      message: 'Quoted field was not closed before end of input.',
+    });
   });
 
   it('reports a quote in an unquoted field', () => {
-    expect(parseCsv('a\nx"y').errors[0]?.message).toContain('Unexpected quote');
+    expect(parseCsv('a\nx"y').errors[0]).toEqual({
+      rowNumber: 2,
+      message: 'Unexpected quote inside an unquoted field.',
+    });
+  });
+
+  it('TC-CSV-021 ignores blank records when numbering malformed quoting', () => {
+    expect(parseCsv('a\n\n\nx"y').errors[0]?.rowNumber).toBe(2);
   });
 
   it('removes a UTF-8 BOM from the first header', () => {
@@ -132,6 +142,38 @@ describe('legacy CSV adapter', () => {
     expect(run.samples).toHaveLength(1);
     expect(run.quarantinedRows).toHaveLength(1);
     expect(run.validationIssues[0]?.code).toBe('BLANK_VALUE');
+  });
+
+  it('TC-CSV-014 preserves source record ordinals through quarantine evidence', async () => {
+    const run = await csvAdapter.parse(
+      'timestamp,altitude_ft,speed_kts,fuel_pct\n00:00,1000,200,90\nbad-time,1100,205,89',
+    );
+    const quarantined = run.quarantinedRows[0];
+    const quarantinedIssue = quarantined?.issues.find(
+      (issue) => issue.code === 'INVALID_TIMESTAMP',
+    );
+    const validationIssue = run.validationIssues.find(
+      (issue) => issue.code === 'INVALID_TIMESTAMP',
+    );
+
+    expect(run.samples[0]?.rowNumber).toBe(2);
+    expect(quarantined?.rowNumber).toBe(3);
+    expect(quarantinedIssue?.rowNumber).toBe(3);
+    expect(validationIssue?.rowNumber).toBe(3);
+  });
+
+  it('TC-CSV-014 ignores blank records when numbering quarantine evidence', async () => {
+    const run = await csvAdapter.parse(
+      'timestamp,altitude_ft,speed_kts,fuel_pct\n\n\nbad-time,1100,205,89',
+    );
+    const quarantined = run.quarantinedRows[0];
+    const invalidTimestamp = run.validationIssues.find(
+      (issue) => issue.code === 'INVALID_TIMESTAMP',
+    );
+
+    expect(quarantined?.rowNumber).toBe(2);
+    expect(quarantined?.issues[0]?.rowNumber).toBe(2);
+    expect(invalidTimestamp?.rowNumber).toBe(2);
   });
 
   it('treats whitespace-only values as blank', async () => {

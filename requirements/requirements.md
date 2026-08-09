@@ -25,6 +25,7 @@
 | FDW-ING-015 | v2.0    | Every run shall include an SHA-256 hash of the exact input bytes.                                                                                                                                                                                                                     |
 | FDW-ING-016 | v2.0    | Duplicate source declarations and incompatible profile/schema combinations shall block analysis.                                                                                                                                                                                      |
 | FDW-ING-017 | v2.2.1  | Versioned JSON timestamps shall use the supported RFC 3339-compatible subset: a real Gregorian date, seconds `00` through `59`, an explicit UTC designator or numeric offset, and a normalized UTC year from `0000` through `9999`; invalid or ambiguous values shall be quarantined. |
+| FDW-ING-018 | v2.2.1  | CSV diagnostics and canonical row metadata shall use positive 1-based positions among retained nonblank parser records, with the header at position 1; these positions are not physical text-editor line numbers.                                                                     |
 
 ## Profiles and deterministic diagnostics
 
