@@ -248,14 +248,24 @@ describe('timestamp and feed diagnostics', () => {
     ).toBe(true);
   });
 
-  it('detects both a gap and stale feed at the stale threshold', () => {
+  it('TC-RULE-020 detects both a gap and stale feed above the stale threshold', () => {
     const samples = [
       makeSample(0),
-      makeSample(1, { timestampMs: 40_000, timestamp: new Date(40_000).toISOString() }),
+      makeSample(1, { timestampMs: 30_001, timestamp: new Date(30_001).toISOString() }),
     ];
     const rules = countFindingsByRule(analyze(samples).findings);
     expect(rules['time.timestamp.gap']).toBe(1);
     expect(rules['feed.source.stale']).toBe(1);
+  });
+
+  it('TC-RULE-021 allows the exact stale-feed threshold', () => {
+    const samples = [
+      makeSample(0),
+      makeSample(1, { timestampMs: 30_000, timestamp: new Date(30_000).toISOString() }),
+    ];
+    const rules = countFindingsByRule(analyze(samples).findings);
+    expect(rules['time.timestamp.gap']).toBe(1);
+    expect(rules['feed.source.stale']).toBeUndefined();
   });
 
   it('accepts cadence within tolerance', () => {
