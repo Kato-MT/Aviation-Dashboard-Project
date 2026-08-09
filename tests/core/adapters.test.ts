@@ -68,14 +68,43 @@ describe('timestamp normalization', () => {
     },
   );
 
-  it('normalizes an ISO timestamp to UTC', () => {
-    expect(parseIsoTimestamp('2026-07-17T01:00:00-04:00')?.normalized).toBe(
-      '2026-07-17T05:00:00.000Z',
-    );
+  it.each([
+    ['2026-07-17T01:00:00-04:00', '2026-07-17T05:00:00.000Z'],
+    ['2026-07-17t05:00:00z', '2026-07-17T05:00:00.000Z'],
+    ['2024-02-29T23:59:59.123456789Z', '2024-02-29T23:59:59.123Z'],
+    ['2000-02-29T00:00:00Z', '2000-02-29T00:00:00.000Z'],
+    ['2026-07-17T01:00:00-00:00', '2026-07-17T01:00:00.000Z'],
+    ['2026-07-17T01:02:03+23:59', '2026-07-16T01:03:03.000Z'],
+  ])('normalizes valid RFC 3339 timestamp %s to UTC', (input, normalized) => {
+    expect(parseIsoTimestamp(input)?.normalized).toBe(normalized);
   });
 
-  it('rejects an invalid ISO timestamp', () => {
-    expect(parseIsoTimestamp('today-ish')).toBeNull();
+  it.each([
+    '',
+    '0',
+    '01/02/2026',
+    'July 17, 2026 01:00:00 UTC',
+    '2026-07-17',
+    '2026-07-17T01:00:00',
+    '2026-07-17 01:00:00Z',
+    '2026-07-17T01:00Z',
+    '2026-07-17T01:00:00-0400',
+    '2026-02-29T00:00:00Z',
+    '1900-02-29T00:00:00Z',
+    '2026-02-30T00:00:00Z',
+    '2026-04-31T00:00:00Z',
+    '2026-00-01T00:00:00Z',
+    '2026-13-01T00:00:00Z',
+    '2026-01-00T00:00:00Z',
+    '2026-07-17T24:00:00Z',
+    '2026-07-17T23:59:60Z',
+    '2026-07-17T01:00:00+24:00',
+    '2026-07-17T01:00:00+01:60',
+    '0000-01-01T00:00:00+23:59',
+    '9999-12-31T23:59:59-23:59',
+    ' 2026-07-17T01:00:00Z ',
+  ])('TC-JSON-010 rejects noncanonical or unsupported timestamp "%s"', (input) => {
+    expect(parseIsoTimestamp(input)).toBeNull();
   });
 });
 
@@ -264,6 +293,18 @@ describe('versioned JSON adapter', () => {
     const samples = document.samples as Array<Record<string, unknown>>;
     samples[0] = { ...samples[0], timestamp: 'bad-time' };
     expect((await jsonAdapter.parse(document)).validationIssues[0]?.code).toBe('INVALID_TIMESTAMP');
+  });
+
+  it('TC-JSON-010 quarantines an ambiguous date-only JSON timestamp', async () => {
+    const document = versionedDocument();
+    const samples = document.samples as Array<Record<string, unknown>>;
+    samples[0] = { ...samples[0], timestamp: '2026-07-17' };
+
+    const run = await jsonAdapter.parse(document);
+
+    expect(run.samples).toHaveLength(samples.length - 1);
+    expect(run.quarantinedRows).toHaveLength(1);
+    expect(run.validationIssues.some((issue) => issue.code === 'INVALID_TIMESTAMP')).toBe(true);
   });
 
   it('quarantines a nonnumeric measurement', async () => {

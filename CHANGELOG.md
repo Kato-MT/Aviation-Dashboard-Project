@@ -7,6 +7,7 @@ All notable changes are documented here. This project follows [Semantic Versioni
 ### Fixed
 
 - Stabilized temporal-model distance summation across supported Python runtimes so exact artifact and configuration hashes reproduce without changing the published model identity.
+- Enforced the supported RFC 3339-compatible timestamp contract for versioned JSON input instead of accepting locale-dependent or calendar-rollover values.
 
 ## [2.2.0] - 2026-07-19
 

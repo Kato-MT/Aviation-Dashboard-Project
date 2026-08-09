@@ -45,7 +45,12 @@
         "properties": {
           "sourceId": { "type": "string", "minLength": 1 },
           "sequence": { "type": "integer", "minimum": 0 },
-          "timestamp": { "type": "string", "format": "date-time" },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt](?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:[Zz]|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)$",
+            "description": "Supported RFC 3339-compatible date-time with seconds 00-59 and an explicit UTC designator or numeric offset. Semantic validation also requires normalization to a four-digit UTC year from 0000 through 9999."
+          },
           "measurements": {
             "type": "object",
             "minProperties": 1,
