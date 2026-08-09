@@ -19,13 +19,14 @@ Each cataloged behavior has a stable `TC-*` identifier. Automated release eviden
 | TC-CSV-011  | `NaN` text quarantines the row.                                                                                                                                  |
 | TC-CSV-012  | Positive infinity text quarantines the row.                                                                                                                      |
 | TC-CSV-013  | Negative infinity text quarantines the row.                                                                                                                      |
-| TC-CSV-014  | Invalid timestamp quarantines the row with original row location.                                                                                                |
+| TC-CSV-014  | Invalid timestamp quarantines the row with its positive 1-based retained-record position, with the header at position 1.                                         |
 | TC-CSV-015  | Accepted plus quarantined rows reconcile with parsed rows.                                                                                                       |
 | TC-CSV-016  | Quoted delimiter and line break remain one escaped text field.                                                                                                   |
 | TC-CSV-017  | Duplicate source declaration blocks analysis.                                                                                                                    |
 | TC-CSV-018  | File above 10 MiB is rejected before parsing.                                                                                                                    |
 | TC-CSV-019  | Input above 250,000 samples is rejected explicitly.                                                                                                              |
 | TC-CSV-020  | Exactly 250,000 samples is handled according to the declared inclusive limit.                                                                                    |
+| TC-CSV-021  | Malformed quoting reports its positive 1-based retained-record position, with the header at position 1.                                                          |
 | TC-JSON-001 | Supported versioned JSON normalizes successfully.                                                                                                                |
 | TC-JSON-002 | Unsupported major version blocks analysis.                                                                                                                       |
 | TC-JSON-003 | Missing schema version blocks analysis.                                                                                                                          |

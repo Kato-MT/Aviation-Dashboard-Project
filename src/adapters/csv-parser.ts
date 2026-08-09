@@ -19,9 +19,11 @@ export function parseCsv(input: string): ParsedCsv {
 
   const finishRecord = (): void => {
     finishField();
-    if (record.some((value) => value.trim() !== '')) records.push(record);
+    if (record.some((value) => value.trim() !== '')) {
+      records.push(record);
+      rowNumber += 1;
+    }
     record = [];
-    rowNumber += 1;
   };
 
   for (let index = 0; index < input.length; index += 1) {
