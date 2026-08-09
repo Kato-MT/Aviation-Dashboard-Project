@@ -316,7 +316,7 @@ describe('sequence diagnostics', () => {
 });
 
 describe('sensor, schema, and profile diagnostics', () => {
-  it('reports one finding for one frozen segment', () => {
+  it('TC-RULE-018 reports once at the exact frozen-duration boundary', () => {
     const rule: DetectionRule = {
       id: 'test.frozen',
       kind: 'frozen',
@@ -333,9 +333,12 @@ describe('sensor, schema, and profile diagnostics', () => {
         measurements: { altitude: 1_000, speed: 200 + index, fuel: 90 - index },
       }),
     );
-    expect(
-      analyze(samples, [rule]).findings.filter((finding) => finding.ruleId === rule.id),
-    ).toHaveLength(1);
+    const findings = analyze(samples, [rule]).findings.filter(
+      (finding) => finding.ruleId === rule.id,
+    );
+    expect(findings).toHaveLength(1);
+    expect(findings[0]?.evidence.elapsedMs).toBe(30_000);
+    expect(findings[0]?.evidence.sampleIndices).toEqual([0, 3]);
   });
 
   it('does not join frozen segments across a changed value', () => {
