@@ -4,6 +4,10 @@ All notable changes are documented here. This project follows [Semantic Versioni
 
 ## [Unreleased]
 
+### Fixed
+
+- Stabilized temporal-model distance summation across supported Python runtimes so exact artifact and configuration hashes reproduce without changing the published model identity.
+
 ## [2.2.0] - 2026-07-19
 
 ### Added
