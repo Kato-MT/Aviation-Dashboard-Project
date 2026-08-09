@@ -10,6 +10,7 @@ All notable changes are documented here. This project follows [Semantic Versioni
 - Enforced the supported RFC 3339-compatible timestamp contract for versioned JSON input instead of accepting locale-dependent or calendar-rollover values.
 - Aligned CSV diagnostics and canonical metadata on positive 1-based retained-record positions, with mutation-resistant coverage.
 - Locked the stale-feed comparison to its documented strict boundary with focused mutation coverage.
+- Locked frozen-sensor reporting to the declared duration boundary while preserving one report per segment.
 
 ## [2.2.0] - 2026-07-19
 
