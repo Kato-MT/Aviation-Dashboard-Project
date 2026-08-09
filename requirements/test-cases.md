@@ -4,43 +4,44 @@ Each cataloged behavior has a stable `TC-*` identifier. Automated release eviden
 
 ## v2.0 adapters and validation
 
-| ID          | Behavior and expected result                                                             |
-| ----------- | ---------------------------------------------------------------------------------------- |
-| TC-CSV-001  | Included CSV parses with 85 accepted records.                                            |
-| TC-CSV-002  | Included CSV byte hash matches the controlled SHA-256 value.                             |
-| TC-CSV-003  | Empty file is a fatal validation failure.                                                |
-| TC-CSV-004  | Header-only CSV is a valid empty or explicitly empty state, as specified by the adapter. |
-| TC-CSV-005  | Missing required header blocks analysis.                                                 |
-| TC-CSV-006  | Duplicate required header blocks analysis.                                               |
-| TC-CSV-007  | Empty required numeric cell quarantines the row.                                         |
-| TC-CSV-008  | Whitespace-only numeric cell quarantines the row.                                        |
-| TC-CSV-009  | Literal numeric zero remains accepted.                                                   |
-| TC-CSV-010  | Alphabetic numeric text quarantines the row.                                             |
-| TC-CSV-011  | `NaN` text quarantines the row.                                                          |
-| TC-CSV-012  | Positive infinity text quarantines the row.                                              |
-| TC-CSV-013  | Negative infinity text quarantines the row.                                              |
-| TC-CSV-014  | Invalid timestamp quarantines the row with original row location.                        |
-| TC-CSV-015  | Accepted plus quarantined rows reconcile with parsed rows.                               |
-| TC-CSV-016  | Quoted delimiter and line break remain one escaped text field.                           |
-| TC-CSV-017  | Duplicate source declaration blocks analysis.                                            |
-| TC-CSV-018  | File above 10 MiB is rejected before parsing.                                            |
-| TC-CSV-019  | Input above 250,000 samples is rejected explicitly.                                      |
-| TC-CSV-020  | Exactly 250,000 samples is handled according to the declared inclusive limit.            |
-| TC-JSON-001 | Supported versioned JSON normalizes successfully.                                        |
-| TC-JSON-002 | Unsupported major version blocks analysis.                                               |
-| TC-JSON-003 | Missing schema version blocks analysis.                                                  |
-| TC-JSON-004 | Missing explicit unit blocks analysis.                                                   |
-| TC-JSON-005 | Unknown unit is rejected rather than guessed.                                            |
-| TC-JSON-006 | Missing measurements object quarantines the sample.                                      |
-| TC-JSON-007 | Hostile strings remain text in issue evidence.                                           |
-| TC-JSON-008 | Equivalent JSON and CSV produce equal canonical samples.                                 |
-| TC-JSON-009 | Equivalent JSON and CSV produce equal ordered findings.                                  |
-| TC-PRO-001  | Included baseline profile accepts the included fixture.                                  |
-| TC-PRO-002  | Generic fixed-wing synthetic profile loads with declared version and channels.           |
-| TC-PRO-003  | Generic rotary-wing synthetic profile loads with declared version and channels.          |
-| TC-PRO-004  | Profile/schema mismatch blocks analysis with explicit evidence.                          |
-| TC-PRO-005  | Missing required channel mapping blocks analysis.                                        |
-| TC-PRO-006  | Profile and adapter versions appear in provenance.                                       |
+| ID          | Behavior and expected result                                                                                                                                     |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TC-CSV-001  | Included CSV parses with 85 accepted records.                                                                                                                    |
+| TC-CSV-002  | Included CSV byte hash matches the controlled SHA-256 value.                                                                                                     |
+| TC-CSV-003  | Empty file is a fatal validation failure.                                                                                                                        |
+| TC-CSV-004  | Header-only CSV is a valid empty or explicitly empty state, as specified by the adapter.                                                                         |
+| TC-CSV-005  | Missing required header blocks analysis.                                                                                                                         |
+| TC-CSV-006  | Duplicate required header blocks analysis.                                                                                                                       |
+| TC-CSV-007  | Empty required numeric cell quarantines the row.                                                                                                                 |
+| TC-CSV-008  | Whitespace-only numeric cell quarantines the row.                                                                                                                |
+| TC-CSV-009  | Literal numeric zero remains accepted.                                                                                                                           |
+| TC-CSV-010  | Alphabetic numeric text quarantines the row.                                                                                                                     |
+| TC-CSV-011  | `NaN` text quarantines the row.                                                                                                                                  |
+| TC-CSV-012  | Positive infinity text quarantines the row.                                                                                                                      |
+| TC-CSV-013  | Negative infinity text quarantines the row.                                                                                                                      |
+| TC-CSV-014  | Invalid timestamp quarantines the row with original row location.                                                                                                |
+| TC-CSV-015  | Accepted plus quarantined rows reconcile with parsed rows.                                                                                                       |
+| TC-CSV-016  | Quoted delimiter and line break remain one escaped text field.                                                                                                   |
+| TC-CSV-017  | Duplicate source declaration blocks analysis.                                                                                                                    |
+| TC-CSV-018  | File above 10 MiB is rejected before parsing.                                                                                                                    |
+| TC-CSV-019  | Input above 250,000 samples is rejected explicitly.                                                                                                              |
+| TC-CSV-020  | Exactly 250,000 samples is handled according to the declared inclusive limit.                                                                                    |
+| TC-JSON-001 | Supported versioned JSON normalizes successfully.                                                                                                                |
+| TC-JSON-002 | Unsupported major version blocks analysis.                                                                                                                       |
+| TC-JSON-003 | Missing schema version blocks analysis.                                                                                                                          |
+| TC-JSON-004 | Missing explicit unit blocks analysis.                                                                                                                           |
+| TC-JSON-005 | Unknown unit is rejected rather than guessed.                                                                                                                    |
+| TC-JSON-006 | Missing measurements object quarantines the sample.                                                                                                              |
+| TC-JSON-007 | Hostile strings remain text in issue evidence.                                                                                                                   |
+| TC-JSON-008 | Equivalent JSON and CSV produce equal canonical samples.                                                                                                         |
+| TC-JSON-009 | Equivalent JSON and CSV produce equal ordered findings.                                                                                                          |
+| TC-JSON-010 | Ambiguous, timezone-free, impossible-calendar, unsupported, or out-of-four-digit-UTC-range date-time values quarantine the JSON sample with `INVALID_TIMESTAMP`. |
+| TC-PRO-001  | Included baseline profile accepts the included fixture.                                                                                                          |
+| TC-PRO-002  | Generic fixed-wing synthetic profile loads with declared version and channels.                                                                                   |
+| TC-PRO-003  | Generic rotary-wing synthetic profile loads with declared version and channels.                                                                                  |
+| TC-PRO-004  | Profile/schema mismatch blocks analysis with explicit evidence.                                                                                                  |
+| TC-PRO-005  | Missing required channel mapping blocks analysis.                                                                                                                |
+| TC-PRO-006  | Profile and adapter versions appear in provenance.                                                                                                               |
 
 ## v2.0 deterministic rules
 

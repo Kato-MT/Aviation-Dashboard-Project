@@ -30,7 +30,7 @@
     },
     {
       "area": "invalid-values-and-quarantine",
-      "requirements": ["FDW-ING-006", "FDW-ING-007", "FDW-ING-009"],
+      "requirements": ["FDW-ING-006", "FDW-ING-007", "FDW-ING-009", "FDW-ING-017"],
       "tests": [
         "TC-CSV-007",
         "TC-CSV-008",
@@ -42,7 +42,8 @@
         "TC-CSV-014",
         "TC-CSV-015",
         "TC-CSV-016",
-        "TC-JSON-006"
+        "TC-JSON-006",
+        "TC-JSON-010"
       ],
       "evidencePaths": ["tests/core", "tests/integration"]
     },

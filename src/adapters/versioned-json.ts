@@ -212,12 +212,13 @@ export class VersionedJsonAdapter implements TelemetryAdapter<VersionedJsonInput
           rowIssues.push({
             code: 'INVALID_TIMESTAMP',
             disposition: 'recoverable',
-            message: 'JSON sample timestamp must be a valid ISO-8601 timestamp.',
+            message: 'JSON sample timestamp must use the supported RFC 3339 date-time form.',
             rowNumber,
             sourceId: sourceId || undefined,
             channel: 'timestamp',
             observedValue: rawSample.timestamp,
-            expectedCondition: 'a valid ISO-8601 timestamp',
+            expectedCondition:
+              'a real calendar date with seconds 00-59, an explicit Z or signed HH:mm offset, and a normalized UTC year from 0000 through 9999',
           });
         }
 
