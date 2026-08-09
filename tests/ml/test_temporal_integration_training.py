@@ -10,6 +10,13 @@ import tools.ml.train_temporal_integration_model as integration
 
 
 class TemporalIntegrationTrainingTests(unittest.TestCase):
+    def test_distance_uses_cross_runtime_stable_summation(self) -> None:
+        # Built-in sum loses a low-order bit for this squared-distance vector.
+        left = [8.826206015115842, 2.1906508158960874e-36, 10.0414161998145]
+        right = [0.0, 0.0, 0.0]
+
+        self.assertEqual(integration._distance(left, right), 59.57731730638806)
+
     def test_actual_typescript_corpus_is_balanced_deterministic_and_disjoint(self) -> None:
         first = integration.load_integration_corpus()
         second = integration.load_integration_corpus()

@@ -163,7 +163,7 @@ def _centroid(rows: Sequence[Sequence[float]]) -> list[float]:
 
 
 def _distance(left: Sequence[float], right: Sequence[float]) -> float:
-    return sum((a - b) ** 2 for a, b in zip(left, right, strict=True)) / len(left)
+    return math.fsum((a - b) ** 2 for a, b in zip(left, right, strict=True)) / len(left)
 
 
 def _prototype_partition_id(example: dict[str, Any]) -> str:
