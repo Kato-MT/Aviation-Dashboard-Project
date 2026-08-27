@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
-    exclude: ['tests/browser/**', 'tests/accessibility/**'],
+    exclude: ['tests/browser/**', 'tests/accessibility/**', 'tests/worker/**'],
     reporters: ['default'],
     coverage: {
       provider: 'v8',
@@ -22,6 +22,7 @@ export default defineConfig({
         'src/ml/temporalModel.ts',
         'src/model-registry/**/*.ts',
         'src/temporal/**/*.ts',
+        'src/live/**/*.ts',
       ],
       exclude: ['**/*.d.ts', '**/index.ts', '**/types.ts', 'src/campaign/browserClient.ts'],
       thresholds: {

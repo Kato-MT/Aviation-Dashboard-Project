@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { LiveProviderError } from '../../src/live/provider';
-import { REGION_CONFIGS } from '../../src/live/regions';
+import { getRegionConfig, REGION_CONFIGS } from '../../src/live/regions';
 import { createAdsbLolProvider, normalizeAdsbLolPayload } from '../../src/live/providers/adsbLol';
 
 const region = REGION_CONFIGS[0];
@@ -29,6 +29,11 @@ function aircraft(overrides: Record<string, unknown> = {}): Record<string, unkno
 }
 
 describe('ADSB.lol provider normalization', () => {
+  it('resolves only declared region identifiers', () => {
+    expect(getRegionConfig('atlanta')?.label).toBe('Atlanta');
+    expect(getRegionConfig('worldwide')).toBeUndefined();
+  });
+
   it('maps provider data into explicit surveillance units', () => {
     const snapshot = normalizeAdsbLolPayload(
       { now: providerNow, ac: [aircraft()] },

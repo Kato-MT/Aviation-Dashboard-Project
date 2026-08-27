@@ -3,6 +3,10 @@ packages:
 
 allowBuilds:
   esbuild: true
+  workerd: true
+
+minimumReleaseAgeExclude:
+  - '@cloudflare/workers-types@5.20260827.1'
 
 overrides:
   qs: 6.15.2
