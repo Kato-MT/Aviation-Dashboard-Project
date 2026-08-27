@@ -24,6 +24,18 @@ Flight Diagnostics Workbench is an educational software engineering demonstratio
 - Timing behavior depends on the host event loop, browser throttling, and system load.
 - Multiple browser tabs or background-tab throttling can affect perceived heartbeat health.
 
+## Live airspace
+
+- Live observations come from a public receiver network and may be missing, delayed, duplicated, inaccurate, or unavailable. Coverage is not guaranteed.
+- Callsigns, registrations, types, altitudes, positions, speeds, tracks, vertical rates, and source classifications can be absent or wrong. The workbench does not fill missing fields with guesses.
+- Public surveillance data is not onboard telemetry and cannot establish aircraft health, maintenance condition, airworthiness, safety, affiliation, ownership, route, destination, or intent.
+- Session trails describe only observations received by the current browser session. They are not complete flight histories and are cleared on refresh or region change.
+- The configured provider documents dynamic rate limits and no project-owned service-level agreement. Backoff and a circuit breaker reduce load but cannot make an unavailable provider available.
+- ADSB.lol documents ODbL 1.0 for its public API data and asks production users to contact the operator. Current terms and coordination must be verified before public release.
+- The three Georgia presets are product scope and an abuse-control boundary, not a guarantee that every returned observation physically remains inside a precise polygon.
+- Live Airspace requires a network connection and edge deployment. The offline artifact preserves the synthetic lab but cannot provide live aircraft observations.
+- Infrastructure-provider processing and account-level logs are governed outside application storage. Review the Cloudflare account configuration and policies before production use.
+
 ## Experimental learned baseline
 
 - Training and evaluation use generated synthetic telemetry and labeled injected faults.

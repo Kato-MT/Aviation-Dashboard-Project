@@ -196,6 +196,14 @@ The browser exports campaign evidence without uploaded telemetry. Ordered Python
 
 Chart.js renders linked observed, predicted, fused, uncertainty, phase, fault-lifecycle, detection, and residual evidence. Replay and chart seeking use a shared selected-sample index. Keyboard controls, text status, reduced motion, responsive layouts, and explicit empty, unsupported, warning, cancellation, and failure states remain part of the UI contract.
 
+### 17. v3.0 live airspace
+
+Live Airspace is a separate public-surveillance path that does not enter the synthetic diagnostic rule or learned-model pipelines. A provider-neutral `airspace.v1` contract normalizes one fixed regional ADS-B query. The Cloudflare Worker routes the region to one Durable Object, which coordinates one in-flight provider poll, hibernatable WebSocket clients, Retry-After-aware backoff, circuit state, and aggregate-only feed metrics.
+
+The browser bootstraps from a validated snapshot, then consumes the versioned WebSocket protocol through a regional runtime. It retains bounded, session-only trails and explicitly ages evidence through live, degraded, stale, reconnecting, and offline states. Changing regions creates a new session. Public surveillance fields never become onboard health or maintenance evidence.
+
+See [Live Airspace v3.0](live-airspace.md) and [ADR 0007](adr/0007-live-airspace-edge-coordinator.md).
+
 ## Trust boundaries
 
 ```mermaid
@@ -208,7 +216,7 @@ flowchart TB
     S --> P["Optional local history import"]
 ```
 
-The browser is the primary trust boundary. GitHub Pages serves static assets only. The local simulator and analytics tools are developer features and do not receive public web uploads.
+The browser remains the primary synthetic-data trust boundary. The live path adds the public provider, Cloudflare Worker, and per-region Durable Object as separate external and edge boundaries. The local simulator and analytics tools remain developer features and do not receive public web uploads.
 
 ## Build and deployment
 
@@ -216,6 +224,6 @@ The browser is the primary trust boundary. GitHub Pages serves static assets onl
 - The Pages artifact and offline HTML artifact come from the same commit and lockfile.
 - CI checks normal, empty, failure, accessibility, responsive, and offline paths.
 - Release automation generates an SBOM, checksums, and provenance for the exact release artifacts.
-- GitHub Pages deploys only after CI succeeds for the selected commit.
+- The v2 static release uses GitHub Pages. The v3 live release uses one Cloudflare Worker deployment for static assets and same-origin API routes after the exact commit passes its release gates.
 
 See [configuration-management.md](configuration-management.md) for version ownership and [release-verification.md](release-verification.md) for the evidence gate.

@@ -97,6 +97,8 @@ The workbench enforces a 10 MiB upload limit and a 250,000-sample limit with exp
 ## Architecture and assurance
 
 - [Architecture](docs/architecture.md)
+- [Live Airspace v3.0 implementation and release gates](docs/live-airspace.md)
+- [Live Airspace edge-coordinator decision](docs/adr/0007-live-airspace-edge-coordinator.md)
 - [Requirements](requirements/requirements.md)
 - [Traceability matrix](requirements/traceability.md)
 - [Test plan](docs/test-plan.md)
