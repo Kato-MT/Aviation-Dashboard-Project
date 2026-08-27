@@ -157,6 +157,12 @@ describe('LiveAirspaceSession', () => {
     const session = new LiveAirspaceSession('atlanta');
     expect(session.markConnecting().phase).toBe('connecting');
     expect(session.markConnecting(true).phase).toBe('reconnecting');
+    expect(session.markConnected().phase).toBe('connecting');
+    expect(session.recordError('Snapshot failed.').lastError).toBe('Snapshot failed.');
+    expect(session.markOffline('Stream offline.')).toMatchObject({
+      phase: 'offline',
+      lastError: 'Stream offline.',
+    });
     expect(session.applyHealth(health('degraded')).qualityEvents.at(-1)).toMatchObject({
       code: 'LIVE-DQ-005',
       kind: 'upstream-degraded',

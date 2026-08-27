@@ -255,7 +255,27 @@ export class LiveAirspaceSession {
     this.stateValue = {
       ...this.stateValue,
       phase: reconnecting ? 'reconnecting' : 'connecting',
+      lastError: undefined,
     };
+    return this.stateValue;
+  }
+
+  markConnected(): LiveSessionState {
+    this.stateValue = {
+      ...this.stateValue,
+      phase: this.stateValue.health?.status ?? (this.stateValue.snapshot ? 'live' : 'connecting'),
+      lastError: undefined,
+    };
+    return this.stateValue;
+  }
+
+  markOffline(message: string): LiveSessionState {
+    this.stateValue = { ...this.stateValue, phase: 'offline', lastError: message };
+    return this.stateValue;
+  }
+
+  recordError(message: string): LiveSessionState {
+    this.stateValue = { ...this.stateValue, lastError: message };
     return this.stateValue;
   }
 
