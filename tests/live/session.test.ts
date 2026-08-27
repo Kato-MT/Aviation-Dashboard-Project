@@ -112,6 +112,47 @@ describe('LiveAirspaceSession', () => {
     ]);
   });
 
+  it('records quality-state transitions without repeating an unchanged warning', () => {
+    const session = new LiveAirspaceSession('atlanta');
+    const first = snapshot(1);
+    first.aircraft[0]!.qualityFlags = ['stale-position'];
+    session.applySnapshot(first);
+    const second = snapshot(2);
+    second.aircraft[0]!.qualityFlags = ['stale-position'];
+    expect(session.applySnapshot(second).qualityEvents).toHaveLength(1);
+
+    session.applyHealth(health('degraded'));
+    session.applyHealth({ ...health('degraded'), checkedAt: '2026-08-27T12:00:10.000Z' });
+    expect(session.state.qualityEvents.filter(({ code }) => code === 'LIVE-DQ-005')).toHaveLength(
+      1,
+    );
+  });
+
+  it('bounds total aircraft trails and evicts tracks absent from the current picture first', () => {
+    const session = new LiveAirspaceSession('atlanta', { maximumAircraftTrails: 2 });
+    const first = snapshot(1);
+    first.aircraft = [
+      first.aircraft[0]!,
+      {
+        ...first.aircraft[0]!,
+        aircraftId: 'old-track',
+        position: { latitude: 33, longitude: -84 },
+      },
+    ];
+    session.applySnapshot(first);
+    const second = snapshot(2);
+    second.aircraft = [
+      second.aircraft[0]!,
+      {
+        ...second.aircraft[0]!,
+        aircraftId: 'new-track',
+        position: { latitude: 34, longitude: -84 },
+      },
+    ];
+    const trails = session.applySnapshot(second).trails;
+    expect([...trails.keys()]).toEqual(['a1b2c3', 'new-track']);
+  });
+
   it('tracks feed health, upstream evidence, selection, and errors', () => {
     const session = new LiveAirspaceSession('atlanta');
     expect(session.markConnecting().phase).toBe('connecting');
@@ -153,6 +194,9 @@ describe('LiveAirspaceSession', () => {
     );
     expect(() => new LiveAirspaceSession('atlanta', { maximumQualityEvents: 0 })).toThrow(
       'maximumQualityEvents',
+    );
+    expect(() => new LiveAirspaceSession('atlanta', { maximumAircraftTrails: 0 })).toThrow(
+      'maximumAircraftTrails',
     );
     expect(
       () => new LiveAirspaceSession('atlanta', { staleAfterMs: 100, offlineAfterMs: 100 }),

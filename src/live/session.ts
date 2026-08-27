@@ -27,6 +27,7 @@ export interface LiveSessionState {
 
 export interface LiveSessionOptions {
   maximumTrailPoints: number;
+  maximumAircraftTrails: number;
   maximumQualityEvents: number;
   staleAfterMs: number;
   offlineAfterMs: number;
@@ -34,6 +35,7 @@ export interface LiveSessionOptions {
 
 const DEFAULT_OPTIONS: LiveSessionOptions = {
   maximumTrailPoints: 180,
+  maximumAircraftTrails: 500,
   maximumQualityEvents: 200,
   staleAfterMs: 25_000,
   offlineAfterMs: 90_000,
@@ -45,10 +47,20 @@ function cloneTrails(
   return new Map([...trails].map(([aircraftId, points]) => [aircraftId, [...points]]));
 }
 
-function qualityEvents(snapshot: AirspaceSnapshot): LiveQualityEvent[] {
+function qualityEvents(
+  snapshot: AirspaceSnapshot,
+  previousSnapshot?: AirspaceSnapshot,
+): LiveQualityEvent[] {
   const events: LiveQualityEvent[] = [];
+  const previousFlags = new Map(
+    previousSnapshot?.aircraft.map((aircraft) => [
+      aircraft.aircraftId,
+      new Set(aircraft.qualityFlags),
+    ]) ?? [],
+  );
   for (const aircraft of snapshot.aircraft) {
     for (const flag of aircraft.qualityFlags) {
+      if (previousFlags.get(aircraft.aircraftId)?.has(flag)) continue;
       const details = {
         regionId: snapshot.regionId,
         aircraftId: aircraft.aircraftId,
@@ -93,6 +105,22 @@ function qualityEvents(snapshot: AirspaceSnapshot): LiveQualityEvent[] {
   return events;
 }
 
+function boundAircraftTrails(
+  trails: Map<string, TrailPoint[]>,
+  currentAircraftIds: ReadonlySet<string>,
+  maximumAircraftTrails: number,
+): void {
+  if (trails.size <= maximumAircraftTrails) return;
+  const expired = [...trails.keys()].filter((aircraftId) => !currentAircraftIds.has(aircraftId));
+  const candidates = [...expired, ...trails.keys()].filter(
+    (aircraftId, index, all) => all.indexOf(aircraftId) === index,
+  );
+  for (const aircraftId of candidates) {
+    if (trails.size <= maximumAircraftTrails) break;
+    trails.delete(aircraftId);
+  }
+}
+
 function addTrailPoint(
   trails: Map<string, TrailPoint[]>,
   aircraft: AircraftState,
@@ -135,6 +163,12 @@ export class LiveAirspaceSession {
       throw new RangeError('maximumTrailPoints must be a positive safe integer.');
     }
     if (
+      !Number.isSafeInteger(this.options.maximumAircraftTrails) ||
+      this.options.maximumAircraftTrails < 1
+    ) {
+      throw new RangeError('maximumAircraftTrails must be a positive safe integer.');
+    }
+    if (
       !Number.isSafeInteger(this.options.maximumQualityEvents) ||
       this.options.maximumQualityEvents < 1
     ) {
@@ -168,9 +202,15 @@ export class LiveAirspaceSession {
     for (const aircraft of snapshot.aircraft) {
       addTrailPoint(trails, aircraft, this.options.maximumTrailPoints);
     }
-    const events = [...this.stateValue.qualityEvents, ...qualityEvents(snapshot)].slice(
-      -this.options.maximumQualityEvents,
+    boundAircraftTrails(
+      trails,
+      new Set(snapshot.aircraft.map(({ aircraftId }) => aircraftId)),
+      this.options.maximumAircraftTrails,
     );
+    const events = [
+      ...this.stateValue.qualityEvents,
+      ...qualityEvents(snapshot, this.stateValue.snapshot),
+    ].slice(-this.options.maximumQualityEvents);
     this.stateValue = {
       ...this.stateValue,
       phase: this.stateValue.health?.status ?? 'live',
@@ -189,7 +229,7 @@ export class LiveAirspaceSession {
       );
     }
     const events =
-      health.status === 'degraded'
+      health.status === 'degraded' && this.stateValue.health?.status !== 'degraded'
         ? [
             ...this.stateValue.qualityEvents,
             {
