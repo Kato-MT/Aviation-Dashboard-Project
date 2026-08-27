@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Concept A: Evidence-first Airspace Workspace</title>
+    <link rel="stylesheet" href="concepts.css" />
+  </head>
+  <body class="evidence-app">
+    <header class="app-header">
+      <div class="brand-lockup">
+        <span class="brand-mark mono">FDW</span>
+        <div>
+          <p class="eyebrow">Flight Diagnostics Workbench v3</p>
+          <h1>Live Airspace Operations</h1>
+        </div>
+      </div>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a class="active" href="#">Live Airspace</a>
+        <a href="#">Diagnostics Lab</a>
+        <a href="#">Evidence</a>
+      </nav>
+      <div class="live-pill"><span class="status-dot"></span>Live · updated 8s ago</div>
+    </header>
+
+    <main class="evidence-shell">
+      <section class="evidence-toolbar" aria-labelledby="workspace-title">
+        <div>
+          <h2 id="workspace-title">Atlanta regional picture</h2>
+          <span class="mono" style="font-size: 11px; color: var(--secondary)"
+            >ADSB.lol · session 00:14:32 · 42 aircraft</span
+          >
+        </div>
+        <div class="toolbar-actions">
+          <label
+            ><span class="sr-only">Region</span
+            ><select>
+              <option>Atlanta · 100 nm</option>
+              <option>Savannah / Statesboro</option>
+              <option>Central Georgia</option>
+            </select></label
+          >
+          <label
+            ><span class="sr-only">Search callsign</span
+            ><input placeholder="Search current callsign"
+          /></label>
+          <select aria-label="Altitude filter">
+            <option>All altitudes</option>
+            <option>Above 10,000 ft</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="evidence-map" aria-label="Conceptual regional aircraft map">
+        <div class="map-grid"></div>
+        <div class="region-shape"></div>
+        <span class="map-label" style="left: 42%; top: 21%; color: var(--secondary)">ATLANTA</span>
+        <span class="map-label" style="left: 31%; top: 63%; color: var(--secondary)">MACON</span>
+        <svg class="track" viewBox="0 0 800 500" aria-hidden="true">
+          <path
+            d="M180 410 C260 360, 340 355, 430 255 S600 130, 720 90"
+            fill="none"
+            stroke="oklch(55% 0.15 250 / .4)"
+            stroke-width="3"
+            stroke-dasharray="5 6"
+          />
+        </svg>
+        <span class="plane" style="left: 24%; top: 28%; --heading: 22deg"></span>
+        <span class="plane" style="left: 38%; top: 54%; --heading: 105deg"></span>
+        <span class="plane selected" style="left: 52%; top: 42%; --heading: 47deg"></span>
+        <span class="plane" style="left: 65%; top: 24%; --heading: 192deg"></span>
+        <span class="plane" style="left: 72%; top: 67%; --heading: 315deg"></span>
+        <span class="plane" style="left: 44%; top: 76%; --heading: 270deg"></span>
+        <div class="selected-tag">
+          <strong>DAL123</strong><br /><span class="mono">12,000 ft · 320 kt</span>
+        </div>
+      </section>
+
+      <aside class="evidence-rail" aria-label="Selected aircraft evidence">
+        <header class="rail-head">
+          <p class="eyebrow" style="color: var(--accent)">Selected surveillance track</p>
+          <h3>DAL123</h3>
+          <span class="aircraft-id" style="color: var(--secondary); font-size: 11px"
+            >ICAO A1B2C3 · B738</span
+          >
+        </header>
+        <div class="evidence-strip">
+          <div>
+            <span class="eyebrow">Altitude</span><span class="metric-value">12,000</span
+            ><small>ft baro</small>
+          </div>
+          <div>
+            <span class="eyebrow">Speed</span><span class="metric-value">320</span
+            ><small>kt ground</small>
+          </div>
+          <div>
+            <span class="eyebrow">Vertical</span><span class="metric-value">+500</span
+            ><small>ft/min</small>
+          </div>
+        </div>
+        <dl class="detail-list">
+          <div>
+            <dt>Track</dt>
+            <dd>180°</dd>
+          </div>
+          <div>
+            <dt>Position age</dt>
+            <dd>2 s</dd>
+          </div>
+          <div>
+            <dt>Last contact</dt>
+            <dd>1 s</dd>
+          </div>
+          <div>
+            <dt>Source type</dt>
+            <dd>adsb_icao</dd>
+          </div>
+          <div>
+            <dt>Session trail</dt>
+            <dd>14 min</dd>
+          </div>
+        </dl>
+        <section class="quality-ledger">
+          <h4>Data quality ledger</h4>
+          <div class="quality-item">
+            <span class="status-dot"></span
+            ><span><strong>2 delayed positions</strong><br />Across the regional feed</span
+            ><span class="time">08:22:14</span>
+          </div>
+          <div class="quality-item">
+            <span class="status-dot" style="color: var(--success)"></span
+            ><span><strong>Provider sequence current</strong><br />No timestamp regression</span
+            ><span class="time">08:22:18</span>
+          </div>
+        </section>
+      </aside>
+
+      <section class="aircraft-table-wrap" aria-labelledby="aircraft-list-title">
+        <header class="table-head">
+          <h3 id="aircraft-list-title">Aircraft in the current regional picture</h3>
+          <span style="font-size: 11px; color: var(--secondary)"
+            >42 observed · 38 with current positions</span
+          >
+        </header>
+        <table class="aircraft-table">
+          <thead>
+            <tr>
+              <th>Callsign</th>
+              <th>ICAO</th>
+              <th>Altitude</th>
+              <th>Ground speed</th>
+              <th>Vertical state</th>
+              <th>Position age</th>
+              <th>Quality</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="selected">
+              <td><strong>DAL123</strong></td>
+              <td class="mono">A1B2C3</td>
+              <td class="mono">12,000 ft</td>
+              <td class="mono">320 kt</td>
+              <td>Climbing</td>
+              <td class="mono">2 s</td>
+              <td>Current</td>
+            </tr>
+            <tr>
+              <td><strong>SWA418</strong></td>
+              <td class="mono">AC92D1</td>
+              <td class="mono">28,400 ft</td>
+              <td class="mono">447 kt</td>
+              <td>Level</td>
+              <td class="mono">5 s</td>
+              <td>Current</td>
+            </tr>
+            <tr>
+              <td><strong>N721KT</strong></td>
+              <td class="mono">A95210</td>
+              <td class="mono">4,600 ft</td>
+              <td class="mono">128 kt</td>
+              <td>Descending</td>
+              <td class="mono">18 s</td>
+              <td>Delayed</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </body>
+</html>

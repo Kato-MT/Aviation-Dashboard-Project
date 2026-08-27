@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Concept B: Investigation Split View</title>
+    <link rel="stylesheet" href="concepts.css" />
+  </head>
+  <body class="split-app">
+    <header class="app-header">
+      <div class="brand-lockup">
+        <span class="brand-mark mono">FDW</span>
+        <div>
+          <p class="eyebrow" style="color: var(--secondary)">Flight Diagnostics Workbench</p>
+          <h1>Regional Track Investigation</h1>
+        </div>
+      </div>
+      <div class="live-pill"><span class="status-dot"></span>Atlanta feed current</div>
+      <nav class="top-nav">
+        <a class="active" href="#">Live Airspace</a><a href="#">Diagnostics Lab</a
+        ><a href="#">Evidence</a>
+      </nav>
+    </header>
+    <main class="split-shell">
+      <aside class="flight-index">
+        <header>
+          <h2>Current tracks</h2>
+          <input aria-label="Filter current tracks" placeholder="Callsign or ICAO" />
+          <div class="index-meta"><span>42 observed</span><span>updated 8s</span></div>
+        </header>
+        <div class="flight-row selected">
+          <strong>DAL123</strong><span class="mono">12,000 ft</span
+          ><span class="mono">A1B2C3 · B738</span><span>climbing</span>
+        </div>
+        <div class="flight-row">
+          <strong>SWA418</strong><span class="mono">28,400 ft</span
+          ><span class="mono">AC92D1 · B737</span><span>level</span>
+        </div>
+        <div class="flight-row">
+          <strong>N721KT</strong><span class="mono">4,600 ft</span
+          ><span class="mono">A95210 · C172</span><span>descending</span>
+        </div>
+        <div class="flight-row">
+          <strong>FFT882</strong><span class="mono">31,100 ft</span
+          ><span class="mono">A73B02 · A320</span><span>climbing</span>
+        </div>
+        <div class="flight-row">
+          <strong>JIA5312</strong><span class="mono">9,800 ft</span
+          ><span class="mono">C12D02 · CRJ9</span><span>descending</span>
+        </div>
+        <div class="flight-row">
+          <strong>UPS204</strong><span class="mono">23,500 ft</span
+          ><span class="mono">A992E1 · B763</span><span>level</span>
+        </div>
+      </aside>
+      <section class="split-map" aria-label="Conceptual regional aircraft map">
+        <div class="map-grid"></div>
+        <div class="region-shape"></div>
+        <div class="map-controls">
+          <select aria-label="Region">
+            <option>Atlanta · 100 nm</option>
+            <option>Central Georgia</option></select
+          ><span class="map-stamp mono">ADSB.lol · session 00:14:32</span>
+        </div>
+        <svg class="track" viewBox="0 0 650 780">
+          <path
+            d="M80 650 C190 590, 220 460, 330 380 S480 210, 610 150"
+            fill="none"
+            stroke="oklch(72% 0.12 230 / .5)"
+            stroke-width="3"
+            stroke-dasharray="5 7"
+          /></svg
+        ><span class="map-label" style="left: 38%; top: 23%; color: var(--secondary)">ATLANTA</span
+        ><span class="map-label" style="left: 29%; top: 65%; color: var(--secondary)">MACON</span
+        ><span class="plane" style="left: 22%; top: 34%; --heading: 22deg"></span
+        ><span class="plane selected" style="left: 49%; top: 43%; --heading: 47deg"></span
+        ><span class="plane" style="left: 63%; top: 22%; --heading: 192deg"></span
+        ><span class="plane" style="left: 70%; top: 70%; --heading: 315deg"></span
+        ><span class="plane" style="left: 38%; top: 74%; --heading: 270deg"></span>
+      </section>
+      <aside class="investigation-pane">
+        <header class="dossier-head">
+          <p class="eyebrow" style="color: var(--accent)">Selected track dossier</p>
+          <h2>DAL123</h2>
+          <p class="mono">A1B2C3 · B738 · position current</p>
+        </header>
+        <div class="state-ribbon">
+          <div>
+            <span class="eyebrow" style="color: var(--secondary)">Altitude</span
+            ><span class="metric-value">12,000 ft</span>
+          </div>
+          <div>
+            <span class="eyebrow" style="color: var(--secondary)">Ground speed</span
+            ><span class="metric-value">320 kt</span>
+          </div>
+          <div>
+            <span class="eyebrow" style="color: var(--secondary)">Vertical state</span
+            ><span class="metric-value">Climbing</span>
+          </div>
+        </div>
+        <section class="trace-panel">
+          <h3>Barometric altitude · 14-minute session</h3>
+          <div class="spark-chart">
+            <svg viewBox="0 0 500 110" preserveAspectRatio="none">
+              <path
+                d="M0 94 C70 88, 95 70, 155 67 S245 56, 300 43 S400 36, 500 15"
+                fill="none"
+                stroke="oklch(72% 0.12 230)"
+                stroke-width="3"
+              />
+            </svg>
+          </div>
+        </section>
+        <section class="trace-panel">
+          <h3>Ground speed</h3>
+          <div class="spark-chart">
+            <svg viewBox="0 0 500 110" preserveAspectRatio="none">
+              <path
+                d="M0 84 C80 70, 110 74, 170 53 S260 46, 330 38 S410 42, 500 28"
+                fill="none"
+                stroke="oklch(72% 0.13 155)"
+                stroke-width="3"
+              />
+            </svg>
+          </div>
+        </section>
+        <section class="evidence-log">
+          <h3>Session evidence</h3>
+          <div class="log-row">
+            <span class="time">08:08</span><span class="status-dot"></span
+            ><span>Track entered the 100 nm regional picture.</span>
+          </div>
+          <div class="log-row">
+            <span class="time">08:14</span><span class="status-dot"></span
+            ><span>Position freshness remained within 5 seconds.</span>
+          </div>
+          <div class="log-row">
+            <span class="time">08:22</span
+            ><span class="status-dot" style="color: var(--warning)"></span
+            ><span>Regional feed contains two unrelated delayed tracks.</span>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </body>
+</html>

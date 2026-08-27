@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Concept C: Airspace Session Story</title>
+    <link rel="stylesheet" href="concepts.css" />
+  </head>
+  <body class="story-app">
+    <header class="app-header">
+      <div class="brand-lockup">
+        <span class="brand-mark mono">FDW</span>
+        <div>
+          <p class="eyebrow" style="color: var(--secondary)">Flight Diagnostics Workbench</p>
+          <h1>Airspace Session</h1>
+        </div>
+      </div>
+      <nav class="top-nav">
+        <a class="active" href="#">Live Airspace</a><a href="#">Diagnostics Lab</a
+        ><a href="#">Evidence</a>
+      </nav>
+      <div class="live-pill"><span class="status-dot"></span>Live · updated 8s ago</div>
+    </header>
+    <main class="story-shell">
+      <section class="story-intro">
+        <h2>What is happening over Georgia right now?</h2>
+        <p>
+          A session-based view of public ADS-B surveillance observations. Tracks are kept only in
+          this browser session and are not aircraft-health or safety assessments.
+        </p>
+      </section>
+      <section class="story-stage">
+        <div class="story-map" aria-label="Conceptual Georgia airspace map">
+          <div class="map-grid"></div>
+          <div class="region-shape"></div>
+          <div class="map-caption">
+            <strong>Atlanta · 100 nm</strong><br /><span class="mono">ADSB.lol · 08:22:18 UTC</span>
+          </div>
+          <svg class="track" viewBox="0 0 850 460">
+            <path
+              d="M80 400 C190 360, 260 340, 350 270 S520 145, 730 80"
+              fill="none"
+              stroke="oklch(53% 0.14 260 / .38)"
+              stroke-width="3"
+              stroke-dasharray="5 7"
+            /></svg
+          ><span class="map-label" style="left: 44%; top: 20%; color: var(--secondary)"
+            >ATLANTA</span
+          ><span class="map-label" style="left: 31%; top: 68%; color: var(--secondary)">MACON</span
+          ><span class="plane" style="left: 22%; top: 31%; --heading: 22deg"></span
+          ><span class="plane selected" style="left: 54%; top: 41%; --heading: 47deg"></span
+          ><span class="plane" style="left: 66%; top: 20%; --heading: 192deg"></span
+          ><span class="plane" style="left: 74%; top: 66%; --heading: 315deg"></span
+          ><span class="plane" style="left: 40%; top: 75%; --heading: 270deg"></span>
+        </div>
+        <aside class="story-summary">
+          <p class="eyebrow" style="color: var(--accent)">Regional picture</p>
+          <h3>Atlanta airspace</h3>
+          <p>Session duration 14 minutes, 32 seconds</p>
+          <div class="summary-number"><strong>42</strong><span>aircraft observed</span></div>
+          <div class="summary-number"><strong>38</strong><span>current positions</span></div>
+          <div class="summary-number"><strong>2</strong><span>delayed positions</span></div>
+          <div class="selected-story">
+            <strong>DAL123 is selected</strong>
+            <p>
+              Observed climbing through 12,000 ft at 320 kt ground speed. Position age is 2 seconds.
+              This describes the received surveillance track only.
+            </p>
+          </div>
+        </aside>
+      </section>
+      <section class="session-timeline">
+        <header class="timeline-head">
+          <h3>Regional session story</h3>
+          <span class="mono" style="font-size: 11px; color: var(--secondary)">08:08:00 → now</span>
+        </header>
+        <div class="timeline-track">
+          <div class="timeline-label"><strong>14:32</strong><br />session time</div>
+          <div class="timeline-event">
+            <strong>Feed opened</strong><span>Atlanta region<br />31 tracks</span>
+          </div>
+          <div class="timeline-event">
+            <strong>Peak density</strong><span>46 tracks<br />08:13 UTC</span>
+          </div>
+          <div class="timeline-event">
+            <strong>DAL123 entered</strong><span>Southwest edge<br />8,400 ft</span>
+          </div>
+          <div class="timeline-event">
+            <strong>Freshness note</strong><span>2 delayed tracks<br />No data hidden</span>
+          </div>
+          <div class="timeline-event">
+            <strong>Current picture</strong><span>42 observed<br />38 positioned</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
