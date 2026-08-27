@@ -536,6 +536,48 @@
       "requirements": ["FDW-CM-011", "FDW-CM-012"],
       "tests": ["TC-TOFF-001", "TC-TOFF-002", "TC-TOFF-003"],
       "evidencePaths": ["tests/browser", "vite.config.ts", "vite.offline.config.ts"]
+    },
+    {
+      "area": "live-airspace-contracts-and-runtime",
+      "requirements": ["FDW-LIV-001", "FDW-LIV-002", "FDW-LIV-003", "FDW-LIV-004", "FDW-LIV-005"],
+      "tests": [
+        "TC-LIV-001",
+        "TC-LIV-002",
+        "TC-LIV-003",
+        "TC-LIV-004",
+        "TC-LIV-005",
+        "TC-LIV-006",
+        "TC-LIV-007"
+      ],
+      "evidencePaths": ["src/live", "tests/live"]
+    },
+    {
+      "area": "live-airspace-edge-and-privacy",
+      "requirements": ["FDW-EDG-001", "FDW-EDG-002", "FDW-EDG-003", "FDW-EDG-004", "FDW-EDG-005"],
+      "tests": ["TC-EDG-001", "TC-EDG-002", "TC-EDG-003", "TC-EDG-004", "TC-EDG-005", "TC-EDG-006"],
+      "evidencePaths": ["worker", "tests/worker", "wrangler.jsonc"]
+    },
+    {
+      "area": "live-airspace-browser-release",
+      "requirements": [
+        "FDW-LUI-001",
+        "FDW-LUI-002",
+        "FDW-LUI-003",
+        "FDW-LUI-004",
+        "FDW-LUI-005",
+        "FDW-LUI-006",
+        "FDW-LUI-007"
+      ],
+      "tests": [
+        "TC-LUI-001",
+        "TC-LUI-002",
+        "TC-LUI-003",
+        "TC-LUI-004",
+        "TC-LUI-005",
+        "TC-LUI-006",
+        "TC-LIV-007"
+      ],
+      "evidencePaths": ["src/ui", "tests/browser", "tests/accessibility"]
     }
   ]
 }

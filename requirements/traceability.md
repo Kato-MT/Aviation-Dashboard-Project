@@ -47,8 +47,13 @@ The v2.2 catalog also labels release-required cases as `Linked` or `Pending`. `L
 | v2.2 data boundary                   | FDW-BND-001..003                   | TC-BND-001..004, TC-INV-006, 014                   | temporal, investigation, campaign, browser      |
 | v2.2 accessibility                   | FDW-SEC-010..011                   | TC-INV-013, TC-TACC-001..003                       | `tests/accessibility`, `tests/browser`          |
 | v2.2 offline browser assurance       | FDW-CM-011..012                    | TC-TOFF-001..003                                   | browser and Vite build evidence                 |
+| v3.0 live contracts and runtime      | FDW-LIV-001..005                   | TC-LIV-001..007                                    | `src/live`, `tests/live`                        |
+| v3.0 edge and privacy                | FDW-EDG-001..005                   | TC-EDG-001..006                                    | `worker`, `tests/worker`, Wrangler dry-run      |
+| v3.0 live browser release            | FDW-LUI-001..007                   | TC-LUI-001..006, TC-LIV-007                        | UI, browser, and accessibility evidence         |
 
 The integrated v2 selected-window cases verify the production data path, counts, identities, uncertainty, and the v2.2 evidence gate. They do not establish episode or full-stream learned-model performance. Full-stream false-alarm, onset, delay, phase, duration, and recovery evaluation is deferred to v2.3 and must remain separate from the v2.2 selected-window claim.
+
+The v3.0 contract, edge, privacy, runtime, and presentation-model cases are linked. The `TC-LUI-*` browser, responsive, accessibility, and offline cases remain explicitly pending until the selected visual direction is integrated into the production application and those tests pass on the exact release commit.
 
 Run the structural check with:
 
