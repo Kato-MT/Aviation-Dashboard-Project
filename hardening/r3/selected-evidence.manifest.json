@@ -392,18 +392,18 @@
     ]
   },
   "source": {
-    "baseHead": "a4ab9284e4c71504d2c7e4df09310fb1c4123546",
+    "baseHead": "3ef6b6a7a875c40ba00333c195427947b1661e0c",
     "dirty": true,
     "content": {
       "schemaVersion": "selected-r3-source-content.v1",
       "excludedPaths": ["hardening/r3/selected-evidence.manifest.json"],
       "fileCount": 559,
-      "totalBytes": 9187371,
+      "totalBytes": 9187441,
       "missingTrackedFileCount": 0,
       "trackedWorktreeMismatchCount": 0,
       "untrackedFileCount": 0,
       "indexDiffersFromHead": true,
-      "sha256": "bdeb5d940dd8de21256545625c0666139bc3161efe9d679d01039e3caaba1a3b"
+      "sha256": "099d2ba73d2130aef3ffa154f06c978bc26a6573dadd89238788da3a2e08e095"
     }
   },
   "evidence": {
