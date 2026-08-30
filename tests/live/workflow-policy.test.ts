@@ -52,7 +52,14 @@ describe('v3 publication firebreaks', () => {
 
   it('builds once, retains, tests with zero retries, reverifies, receipts, and uploads', async () => {
     const source = await workflow('ci.yml');
+    const performanceJob = section(source, '  live-performance-assurance:', '  live-assurance:');
     const liveJob = section(source, '  live-assurance:', '  temporal-evidence:');
+
+    expect(performanceJob).toContain('runs-on: ubuntu-latest');
+    expect(performanceJob).toContain('pnpm exec playwright install --with-deps chromium');
+    expect(performanceJob).toContain('pnpm test:browser-performance');
+    expect(performanceJob).toContain('name: live-performance-${{ github.sha }}');
+    expect(performanceJob).not.toContain('continue-on-error');
 
     expectOrdered(liveJob, [
       'pnpm build:live',
@@ -62,7 +69,6 @@ describe('v3 publication firebreaks', () => {
       'pnpm runbooks:verify',
       'pnpm browser:budgets',
       'pnpm test:visual-regression',
-      'pnpm test:browser-performance',
       'pnpm worker:dry-run',
       'pnpm sbom:generate',
       'pnpm candidate:retain',
@@ -84,12 +90,13 @@ describe('v3 publication firebreaks', () => {
     expect(liveJob.match(/pnpm runbooks:verify/gu)).toHaveLength(1);
     expect(liveJob.match(/pnpm runbooks:rehearse:candidate/gu)).toHaveLength(1);
     expect(liveJob.match(/pnpm test:visual-regression/gu)).toHaveLength(1);
+    expect(liveJob).not.toContain('pnpm test:browser-performance');
     expect(liveJob.match(/pnpm live:load:candidate:smoke/gu)).toHaveLength(1);
     expect(liveJob).toMatch(
       /name: Run candidate-bound local workerd load smoke gate\s+timeout-minutes: 15\s+shell: pwsh\s+env:\s+M34_EXPECTED_SELECTION_SHA256: \$\{\{ steps\.retain-candidate\.outputs\.selection_sha256 \}\}\s+run: pnpm live:load:candidate:smoke --candidate-directory "\$env:M34_CANDIDATE_DIRECTORY"/u,
     );
     expect(liveJob).toMatch(
-      /name: Reverify the unchanged candidate after load execution\s+if: always\(\)\s+shell: pwsh\s+env:\s+M34_EXPECTED_SELECTION_SHA256: \$\{\{ steps\.retain-candidate\.outputs\.selection_sha256 \}\}\s+run: pnpm candidate:verify "\$env:M34_CANDIDATE_DIRECTORY" --selection-record "\$env:M34_SELECTION_RECORD_PATH" --expected-selection-sha256 "\$env:M34_EXPECTED_SELECTION_SHA256" --expected-source-head "\$env:GITHUB_SHA" --expected-target mock-staging/u,
+      /name: Reverify the unchanged candidate after load execution\s+if: \$\{\{ always\(\) && steps\.retain-candidate\.outcome == 'success' \}\}\s+shell: pwsh\s+env:\s+M34_EXPECTED_SELECTION_SHA256: \$\{\{ steps\.retain-candidate\.outputs\.selection_sha256 \}\}\s+run: pnpm candidate:verify "\$env:M34_CANDIDATE_DIRECTORY" --selection-record "\$env:M34_SELECTION_RECORD_PATH" --expected-selection-sha256 "\$env:M34_EXPECTED_SELECTION_SHA256" --expected-source-head "\$env:GITHUB_SHA" --expected-target mock-staging/u,
     );
     expect(liveJob).toMatch(
       /name: Rehearse all candidate-bound operator runbooks locally\s+shell: pwsh\s+env:\s+M34_EXPECTED_SELECTION_SHA256: \$\{\{ steps\.retain-candidate\.outputs\.selection_sha256 \}\}\s+run: pnpm runbooks:rehearse:candidate "\$env:M34_CANDIDATE_DIRECTORY" --output "\$env:M34_RUNBOOK_RECEIPT_PATH" --selection-record "\$env:M34_SELECTION_RECORD_PATH" --expected-selection-sha256 "\$env:M34_EXPECTED_SELECTION_SHA256" --expected-source-head "\$env:GITHUB_SHA"/u,
@@ -145,10 +152,15 @@ describe('v3 publication firebreaks', () => {
 
   it('runs heavy candidate assurance only for main, pull requests, or manual dispatch', async () => {
     const source = await workflow('ci.yml');
+    const performanceJob = section(source, '  live-performance-assurance:', '  live-assurance:');
     const liveJob = section(source, '  live-assurance:', '  temporal-evidence:');
+    const heavyGate =
+      "if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' || github.ref == 'refs/heads/main'";
 
-    expect(liveJob).toContain(
-      "if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' || github.ref == 'refs/heads/main'",
+    expect(performanceJob).toContain(heavyGate);
+    expect(liveJob).toContain(heavyGate);
+    expect(source).toContain(
+      'LIVE_PERFORMANCE_RESULT: ${{ needs.live-performance-assurance.result }}',
     );
     expect(source).toContain('LIVE_ASSURANCE_RESULT: ${{ needs.live-assurance.result }}');
     expect(source).toContain(
@@ -156,6 +168,8 @@ describe('v3 publication firebreaks', () => {
     );
     expect(source).toContain('test "$LIVE_ASSURANCE_RESULT" = "skipped"');
     expect(source).toContain('test "$LIVE_ASSURANCE_RESULT" = "success"');
+    expect(source).toContain('test "$LIVE_PERFORMANCE_RESULT" = "skipped"');
+    expect(source).toContain('test "$LIVE_PERFORMANCE_RESULT" = "success"');
     expect(source).toContain(
       'node scripts/release/verify-traceability.mjs --require-evidence-paths',
     );

@@ -180,6 +180,58 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+  live-performance-assurance:
+    name: Live browser performance assurance
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pinned pnpm
+        run: npm install --global pnpm@${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore integrity-keyed regional map inputs
+        id: live-performance-map-cache
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            .map-data/georgia-20260828-z12
+            .tmp-tests/map-preparation
+          key: live-performance-map-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('maps/recipe.json', 'maps/manifest.json', 'maps/style.json', 'tools/maps/prepare.ts', 'tools/maps/manifest.ts', 'pnpm-lock.yaml') }}
+
+      - name: Prepare pinned regional map inputs on cache miss
+        if: steps.live-performance-map-cache.outputs.cache-hit != 'true'
+        run: |
+          pnpm maps:prepare
+          pnpm maps:manifest
+          git diff --exit-code -- maps/manifest.json maps/style.json
+
+      - name: Install Chromium and Linux browser dependencies
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Enforce strict Live browser performance budgets
+        run: pnpm test:browser-performance
+
+      - name: Upload aggregate Live browser performance evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: live-performance-${{ github.sha }}
+          path: test-results/live-performance
+          if-no-files-found: warn
+          retention-days: 14
+
   live-assurance:
     name: Live airspace assurance
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
@@ -243,7 +295,6 @@ jobs:
           pnpm runbooks:verify
           pnpm browser:budgets
           pnpm test:visual-regression
-          pnpm test:browser-performance
 
       - name: Dry-run the built production Worker
         run: pnpm worker:dry-run
@@ -282,7 +333,7 @@ jobs:
         run: pnpm live:load:candidate:smoke --candidate-directory "$env:M34_CANDIDATE_DIRECTORY"
 
       - name: Reverify the unchanged candidate after load execution
-        if: always()
+        if: ${{ always() && steps.retain-candidate.outcome == 'success' }}
         shell: pwsh
         env:
           M34_EXPECTED_SELECTION_SHA256: ${{ steps.retain-candidate.outputs.selection_sha256 }}
@@ -346,7 +397,6 @@ jobs:
           path: |
             test-results/live
             test-results/live-flow
-            test-results/live-performance
             test-results/visual-regression
             test-results/live-load
             build/test-results/m3-walkthrough
@@ -483,6 +533,7 @@ jobs:
       - core-coverage
       - build-artifacts
       - browser-assurance
+      - live-performance-assurance
       - live-assurance
       - temporal-evidence
       - dependency-audit
@@ -494,6 +545,7 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           GIT_REF: ${{ github.ref }}
+          LIVE_PERFORMANCE_RESULT: ${{ needs.live-performance-assurance.result }}
           LIVE_ASSURANCE_RESULT: ${{ needs.live-assurance.result }}
         run: |
           test "${{ needs.native-validation.result }}" = "success"
@@ -501,8 +553,10 @@ jobs:
           test "${{ needs.build-artifacts.result }}" = "success"
           test "${{ needs.browser-assurance.result }}" = "success"
           if [[ "$EVENT_NAME" == "push" && "$GIT_REF" != "refs/heads/main" ]]; then
+            test "$LIVE_PERFORMANCE_RESULT" = "skipped"
             test "$LIVE_ASSURANCE_RESULT" = "skipped"
           else
+            test "$LIVE_PERFORMANCE_RESULT" = "success"
             test "$LIVE_ASSURANCE_RESULT" = "success"
           fi
           test "${{ needs.temporal-evidence.result }}" = "success"
