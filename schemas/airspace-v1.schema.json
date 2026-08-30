@@ -2,11 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://kato-mt.github.io/Aviation-Dashboard-Project/schemas/airspace-v1.schema.json",
   "title": "Live Airspace Snapshot v1",
+  "$comment": "Runtime semantic checks additionally enforce unique aircraft identities, acceptedAircraft equal to aircraft.length, and receivedAircraft equal to acceptedAircraft + rejectedAircraft + duplicateAircraft. Transport messages are bounded to 2 MiB of UTF-8 before parsing.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schemaVersion",
     "providerId",
+    "feedEpoch",
     "regionId",
     "sequence",
     "generatedAt",
@@ -15,27 +17,93 @@
     "validation"
   ],
   "properties": {
-    "schemaVersion": { "const": "airspace.v1" },
-    "providerId": { "type": "string", "minLength": 1 },
-    "regionId": { "type": "string", "minLength": 1 },
-    "sequence": { "type": "integer", "minimum": 0 },
-    "generatedAt": { "type": "string", "format": "date-time" },
-    "providerGeneratedAt": { "type": "string", "format": "date-time" },
+    "schemaVersion": {
+      "const": "airspace.v1"
+    },
+    "providerId": {
+      "$ref": "#/$defs/identifier"
+    },
+    "feedEpoch": {
+      "$ref": "#/$defs/identifier"
+    },
+    "regionId": {
+      "$ref": "#/$defs/identifier"
+    },
+    "sequence": {
+      "$ref": "#/$defs/safeInteger"
+    },
+    "generatedAt": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "providerGeneratedAt": {
+      "$ref": "#/$defs/timestamp"
+    },
     "aircraft": {
       "type": "array",
       "maxItems": 2000,
-      "items": { "$ref": "#/$defs/aircraft" }
+      "items": {
+        "$ref": "#/$defs/aircraft"
+      }
     },
-    "validation": { "$ref": "#/$defs/validation" }
+    "validation": {
+      "$ref": "#/$defs/validation"
+    }
   },
   "$defs": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}Z$"
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+    },
+    "shortText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16,
+      "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f])\\S(?:[\\s\\S]*\\S)?$"
+    },
+    "sourceText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f])\\S(?:[\\s\\S]*\\S)?$"
+    },
+    "messageText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f])\\S(?:[\\s\\S]*\\S)?$"
+    },
+    "safeInteger": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "aircraftCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2000
+    },
     "position": {
       "type": "object",
       "additionalProperties": false,
       "required": ["latitude", "longitude"],
       "properties": {
-        "latitude": { "type": "number", "minimum": -90, "maximum": 90 },
-        "longitude": { "type": "number", "minimum": -180, "maximum": 180 }
+        "latitude": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        }
       }
     },
     "aircraft": {
@@ -51,38 +119,134 @@
         "qualityFlags"
       ],
       "properties": {
-        "aircraftId": { "type": "string", "pattern": "^~?[0-9a-f]{6}$" },
-        "identifierKind": { "enum": ["icao24", "other"] },
-        "callsign": { "type": "string", "minLength": 1, "maxLength": 16 },
-        "registration": { "type": "string", "minLength": 1, "maxLength": 16 },
-        "aircraftType": { "type": "string", "minLength": 1, "maxLength": 16 },
-        "category": { "type": "string", "minLength": 1, "maxLength": 16 },
-        "position": { "$ref": "#/$defs/position" },
-        "barometricAltitudeFeet": { "type": "number" },
-        "geometricAltitudeFeet": { "type": "number" },
-        "groundSpeedKnots": { "type": "number" },
-        "trackDegrees": { "type": "number", "minimum": 0, "exclusiveMaximum": 360 },
-        "verticalRateFeetPerMinute": { "type": "number" },
-        "onGround": { "type": "boolean" },
-        "sourceType": { "type": "string", "minLength": 1, "maxLength": 32 },
-        "observedAt": { "type": "string", "format": "date-time" },
-        "lastContactAt": { "type": "string", "format": "date-time" },
-        "lastPositionAt": { "type": "string", "format": "date-time" },
-        "contactAgeSeconds": { "type": "number", "minimum": 0 },
-        "positionAgeSeconds": { "type": "number", "minimum": 0 },
+        "aircraftId": {
+          "type": "string",
+          "pattern": "^~?[0-9a-f]{6}$"
+        },
+        "identifierKind": {
+          "enum": ["icao24", "other"]
+        },
+        "callsign": {
+          "$ref": "#/$defs/shortText"
+        },
+        "registration": {
+          "$ref": "#/$defs/shortText"
+        },
+        "aircraftType": {
+          "$ref": "#/$defs/shortText"
+        },
+        "category": {
+          "$ref": "#/$defs/shortText"
+        },
+        "position": {
+          "$ref": "#/$defs/position"
+        },
+        "barometricAltitudeFeet": {
+          "type": "number"
+        },
+        "geometricAltitudeFeet": {
+          "type": "number"
+        },
+        "groundSpeedKnots": {
+          "type": "number",
+          "minimum": 0
+        },
+        "trackDegrees": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 360
+        },
+        "verticalRateFeetPerMinute": {
+          "type": "number"
+        },
+        "verticalRateBasis": {
+          "enum": ["barometric", "geometric"]
+        },
+        "onGround": {
+          "type": ["boolean", "null"]
+        },
+        "sourceType": {
+          "$ref": "#/$defs/sourceText"
+        },
+        "observedAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "lastContactAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "lastPositionAt": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "contactAgeSeconds": {
+          "type": "number",
+          "minimum": -5
+        },
+        "positionAgeSeconds": {
+          "type": "number",
+          "minimum": -5
+        },
         "qualityFlags": {
           "type": "array",
+          "maxItems": 5,
           "uniqueItems": true,
           "items": {
             "enum": [
               "missing-position",
               "stale-position",
               "stale-contact",
-              "provider-time-regression"
+              "provider-time-regression",
+              "time-uncertain"
             ]
           }
         }
-      }
+      },
+      "dependentRequired": {
+        "position": ["lastPositionAt", "positionAgeSeconds"],
+        "lastPositionAt": ["position", "positionAgeSeconds"],
+        "positionAgeSeconds": ["position", "lastPositionAt"],
+        "verticalRateFeetPerMinute": ["verticalRateBasis"],
+        "verticalRateBasis": ["verticalRateFeetPerMinute"]
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "qualityFlags": { "type": "array", "contains": { "const": "time-uncertain" } }
+            },
+            "required": ["qualityFlags"]
+          },
+          "else": {
+            "properties": {
+              "contactAgeSeconds": { "type": "number", "minimum": 0 },
+              "positionAgeSeconds": { "type": "number", "minimum": 0 }
+            }
+          }
+        }
+      ],
+      "oneOf": [
+        {
+          "properties": {
+            "aircraftId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{6}$"
+            },
+            "identifierKind": {
+              "const": "icao24"
+            }
+          }
+        },
+        {
+          "properties": {
+            "aircraftId": {
+              "type": "string",
+              "pattern": "^~[0-9a-f]{6}$"
+            },
+            "identifierKind": {
+              "const": "other"
+            }
+          }
+        }
+      ]
     },
     "validation": {
       "type": "object",
@@ -95,11 +259,21 @@
         "invalidFields"
       ],
       "properties": {
-        "receivedAircraft": { "type": "integer", "minimum": 0 },
-        "acceptedAircraft": { "type": "integer", "minimum": 0 },
-        "rejectedAircraft": { "type": "integer", "minimum": 0 },
-        "duplicateAircraft": { "type": "integer", "minimum": 0 },
-        "invalidFields": { "type": "integer", "minimum": 0 }
+        "receivedAircraft": {
+          "$ref": "#/$defs/aircraftCount"
+        },
+        "acceptedAircraft": {
+          "$ref": "#/$defs/aircraftCount"
+        },
+        "rejectedAircraft": {
+          "$ref": "#/$defs/aircraftCount"
+        },
+        "duplicateAircraft": {
+          "$ref": "#/$defs/aircraftCount"
+        },
+        "invalidFields": {
+          "$ref": "#/$defs/safeInteger"
+        }
       }
     }
   }

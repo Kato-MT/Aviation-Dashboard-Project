@@ -81,11 +81,36 @@ export interface InvestigationComparisonWaveform {
   predictedAltitude: readonly number[];
 }
 
+export type InvestigationChartTheme = 'dark' | 'light';
+
 export interface InvestigationChartRendererOptions {
   stateCanvasId?: string | undefined;
   residualCanvasId?: string | undefined;
   maximumPoints?: number | undefined;
   onSeek?: ((sampleIndex: number) => void) | undefined;
+  /** The legacy workbench remains dark by default. React surfaces opt into light explicitly. */
+  theme?: InvestigationChartTheme | undefined;
+}
+
+export interface InvestigationChartPalette {
+  readonly label: string;
+  readonly tick: string;
+  readonly grid: string;
+  readonly tooltipBackground: string;
+  readonly tooltipBorder: string;
+  readonly tooltipText: string;
+  readonly cursor: string;
+  readonly datasets: {
+    readonly lowerUncertainty: string;
+    readonly upperUncertainty: string;
+    readonly observedAltitude: string;
+    readonly predictedAltitude: string;
+    readonly airspeed: string;
+    readonly fuel: string;
+    readonly comparisonObservedAltitude: string;
+    readonly comparisonPredictedAltitude: string;
+    readonly residual: string;
+  };
 }
 
 export interface InvestigationPhaseBand extends InvestigationPhaseSegment {
@@ -146,6 +171,55 @@ const STATE_DATASET = {
   comparisonObservedAltitude: 6,
   comparisonPredictedAltitude: 7,
 } as const;
+
+const CHART_PALETTES: Readonly<Record<InvestigationChartTheme, InvestigationChartPalette>> = {
+  dark: {
+    label: '#a0abb5',
+    tick: '#73808b',
+    grid: 'rgba(58, 74, 88, 0.22)',
+    tooltipBackground: '#0d1319',
+    tooltipBorder: '#3a4a58',
+    tooltipText: '#e7ebee',
+    cursor: 'rgba(231, 235, 238, 0.78)',
+    datasets: {
+      lowerUncertainty: '#76add500',
+      upperUncertainty: '#76add522',
+      observedAltitude: '#78b69a',
+      predictedAltitude: '#76add5',
+      airspeed: '#d7ac5d',
+      fuel: '#c98d62',
+      comparisonObservedAltitude: '#a99bc3',
+      comparisonPredictedAltitude: '#c8bdd9',
+      residual: '#d5747b',
+    },
+  },
+  light: {
+    label: '#334155',
+    tick: '#526274',
+    grid: 'rgba(100, 116, 139, 0.2)',
+    tooltipBackground: '#ffffff',
+    tooltipBorder: '#94a3b8',
+    tooltipText: '#172033',
+    cursor: 'rgba(15, 23, 42, 0.72)',
+    datasets: {
+      lowerUncertainty: '#2563eb00',
+      upperUncertainty: '#2563eb1f',
+      observedAltitude: '#047857',
+      predictedAltitude: '#2563eb',
+      airspeed: '#a16207',
+      fuel: '#c2410c',
+      comparisonObservedAltitude: '#7c3aed',
+      comparisonPredictedAltitude: '#8b5cf6',
+      residual: '#be123c',
+    },
+  },
+};
+
+export function investigationChartPalette(
+  theme: InvestigationChartTheme = 'dark',
+): InvestigationChartPalette {
+  return CHART_PALETTES[theme];
+}
 
 export function investigationWaveformLabels(hasComparison: boolean): {
   observed: string;
@@ -494,6 +568,7 @@ export class InvestigationChartRenderer {
   private readonly residualChart: ChartInstance<'line'>;
   private readonly onSeek: (sampleIndex: number) => void;
   private readonly defaultMaximumPoints: number;
+  private readonly palette: InvestigationChartPalette;
   private readonly keyboardHandlers = new Map<HTMLCanvasElement, (event: KeyboardEvent) => void>();
   private series: InvestigationSeries | null = null;
   private overlays: InvestigationOverlayVisibility = { ...DEFAULT_OVERLAYS };
@@ -511,10 +586,40 @@ export class InvestigationChartRenderer {
       throw new Error('maximumPoints must be an integer of at least 2.');
     }
     this.onSeek = options.onSeek ?? (() => undefined);
-    this.stateChart = this.createStateChart(stateCanvas);
-    this.residualChart = this.createResidualChart(residualCanvas);
-    this.bindKeyboard(stateCanvas);
-    this.bindKeyboard(residualCanvas);
+    const theme = options.theme ?? 'dark';
+    if (theme !== 'dark' && theme !== 'light') {
+      throw new Error(`Unsupported investigation chart theme: ${String(theme)}.`);
+    }
+    this.palette = investigationChartPalette(theme);
+
+    const stateChart = this.createStateChart(stateCanvas);
+    let residualChart: ChartInstance<'line'> | undefined;
+    try {
+      residualChart = this.createResidualChart(residualCanvas);
+      this.bindKeyboard(stateCanvas);
+      this.bindKeyboard(residualCanvas);
+    } catch (error) {
+      this.releaseKeyboardHandlers();
+      const cleanupErrors: unknown[] = [];
+      for (const chart of [residualChart, stateChart]) {
+        if (!chart) continue;
+        try {
+          chart.destroy();
+        } catch (cleanupError) {
+          cleanupErrors.push(cleanupError);
+        }
+      }
+      if (cleanupErrors.length > 0) {
+        throw new AggregateError(
+          [error, ...cleanupErrors],
+          'Investigation chart construction and cleanup both failed.',
+          { cause: error },
+        );
+      }
+      throw error;
+    }
+    this.stateChart = stateChart;
+    this.residualChart = residualChart;
   }
 
   render(series: InvestigationSeries, options: InvestigationRenderOptions = {}): void {
@@ -651,14 +756,20 @@ export class InvestigationChartRenderer {
 
   destroy(): void {
     if (this.destroyed) return;
-    for (const [canvas, handler] of this.keyboardHandlers) {
-      canvas.removeEventListener('keydown', handler);
+    this.releaseKeyboardHandlers();
+    const cleanupErrors: unknown[] = [];
+    for (const chart of [this.stateChart, this.residualChart]) {
+      try {
+        chart.destroy();
+      } catch (error) {
+        cleanupErrors.push(error);
+      }
     }
-    this.keyboardHandlers.clear();
-    this.stateChart.destroy();
-    this.residualChart.destroy();
     this.series = null;
     this.destroyed = true;
+    if (cleanupErrors.length > 0) {
+      throw new AggregateError(cleanupErrors, 'One or more investigation charts failed to close.');
+    }
   }
 
   private requireCanvas(id: string): HTMLCanvasElement {
@@ -673,25 +784,38 @@ export class InvestigationChartRenderer {
 
   private createStateChart(canvas: HTMLCanvasElement): ChartInstance<'line'> {
     const waveformLabels = investigationWaveformLabels(false);
+    const colors = this.palette.datasets;
     const datasets: InvestigationLineDataset[] = [
-      this.dataset('Lower uncertainty', '#76add500', 'yAltitude', { borderWidth: 0 }),
-      this.dataset('95% uncertainty', '#76add522', 'yAltitude', {
+      this.dataset('Lower uncertainty', colors.lowerUncertainty, 'yAltitude', { borderWidth: 0 }),
+      this.dataset('95% uncertainty', colors.upperUncertainty, 'yAltitude', {
         borderWidth: 0,
-        backgroundColor: '#76add522',
+        backgroundColor: colors.upperUncertainty,
         fill: '-1',
       }),
-      this.dataset(waveformLabels.observed, '#78b69a', 'yAltitude'),
-      this.dataset(waveformLabels.predicted, '#76add5', 'yAltitude', { borderDash: [6, 4] }),
-      this.dataset('Observed airspeed (kt)', '#d7ac5d', 'yAuxiliary'),
-      this.dataset('Observed fuel (%)', '#c98d62', 'yFuel'),
-      this.dataset(waveformLabels.baselineObserved, '#a99bc3', 'yAltitude', {
-        borderDash: [2, 3],
-        borderWidth: 2,
+      this.dataset(waveformLabels.observed, colors.observedAltitude, 'yAltitude'),
+      this.dataset(waveformLabels.predicted, colors.predictedAltitude, 'yAltitude', {
+        borderDash: [6, 4],
       }),
-      this.dataset(waveformLabels.baselinePredicted, '#c8bdd9', 'yAltitude', {
-        borderDash: [8, 4],
-        borderWidth: 1.8,
-      }),
+      this.dataset('Observed airspeed (kt)', colors.airspeed, 'yAuxiliary'),
+      this.dataset('Observed fuel (%)', colors.fuel, 'yFuel'),
+      this.dataset(
+        waveformLabels.baselineObserved,
+        colors.comparisonObservedAltitude,
+        'yAltitude',
+        {
+          borderDash: [2, 3],
+          borderWidth: 2,
+        },
+      ),
+      this.dataset(
+        waveformLabels.baselinePredicted,
+        colors.comparisonPredictedAltitude,
+        'yAltitude',
+        {
+          borderDash: [8, 4],
+          borderWidth: 1.8,
+        },
+      ),
     ];
     return new Chart(canvas, {
       type: 'line',
@@ -704,7 +828,7 @@ export class InvestigationChartRenderer {
   private createResidualChart(canvas: HTMLCanvasElement): ChartInstance<'line'> {
     return new Chart(canvas, {
       type: 'line',
-      data: { datasets: [this.dataset('Residual', '#d5747b', 'y')] },
+      data: { datasets: [this.dataset('Residual', this.palette.datasets.residual, 'y')] },
       plugins: [this.overlayPlugin(false)],
       options: this.chartOptions('residual'),
     });
@@ -758,7 +882,7 @@ export class InvestigationChartRenderer {
         legend: {
           display: kind === 'state',
           labels: {
-            color: '#a0abb5',
+            color: this.palette.label,
             boxWidth: 12,
             usePointStyle: true,
             filter: (item: LegendItem) => {
@@ -769,8 +893,10 @@ export class InvestigationChartRenderer {
           },
         },
         tooltip: {
-          backgroundColor: '#0d1319',
-          borderColor: '#3a4a58',
+          backgroundColor: this.palette.tooltipBackground,
+          borderColor: this.palette.tooltipBorder,
+          titleColor: this.palette.tooltipText,
+          bodyColor: this.palette.tooltipText,
           borderWidth: 1,
           displayColors: true,
         },
@@ -782,9 +908,9 @@ export class InvestigationChartRenderer {
   private xScale() {
     return {
       type: 'linear' as const,
-      ticks: { color: '#73808b', maxTicksLimit: 9, maxRotation: 0 },
-      grid: { color: 'rgba(58, 74, 88, 0.22)' },
-      title: { display: true, text: 'Sample index', color: '#a0abb5' },
+      ticks: { color: this.palette.tick, maxTicksLimit: 9, maxRotation: 0 },
+      grid: { color: this.palette.grid },
+      title: { display: true, text: 'Sample index', color: this.palette.label },
     };
   }
 
@@ -792,9 +918,9 @@ export class InvestigationChartRenderer {
     return {
       type: 'linear' as const,
       position,
-      ticks: { color: '#73808b' },
-      grid: { color: 'rgba(58, 74, 88, 0.22)', drawOnChartArea },
-      title: { display: true, text: title, color: '#a0abb5' },
+      ticks: { color: this.palette.tick },
+      grid: { color: this.palette.grid, drawOnChartArea },
+      title: { display: true, text: title, color: this.palette.label },
     };
   }
 
@@ -816,7 +942,7 @@ export class InvestigationChartRenderer {
           ctx.fillStyle = band.color;
           ctx.fillRect(left, chartArea.top, Math.max(1, right - left), chartArea.height);
           if (drawLabels && right - left > 42) {
-            ctx.fillStyle = '#a0abb5';
+            ctx.fillStyle = this.palette.label;
             ctx.font = '10px Inter, sans-serif';
             ctx.fillText(band.label, left + 4, chartArea.top + 12, right - left - 8);
           }
@@ -850,7 +976,7 @@ export class InvestigationChartRenderer {
         if (this.series) {
           const x = xScale.getPixelForValue(this.cursorIndex);
           ctx.save();
-          ctx.strokeStyle = 'rgba(231, 235, 238, 0.78)';
+          ctx.strokeStyle = this.palette.cursor;
           ctx.lineWidth = 1;
           ctx.setLineDash([4, 4]);
           ctx.beginPath();
@@ -909,5 +1035,12 @@ export class InvestigationChartRenderer {
     };
     canvas.addEventListener('keydown', handler);
     this.keyboardHandlers.set(canvas, handler);
+  }
+
+  private releaseKeyboardHandlers(): void {
+    for (const [canvas, handler] of this.keyboardHandlers) {
+      canvas.removeEventListener('keydown', handler);
+    }
+    this.keyboardHandlers.clear();
   }
 }

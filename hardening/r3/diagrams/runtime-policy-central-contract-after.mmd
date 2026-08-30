@@ -1,0 +1,14 @@
+flowchart LR
+  Env[Raw environment bindings] --> Policy[Validated RuntimePolicy]
+  Request[Internet request] --> RouteTable[Closed route table]
+  Policy --> RouteTable
+  Policy --> Provider[Fixed provider capability]
+  Policy --> Origins[Canonical origin set]
+  Policy --> Disable[Deploy-time Live disable state and reason]
+  RouteTable --> Admission[Typed admission policy]
+  Admission --> API[API and WebSocket]
+  Admission --> Map[Map assets]
+  Provider --> Upstream[Three fixed provider paths]
+  Headers[Checked-in static security headers] --> Browser[Browser]
+  Runbooks[Disable, quota, terms, stale feed, rollback] --> Policy
+  Tests[Contract and artifact policy tests] --> Policy

@@ -1,0 +1,17 @@
+{
+  "id": "georgia-20260828-z12",
+  "source": {
+    "url": "https://build.protomaps.com/20260828.pmtiles",
+    "date": "2026-08-28",
+    "tilesetVersion": "4.15.2",
+    "planetBytes": 137622557690,
+    "reportedPlanetBlake3": "b53932b32f77068ba9c824585d5693672ba05fb800540e19fbd9af70632b6c08"
+  },
+  "bounds": [-86.8, 30.3, -79.15, 35.6],
+  "minZoom": 0,
+  "maxZoom": 12,
+  "cliVersion": "1.31.2",
+  "styleVersion": "5.7.2",
+  "styleCommit": "3ea8293a28131c3dc63f1bb20827bdb8a76df06f",
+  "assetsCommit": "028c18f713baecad011301ff7a69acc39bcc2ae7"
+}

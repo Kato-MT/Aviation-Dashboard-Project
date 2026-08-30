@@ -1,0 +1,277 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kato-mt.github.io/Aviation-Dashboard-Project/schemas/verification.v2.schema.json",
+  "title": "Telemetry Verification Report",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "verificationId",
+    "createdAt",
+    "baseline",
+    "candidate",
+    "resolved",
+    "persisting",
+    "newlyIntroduced",
+    "status",
+    "summary",
+    "requirementResults",
+    "provenance"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "verification.v2" },
+    "verificationId": { "type": "string", "minLength": 1 },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "status": { "enum": ["pass", "fail", "blocked"] },
+    "resolved": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/resolvedClassification" }
+    },
+    "persisting": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/persistingClassification" }
+    },
+    "newlyIntroduced": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/newlyIntroducedClassification" }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["resolved", "persisting", "newlyIntroduced"],
+      "properties": {
+        "resolved": { "type": "integer", "minimum": 0 },
+        "persisting": { "type": "integer", "minimum": 0 },
+        "newlyIntroduced": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "baseline": { "$ref": "#/$defs/runSummary" },
+    "candidate": { "$ref": "#/$defs/runSummary" },
+    "requirementResults": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": { "$ref": "#/$defs/requirementResult" },
+      "allOf": [
+        { "$ref": "#/$defs/containsRequirement001" },
+        { "$ref": "#/$defs/containsRequirement002" },
+        { "$ref": "#/$defs/containsRequirement003" },
+        { "$ref": "#/$defs/containsRequirement004" },
+        { "$ref": "#/$defs/containsRequirement005" },
+        { "$ref": "#/$defs/containsRequirement006" },
+        { "$ref": "#/$defs/containsRequirement007" },
+        { "$ref": "#/$defs/containsRequirement008" }
+      ]
+    },
+    "provenance": { "$ref": "#/$defs/provenance" }
+  },
+  "$defs": {
+    "runSummary": {
+      "type": "object",
+      "required": [
+        "runId",
+        "datasetSha256",
+        "schemaVersion",
+        "adapterId",
+        "adapterVersion",
+        "profileId",
+        "profileVersion",
+        "acceptedRecords",
+        "quarantinedRecords",
+        "validationIssueCount",
+        "fatalValidationIssueCount",
+        "fatal",
+        "analysisBlocked",
+        "findingCount"
+      ],
+      "properties": {
+        "runId": { "type": "string", "minLength": 1 },
+        "datasetSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "schemaVersion": { "const": "telemetry.v1" },
+        "adapterId": { "type": "string", "minLength": 1 },
+        "adapterVersion": { "type": "string", "minLength": 1 },
+        "profileId": { "type": "string", "minLength": 1 },
+        "profileVersion": { "type": "string", "minLength": 1 },
+        "acceptedRecords": { "type": "integer", "minimum": 0 },
+        "quarantinedRecords": { "type": "integer", "minimum": 0 },
+        "validationIssueCount": { "type": "integer", "minimum": 0 },
+        "fatalValidationIssueCount": { "type": "integer", "minimum": 0 },
+        "fatal": { "type": "boolean" },
+        "analysisBlocked": { "type": "boolean" },
+        "findingCount": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "resolvedClassification": {
+      "type": "object",
+      "required": ["fingerprint", "baseline"],
+      "properties": {
+        "fingerprint": { "type": "string", "minLength": 1 },
+        "baseline": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "persistingClassification": {
+      "type": "object",
+      "required": ["fingerprint", "baseline", "candidate"],
+      "properties": {
+        "fingerprint": { "type": "string", "minLength": 1 },
+        "baseline": { "type": "object" },
+        "candidate": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "newlyIntroducedClassification": {
+      "type": "object",
+      "required": ["fingerprint", "candidate"],
+      "properties": {
+        "fingerprint": { "type": "string", "minLength": 1 },
+        "candidate": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "requirementResult": {
+      "type": "object",
+      "required": ["requirementId", "status", "testIds", "evidence"],
+      "properties": {
+        "requirementId": {
+          "enum": [
+            "FDW-VER-001",
+            "FDW-VER-002",
+            "FDW-VER-003",
+            "FDW-VER-004",
+            "FDW-VER-005",
+            "FDW-VER-006",
+            "FDW-VER-007",
+            "FDW-VER-008"
+          ]
+        },
+        "status": { "enum": ["pass", "fail", "blocked", "not-run"] },
+        "testIds": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^TC-VER-[0-9]{3}$" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "evidence": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "applicationVersion",
+        "findingIdentityVersion",
+        "profileId",
+        "profileVersion",
+        "baselineAdapterId",
+        "baselineAdapterVersion",
+        "baselineSchemaVersion",
+        "candidateAdapterId",
+        "candidateAdapterVersion",
+        "candidateSchemaVersion"
+      ],
+      "properties": {
+        "applicationVersion": { "type": "string", "minLength": 1 },
+        "findingIdentityVersion": { "const": "finding-fingerprint.v1" },
+        "profileId": { "type": "string", "minLength": 1 },
+        "profileVersion": { "type": "string", "minLength": 1 },
+        "baselineAdapterId": { "type": "string", "minLength": 1 },
+        "baselineAdapterVersion": { "type": "string", "minLength": 1 },
+        "baselineSchemaVersion": { "const": "telemetry.v1" },
+        "candidateAdapterId": { "type": "string", "minLength": 1 },
+        "candidateAdapterVersion": { "type": "string", "minLength": 1 },
+        "candidateSchemaVersion": { "const": "telemetry.v1" }
+      },
+      "additionalProperties": false
+    },
+    "containsRequirement001": {
+      "type": "array",
+      "contains": { "$ref": "#/$defs/requirement001" },
+      "minContains": 1,
+      "maxContains": 1
+    },
+    "containsRequirement002": {
+      "type": "array",
+      "contains": { "$ref": "#/$defs/requirement002" },
+      "minContains": 1,
+      "maxContains": 1
+    },
+    "containsRequirement003": {
+      "type": "array",
+      "contains": { "$ref": "#/$defs/requirement003" },
+      "minContains": 1,
+      "maxContains": 1
+    },
+    "containsRequirement004": {
+      "type": "array",
+      "contains": { "$ref": "#/$defs/requirement004" },
+      "minContains": 1,
+      "maxContains": 1
+    },
+    "containsRequirement005": {
+      "type": "array",
+      "contains": { "$ref": "#/$defs/requirement005" },
+      "minContains": 1,
+      "maxContains": 1
+    },
+    "containsRequirement006": {
+      "type": "array",
+      "contains": { "$ref": "#/$defs/requirement006" },
+      "minContains": 1,
+      "maxContains": 1
+    },
+    "containsRequirement007": {
+      "type": "array",
+      "contains": { "$ref": "#/$defs/requirement007" },
+      "minContains": 1,
+      "maxContains": 1
+    },
+    "containsRequirement008": {
+      "type": "array",
+      "contains": { "$ref": "#/$defs/requirement008" },
+      "minContains": 1,
+      "maxContains": 1
+    },
+    "requirement001": {
+      "type": "object",
+      "properties": { "requirementId": { "const": "FDW-VER-001" } },
+      "required": ["requirementId"]
+    },
+    "requirement002": {
+      "type": "object",
+      "properties": { "requirementId": { "const": "FDW-VER-002" } },
+      "required": ["requirementId"]
+    },
+    "requirement003": {
+      "type": "object",
+      "properties": { "requirementId": { "const": "FDW-VER-003" } },
+      "required": ["requirementId"]
+    },
+    "requirement004": {
+      "type": "object",
+      "properties": { "requirementId": { "const": "FDW-VER-004" } },
+      "required": ["requirementId"]
+    },
+    "requirement005": {
+      "type": "object",
+      "properties": { "requirementId": { "const": "FDW-VER-005" } },
+      "required": ["requirementId"]
+    },
+    "requirement006": {
+      "type": "object",
+      "properties": { "requirementId": { "const": "FDW-VER-006" } },
+      "required": ["requirementId"]
+    },
+    "requirement007": {
+      "type": "object",
+      "properties": { "requirementId": { "const": "FDW-VER-007" } },
+      "required": ["requirementId"]
+    },
+    "requirement008": {
+      "type": "object",
+      "properties": { "requirementId": { "const": "FDW-VER-008" } },
+      "required": ["requirementId"]
+    }
+  },
+  "additionalProperties": false
+}

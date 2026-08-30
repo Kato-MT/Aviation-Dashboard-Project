@@ -1,0 +1,9 @@
+flowchart LR
+  Worker[Worker routes] --> Native[Native Worker and Durable Object metrics]
+  Hub[RegionalFeedHub] --> Analytics[Privacy-minimized Analytics Engine points]
+  Delivery[Coarse delivery outcomes] --> Analytics
+  Native --> Dashboard[Account dashboard and GraphQL]
+  Analytics --> Dashboard
+  Logs[Invocation and custom logs remain disabled] -. privacy firebreak .-> Dashboard
+  Synthetic[Authorized hosted synthetic probe] --> Dashboard
+  Dashboard --> Receipt[Release-bound operational evidence]

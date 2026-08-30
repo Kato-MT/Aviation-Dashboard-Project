@@ -1,5 +1,10 @@
 import TemporalCampaignWorker from '../workers/temporalCampaign.worker?worker&inline';
-import { assertCampaignResult, verifyCampaignResultIntegrity } from './serialization';
+import {
+  assertCampaignResult,
+  assertCampaignSpec,
+  stableCampaignStringify,
+  verifyCampaignResultIntegrity,
+} from './serialization';
 import {
   CAMPAIGN_WORKER_PROTOCOL_VERSION,
   isCampaignWorkerResponse,
@@ -34,6 +39,11 @@ export interface CampaignWorkerWatchdogOptions {
 
 interface ActiveRun {
   requestId: string;
+  campaignId: string;
+  expectedTotalCases: number;
+  submittedSpecJson: string;
+  lastProgressCompletedCases: number;
+  cancellationProgressSeen: boolean;
   onProgress: (progress: CampaignProgress) => void;
   resolve: (result: CampaignResult) => void;
   reject: (error: Error) => void;
@@ -73,7 +83,7 @@ function normalizedError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error));
 }
 
-function validateProgress(value: CampaignProgress): void {
+function validateProgress(value: CampaignProgress, active: ActiveRun): void {
   if (
     typeof value.campaignId !== 'string' ||
     !Number.isInteger(value.completedCases) ||
@@ -84,6 +94,12 @@ function validateProgress(value: CampaignProgress): void {
   ) {
     throw new Error('Malformed campaign progress response.');
   }
+  if (value.campaignId !== active.campaignId) {
+    throw new Error('Campaign progress campaignId does not match the submitted campaign.');
+  }
+  if (value.totalCases !== active.expectedTotalCases) {
+    throw new Error('Campaign progress totalCases does not match the submitted campaign matrix.');
+  }
   if (value.currentCaseId !== null && typeof value.currentCaseId !== 'string') {
     throw new Error('Malformed campaign progress currentCaseId.');
   }
@@ -93,21 +109,63 @@ function validateProgress(value: CampaignProgress): void {
   ) {
     throw new Error('Malformed campaign progress currentCaseStatus.');
   }
+  if (active.cancellationProgressSeen) {
+    throw new Error('Campaign worker sent progress after reporting cancellation progress.');
+  }
+  if (value.completedCases < active.lastProgressCompletedCases) {
+    throw new Error('Campaign progress completedCases regressed.');
+  }
+
+  if (value.currentCaseStatus === 'completed' || value.currentCaseStatus === 'failed') {
+    if (value.currentCaseId === null) {
+      throw new Error('Completed or failed campaign progress requires a currentCaseId.');
+    }
+    if (value.completedCases !== active.lastProgressCompletedCases + 1) {
+      throw new Error('Campaign progress must advance exactly one processed case at a time.');
+    }
+  } else {
+    if (value.completedCases !== active.lastProgressCompletedCases) {
+      throw new Error('Noncommitting campaign progress cannot change the processed-case count.');
+    }
+    if (value.currentCaseStatus === null && value.currentCaseId !== null) {
+      throw new Error('Campaign progress without a case status cannot identify a current case.');
+    }
+    if (value.currentCaseStatus === 'cancelled' && value.currentCaseId === null) {
+      throw new Error('Cancelled campaign progress requires the uncommitted currentCaseId.');
+    }
+  }
+
+  active.lastProgressCompletedCases = value.completedCases;
+  if (value.currentCaseStatus === 'cancelled') active.cancellationProgressSeen = true;
 }
 
-function validateResponseDetails(response: CampaignWorkerResponse): void {
+function validateTerminalResult(result: CampaignResult, active: ActiveRun): void {
+  if (result.campaignId !== active.campaignId) {
+    throw new Error('Campaign worker result campaignId does not match the submitted campaign.');
+  }
+  if (stableCampaignStringify(result.spec) !== active.submittedSpecJson) {
+    throw new Error('Campaign worker result spec does not match the submitted campaign spec.');
+  }
+}
+
+function validateResponseDetails(response: CampaignWorkerResponse, active: ActiveRun): void {
   switch (response.type) {
     case 'campaign.progress':
-      validateProgress(response.progress);
+      validateProgress(response.progress, active);
       break;
     case 'campaign.result':
       assertCampaignResult(response.result);
+      validateTerminalResult(response.result, active);
+      if (response.result.status === 'cancelled') {
+        throw new Error('Campaign result response cannot carry a cancelled result.');
+      }
       break;
     case 'campaign.cancelled':
       if (!Number.isInteger(response.completedCases) || response.completedCases < 0) {
         throw new Error('Malformed campaign cancellation response.');
       }
       assertCampaignResult(response.result);
+      validateTerminalResult(response.result, active);
       if (
         response.result.status !== 'cancelled' ||
         response.result.summary.completedCases !== response.completedCases
@@ -204,6 +262,17 @@ export class TemporalCampaignBrowserClient {
       );
     }
 
+    let submittedSpecJson: string;
+    try {
+      assertCampaignSpec(spec);
+      submittedSpecJson = stableCampaignStringify(spec);
+    } catch (error) {
+      return Promise.reject(normalizedError(error));
+    }
+    const submittedSpec = JSON.parse(submittedSpecJson) as CampaignSpec;
+    const expectedTotalCases =
+      submittedSpec.profiles.length * submittedSpec.scenarios.length * submittedSpec.seeds.length;
+
     let worker: CampaignWorkerLike;
     try {
       worker = this.requireWorker();
@@ -214,6 +283,11 @@ export class TemporalCampaignBrowserClient {
     return new Promise<CampaignResult>((resolve, reject) => {
       const active: ActiveRun = {
         requestId,
+        campaignId: submittedSpec.campaignId,
+        expectedTotalCases,
+        submittedSpecJson,
+        lastProgressCompletedCases: 0,
+        cancellationProgressSeen: false,
         onProgress: options.onProgress ?? (() => undefined),
         resolve,
         reject,
@@ -242,7 +316,7 @@ export class TemporalCampaignBrowserClient {
           protocolVersion: CAMPAIGN_WORKER_PROTOCOL_VERSION,
           type: 'campaign.run',
           requestId,
-          spec,
+          spec: submittedSpec,
         });
       } catch (error) {
         this.failActiveAndRecycle(normalizedError(error));
@@ -306,14 +380,14 @@ export class TemporalCampaignBrowserClient {
       );
       return;
     }
+    const active = this.active;
     try {
-      validateResponseDetails(value);
+      validateResponseDetails(value, active);
     } catch (error) {
       this.failActiveAndRecycle(normalizedError(error));
       return;
     }
 
-    const active = this.active;
     if (value.type !== 'campaign.progress') {
       if (active.terminalResponsePending) {
         this.failActiveAndRecycle(new Error('Campaign worker sent multiple terminal responses.'));

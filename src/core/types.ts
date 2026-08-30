@@ -1,5 +1,6 @@
 export const TELEMETRY_SCHEMA_VERSION = 'telemetry.v1' as const;
-export const VERIFICATION_SCHEMA_VERSION = 'verification.v1' as const;
+export const VERIFICATION_SCHEMA_VERSION = 'verification.v2' as const;
+export const FINDING_IDENTITY_VERSION = 'finding-fingerprint.v1' as const;
 
 export type TelemetrySchemaVersion = typeof TELEMETRY_SCHEMA_VERSION;
 
@@ -107,8 +108,17 @@ export interface TelemetryRun {
     description?: string | undefined;
     dataClassification: 'SYNTHETIC_UNCLASSIFIED';
     synthetic: true;
+    injectedFault?: InjectedFaultProvenance | undefined;
     [key: string]: unknown;
   };
+}
+
+export interface InjectedFaultProvenance {
+  scenarioId: string;
+  seed: number;
+  target: 'canonical' | 'legacy-csv';
+  expectedRuleIds: string[];
+  synthetic: true;
 }
 
 export interface AdapterInputLimits {
@@ -264,34 +274,81 @@ export interface FindingClassification {
   candidate?: Finding | undefined;
 }
 
+export interface ResolvedFindingClassification extends FindingClassification {
+  baseline: Finding;
+  candidate?: never;
+}
+
+export interface PersistingFindingClassification extends FindingClassification {
+  baseline: Finding;
+  candidate: Finding;
+}
+
+export interface NewlyIntroducedFindingClassification extends FindingClassification {
+  baseline?: never;
+  candidate: Finding;
+}
+
+export interface VerificationRunSummary {
+  runId: string;
+  datasetSha256: string;
+  schemaVersion: TelemetrySchemaVersion;
+  adapterId: string;
+  adapterVersion: string;
+  profileId: string;
+  profileVersion: string;
+  acceptedRecords: number;
+  quarantinedRecords: number;
+  validationIssueCount: number;
+  fatalValidationIssueCount: number;
+  fatal: boolean;
+  analysisBlocked: boolean;
+  findingCount: number;
+}
+
+export type VerificationRequirementId =
+  | 'FDW-VER-001'
+  | 'FDW-VER-002'
+  | 'FDW-VER-003'
+  | 'FDW-VER-004'
+  | 'FDW-VER-005'
+  | 'FDW-VER-006'
+  | 'FDW-VER-007'
+  | 'FDW-VER-008';
+
+export interface VerificationRequirementResult {
+  requirementId: VerificationRequirementId;
+  status: 'pass' | 'fail' | 'blocked' | 'not-run';
+  testIds: string[];
+  evidence: string;
+}
+
 export interface VerificationRun {
   schemaVersion: typeof VERIFICATION_SCHEMA_VERSION;
   verificationId: string;
   createdAt: string;
-  baseline: {
-    runId: string;
-    datasetSha256: string;
-    findingCount: number;
-  };
-  candidate: {
-    runId: string;
-    datasetSha256: string;
-    findingCount: number;
-  };
-  resolved: FindingClassification[];
-  persisting: FindingClassification[];
-  newlyIntroduced: FindingClassification[];
+  baseline: VerificationRunSummary;
+  candidate: VerificationRunSummary;
+  resolved: ResolvedFindingClassification[];
+  persisting: PersistingFindingClassification[];
+  newlyIntroduced: NewlyIntroducedFindingClassification[];
   status: 'pass' | 'fail' | 'blocked';
   summary: {
     resolved: number;
     persisting: number;
     newlyIntroduced: number;
   };
+  requirementResults: VerificationRequirementResult[];
   provenance: {
     applicationVersion: string;
+    findingIdentityVersion: typeof FINDING_IDENTITY_VERSION;
     profileId: string;
     profileVersion: string;
     baselineAdapterId: string;
+    baselineAdapterVersion: string;
+    baselineSchemaVersion: TelemetrySchemaVersion;
     candidateAdapterId: string;
+    candidateAdapterVersion: string;
+    candidateSchemaVersion: TelemetrySchemaVersion;
   };
 }

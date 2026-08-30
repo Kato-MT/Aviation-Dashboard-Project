@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2023",
+    "jsx": "react-jsx",
     "useDefineForClassFields": true,
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "allowJs": false,
@@ -27,8 +28,19 @@
     "tools/**/*.ts",
     "vite.config.ts",
     "vite.offline.config.ts",
+    "vite.live.config.ts",
+    "vite.performance.config.ts",
     "vitest.config.ts",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "playwright.live.config.ts",
+    "playwright.live-flow.config.ts",
+    "playwright.m3.config.ts",
+    "playwright.m34.config.ts"
   ],
-  "exclude": ["tests/worker"]
+  "exclude": [
+    "tests/worker",
+    "tests/support/denyNativeEgress.ts",
+    "tests/support/guardedAirspaceWorker.ts",
+    "tests/support/guardedMockProvider.ts"
+  ]
 }

@@ -1,7 +1,11 @@
 import type { AircraftState, GeographicBounds, GeographicPoint } from './types';
+import type { ServerTimeInterval } from './clock';
+import { aircraftEvidence, type AircraftEvidence } from './freshness';
 
 export type AltitudeFilter = 'all' | 'ground' | 'below-10000' | '10000-25000' | 'above-25000';
-export type QualityFilter = 'all' | 'current' | 'delayed' | 'missing-position';
+export type QualityFilter =
+  'all' | 'current' | 'delayed' | 'stale' | 'expired' | 'missing-position' | 'time-uncertain';
+export type GroundStateFilter = 'all' | 'ground' | 'airborne' | 'unknown';
 export type AircraftSortField = 'identifier' | 'altitude' | 'speed' | 'freshness';
 export type SortDirection = 'ascending' | 'descending';
 
@@ -10,6 +14,7 @@ export interface AircraftFilters {
   altitude: AltitudeFilter;
   quality: QualityFilter;
   positionedOnly: boolean;
+  groundState: GroundStateFilter;
 }
 
 export interface AirspaceSummary {
@@ -17,9 +22,13 @@ export interface AirspaceSummary {
   positioned: number;
   current: number;
   delayed: number;
+  stale: number;
+  expiredPosition: number;
   missingPosition: number;
   airborne: number;
   onGround: number;
+  unknownGround: number;
+  timeUncertain: number;
 }
 
 export interface ProjectedPoint {
@@ -33,11 +42,12 @@ export const DEFAULT_AIRCRAFT_FILTERS: AircraftFilters = {
   altitude: 'all',
   quality: 'all',
   positionedOnly: false,
+  groundState: 'all',
 };
 
 function altitudeMatches(aircraft: AircraftState, filter: AltitudeFilter): boolean {
   if (filter === 'all') return true;
-  if (filter === 'ground') return aircraft.onGround;
+  if (filter === 'ground') return aircraft.onGround === true;
   if (aircraft.onGround || aircraft.barometricAltitudeFeet === undefined) return false;
   if (filter === 'below-10000') return aircraft.barometricAltitudeFeet < 10_000;
   if (filter === '10000-25000') {
@@ -46,13 +56,29 @@ function altitudeMatches(aircraft: AircraftState, filter: AltitudeFilter): boole
   return aircraft.barometricAltitudeFeet > 25_000;
 }
 
-function qualityMatches(aircraft: AircraftState, filter: QualityFilter): boolean {
+function qualityMatches(evidence: AircraftEvidence, filter: QualityFilter): boolean {
   if (filter === 'all') return true;
-  if (filter === 'missing-position') return !aircraft.position;
-  const delayed = aircraft.qualityFlags.some(
-    (flag) => flag === 'stale-contact' || flag === 'stale-position',
-  );
-  return filter === 'delayed' ? delayed : !delayed && Boolean(aircraft.position);
+  if (filter === 'missing-position') return evidence.position.freshness === 'missing';
+  if (filter === 'time-uncertain') {
+    return (
+      evidence.contact.freshness === 'time-uncertain' ||
+      evidence.position.freshness === 'time-uncertain'
+    );
+  }
+  return evidence.position.freshness === filter;
+}
+
+export function aircraftTimeIsUncertain(
+  aircraft: AircraftState,
+  time?: ServerTimeInterval,
+): boolean {
+  return qualityMatches(aircraftEvidence(aircraft, time), 'time-uncertain');
+}
+
+function groundStateMatches(aircraft: AircraftState, filter: GroundStateFilter): boolean {
+  if (filter === 'all') return true;
+  if (filter === 'unknown') return aircraft.onGround === null;
+  return aircraft.onGround === (filter === 'ground');
 }
 
 export function aircraftIdentifier(aircraft: AircraftState): string {
@@ -74,64 +100,88 @@ export function verticalState(
 export function filterAircraft(
   aircraft: readonly AircraftState[],
   filters: Partial<AircraftFilters> = {},
+  time?: ServerTimeInterval,
 ): AircraftState[] {
   const selected = { ...DEFAULT_AIRCRAFT_FILTERS, ...filters };
   const query = selected.query.trim().toLocaleLowerCase();
   return aircraft.filter((track) => {
+    const evidence = aircraftEvidence(track, time);
     const searchable = [track.callsign, track.registration, track.aircraftId, track.aircraftType]
       .filter((value): value is string => Boolean(value))
       .join(' ')
       .toLocaleLowerCase();
     return (
+      evidence.activeContact &&
       (!query || searchable.includes(query)) &&
-      (!selected.positionedOnly || Boolean(track.position)) &&
+      (!selected.positionedOnly || evidence.activePosition) &&
       altitudeMatches(track, selected.altitude) &&
-      qualityMatches(track, selected.quality)
+      groundStateMatches(track, selected.groundState) &&
+      qualityMatches(evidence, selected.quality)
     );
   });
 }
 
-function numericSortValue(aircraft: AircraftState, field: AircraftSortField): number {
+function numericSortValue(
+  aircraft: AircraftState,
+  field: AircraftSortField,
+  time?: ServerTimeInterval,
+): number {
   if (field === 'altitude') return aircraft.barometricAltitudeFeet ?? Number.NEGATIVE_INFINITY;
   if (field === 'speed') return aircraft.groundSpeedKnots ?? Number.NEGATIVE_INFINITY;
-  return field === 'freshness' ? aircraft.contactAgeSeconds : 0;
+  if (field !== 'freshness') return 0;
+  const evidence = aircraftEvidence(aircraft, time);
+  return (
+    evidence.position.age?.maximumMs ?? evidence.contact.age?.maximumMs ?? Number.POSITIVE_INFINITY
+  );
 }
 
 export function sortAircraft(
   aircraft: readonly AircraftState[],
   field: AircraftSortField,
   direction: SortDirection = 'ascending',
+  time?: ServerTimeInterval,
 ): AircraftState[] {
   const multiplier = direction === 'ascending' ? 1 : -1;
   return [...aircraft].sort((left, right) => {
     const comparison =
       field === 'identifier'
         ? aircraftIdentifier(left).localeCompare(aircraftIdentifier(right))
-        : numericSortValue(left, field) - numericSortValue(right, field);
+        : numericSortValue(left, field, time) - numericSortValue(right, field, time);
     return (comparison || left.aircraftId.localeCompare(right.aircraftId)) * multiplier;
   });
 }
 
-export function summarizeAirspace(aircraft: readonly AircraftState[]): AirspaceSummary {
+export function summarizeAirspace(
+  aircraft: readonly AircraftState[],
+  time?: ServerTimeInterval,
+): AirspaceSummary {
   const summary: AirspaceSummary = {
-    observed: aircraft.length,
+    observed: 0,
     positioned: 0,
     current: 0,
     delayed: 0,
+    stale: 0,
+    expiredPosition: 0,
     missingPosition: 0,
     airborne: 0,
     onGround: 0,
+    unknownGround: 0,
+    timeUncertain: 0,
   };
   for (const track of aircraft) {
-    if (track.position) summary.positioned += 1;
-    else summary.missingPosition += 1;
-    const delayed = track.qualityFlags.some(
-      (flag) => flag === 'stale-contact' || flag === 'stale-position',
-    );
-    if (delayed) summary.delayed += 1;
-    else if (track.position) summary.current += 1;
-    if (track.onGround) summary.onGround += 1;
-    else summary.airborne += 1;
+    const evidence = aircraftEvidence(track, time);
+    if (!evidence.activeContact) continue;
+    summary.observed += 1;
+    if (evidence.activePosition) summary.positioned += 1;
+    if (evidence.position.freshness === 'missing') summary.missingPosition += 1;
+    if (qualityMatches(evidence, 'time-uncertain')) summary.timeUncertain += 1;
+    if (evidence.position.freshness === 'current') summary.current += 1;
+    if (evidence.position.freshness === 'delayed') summary.delayed += 1;
+    if (evidence.position.freshness === 'stale') summary.stale += 1;
+    if (evidence.position.freshness === 'expired') summary.expiredPosition += 1;
+    if (track.onGround === true) summary.onGround += 1;
+    else if (track.onGround === false) summary.airborne += 1;
+    else summary.unknownGround += 1;
   }
   return summary;
 }

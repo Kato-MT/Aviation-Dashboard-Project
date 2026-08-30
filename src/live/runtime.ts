@@ -3,9 +3,12 @@ import {
   type LiveAirspaceClientOptions,
   type LiveTransportStatus,
 } from './client';
+import { LiveServerClock } from './clock';
+import type { LiveFeedBinding } from './types';
 import type { LiveStreamMessage } from './protocol';
 import { getRegionConfig } from './regions';
 import { LiveAirspaceSession, type LiveSessionOptions, type LiveSessionState } from './session';
+import { isSafeInteger } from './validation';
 
 export interface LiveClientControl {
   start(): void;
@@ -17,29 +20,54 @@ export type LiveStateSubscriber = (state: LiveSessionState) => void;
 
 export interface LiveAirspaceRuntimeOptions {
   regionId: string;
+  providerId?: string;
   apiBaseUrl?: string;
   session?: Partial<LiveSessionOptions>;
   freshnessIntervalMs?: number;
-  now?: () => number;
+  clock?: LiveServerClock;
   clientFactory?: LiveClientFactory;
+}
+
+interface RuntimeActivation {
+  generation: number;
+  session: LiveAirspaceSession;
+  client?: LiveClientControl | undefined;
+  freshnessTimer?: ReturnType<typeof setInterval> | undefined;
+}
+
+interface CleanupFailure {
+  error: unknown;
 }
 
 export class LiveAirspaceRuntime {
   private readonly options: LiveAirspaceRuntimeOptions;
   private readonly subscribers = new Set<LiveStateSubscriber>();
+  private readonly freshnessIntervalMs: number;
+  private readonly clock: LiveServerClock;
   private session: LiveAirspaceSession;
-  private client: LiveClientControl;
-  private freshnessTimer?: ReturnType<typeof setInterval> | undefined;
+  private activation?: RuntimeActivation | undefined;
   private running = false;
+  private generation = 0;
 
   constructor(options: LiveAirspaceRuntimeOptions) {
-    this.options = options;
+    this.options = {
+      ...options,
+      ...(options.session ? { session: { ...options.session } } : {}),
+    };
     this.requireRegion(options.regionId);
-    if ((options.freshnessIntervalMs ?? 1_000) < 250) {
-      throw new RangeError('freshnessIntervalMs must be at least 250 milliseconds.');
+    this.clock = options.clock ?? new LiveServerClock();
+    this.freshnessIntervalMs = options.freshnessIntervalMs ?? 1_000;
+    if (!isSafeInteger(this.freshnessIntervalMs, 250, 2_147_483_647)) {
+      throw new RangeError(
+        'freshnessIntervalMs must be a timer-safe integer of at least 250 milliseconds.',
+      );
     }
-    this.session = new LiveAirspaceSession(options.regionId, options.session);
-    this.client = this.createClient(options.regionId);
+    this.session = new LiveAirspaceSession(
+      options.regionId,
+      this.options.session,
+      options.providerId,
+      () => this.clock.read(),
+    );
   }
 
   get state(): LiveSessionState {
@@ -54,38 +82,58 @@ export class LiveAirspaceRuntime {
 
   start(): void {
     if (this.running) return;
+    this.clock.invalidate();
+    this.session.clear();
     this.running = true;
-    this.client.start();
-    this.freshnessTimer = setInterval(
-      () => this.refreshFreshness(),
-      this.options.freshnessIntervalMs ?? 1_000,
-    );
+    this.activate(this.session, ++this.generation);
   }
 
   stop(): void {
-    if (!this.running) return;
+    if (!this.running && !this.activation) return;
     this.running = false;
-    if (this.freshnessTimer) clearInterval(this.freshnessTimer);
-    this.freshnessTimer = undefined;
-    this.client.stop();
+    const generation = ++this.generation;
+    const session = this.session;
+    const previous = this.activation;
+    this.activation = undefined;
+    this.clock.invalidate();
+    session.clear();
+    const failure = this.release(previous);
+    if (failure) this.reportLifecycleFailure(session, generation, failure.error);
+    else if (this.isCurrentTransition(session, generation)) this.publish();
   }
 
   switchRegion(regionId: string): void {
     this.requireRegion(regionId);
     if (regionId === this.state.regionId) return;
-    const wasRunning = this.running;
-    if (wasRunning) this.client.stop();
-    this.session = new LiveAirspaceSession(regionId, this.options.session);
-    this.client = this.createClient(regionId);
+    this.clock.invalidate();
+    const session = new LiveAirspaceSession(
+      regionId,
+      this.options.session,
+      this.options.providerId,
+      () => this.clock.read(),
+    );
+    const generation = ++this.generation;
+    const previous = this.activation;
+    this.activation = undefined;
+    this.session = session;
+    const failure = this.release(previous);
+    if (!this.isCurrentTransition(session, generation)) return;
+    if (failure) {
+      this.running = false;
+      this.reportLifecycleFailure(session, generation, failure.error);
+      return;
+    }
     this.publish();
-    if (wasRunning) this.client.start();
+    if (this.running && this.isCurrentTransition(session, generation)) {
+      this.activate(session, generation);
+    }
   }
 
   selectAircraft(aircraftId?: string): void {
     if (
       aircraftId &&
       !this.state.snapshot?.aircraft.some((aircraft) => aircraft.aircraftId === aircraftId) &&
-      !this.state.trails.has(aircraftId)
+      !this.state.histories.has(aircraftId)
     ) {
       return;
     }
@@ -93,59 +141,173 @@ export class LiveAirspaceRuntime {
     this.publish();
   }
 
-  private createClient(regionId: string): LiveClientControl {
+  selectHistorySample(
+    aircraftId: string,
+    sequence: number,
+    expectedBinding: Readonly<LiveFeedBinding>,
+  ): void {
+    const previous = this.state;
+    this.session.selectHistorySample(aircraftId, sequence, expectedBinding);
+    if (this.state !== previous) this.publish();
+  }
+
+  private activate(session: LiveAirspaceSession, generation: number): void {
+    if (!this.running || !this.isCurrentTransition(session, generation)) return;
+    const activation: RuntimeActivation = { session, generation };
+    this.activation = activation;
+    try {
+      activation.client = this.createClient(activation);
+      if (!this.owns(activation)) {
+        // Superseded construction must release its client without publishing into the new session.
+        this.release(activation);
+        return;
+      }
+      activation.freshnessTimer = setInterval(() => {
+        if (this.owns(activation)) this.refreshFreshness(session);
+      }, this.freshnessIntervalMs);
+      activation.client.start();
+    } catch (error) {
+      if (!this.owns(activation)) return;
+      this.running = false;
+      this.activation = undefined;
+      const failureGeneration = ++this.generation;
+      const cleanupFailure = this.release(activation);
+      this.reportLifecycleFailure(session, failureGeneration, error, cleanupFailure);
+    }
+  }
+
+  private isCurrentTransition(session: LiveAirspaceSession, generation: number): boolean {
+    return this.session === session && this.generation === generation;
+  }
+
+  private owns(activation: RuntimeActivation): boolean {
+    return (
+      this.running &&
+      this.activation === activation &&
+      this.isCurrentTransition(activation.session, activation.generation)
+    );
+  }
+
+  private release(activation?: RuntimeActivation): CleanupFailure | undefined {
+    if (!activation) return undefined;
+    if (activation.freshnessTimer !== undefined) clearInterval(activation.freshnessTimer);
+    activation.freshnessTimer = undefined;
+    const client = activation.client;
+    activation.client = undefined;
+    try {
+      client?.stop();
+      return undefined;
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  private reportLifecycleFailure(
+    session: LiveAirspaceSession,
+    generation: number,
+    error: unknown,
+    cleanupFailure?: CleanupFailure,
+  ): void {
+    if (!this.isCurrentTransition(session, generation)) return;
+    const message = error instanceof Error ? error.message : 'The live transport lifecycle failed.';
+    session.markError(
+      cleanupFailure ? message + ' The transport also failed to stop normally.' : message,
+    );
+    this.publish();
+  }
+
+  private createClient(activation: RuntimeActivation): LiveClientControl {
     const factory = this.options.clientFactory ?? ((options) => new LiveAirspaceClient(options));
+    const { session } = activation;
+    const acceptsCallback = () => this.owns(activation) && activation.client !== undefined;
     return factory({
-      regionId,
+      regionId: session.state.regionId,
+      ...(this.options.providerId ? { providerId: this.options.providerId } : {}),
       ...(this.options.apiBaseUrl ? { apiBaseUrl: this.options.apiBaseUrl } : {}),
-      onMessage: (message) => this.handleMessage(message),
-      onStatus: (status) => this.handleStatus(status),
+      readClock: () => this.clock.read(),
+      onFeedBinding: (binding) => {
+        if (!acceptsCallback()) return;
+        this.bindFeed(session, binding);
+      },
+      onTimeSample: (sample) => {
+        if (!acceptsCallback() || !session.state.binding) return;
+        this.clock.synchronize(sample);
+        session.updateTime(this.clock.estimate(sample.received));
+        this.publish();
+      },
+      onMessage: (message) => {
+        if (acceptsCallback()) this.handleMessage(session, message);
+      },
+      onStatus: (status) => {
+        if (acceptsCallback()) this.handleStatus(session, status);
+      },
       onProtocolError: (errors) => {
-        this.session.recordError(`Rejected live message: ${errors.join(' ')}`);
+        if (!acceptsCallback()) return;
+        session.recordError(`Rejected live message: ${errors.join(' ')}`);
         this.publish();
       },
       onError: (message) => {
-        this.session.recordError(message);
+        if (!acceptsCallback()) return;
+        session.recordError(message);
         this.publish();
       },
     });
   }
 
-  private handleMessage(message: LiveStreamMessage): void {
+  private handleMessage(session: LiveAirspaceSession, message: LiveStreamMessage): void {
     switch (message.type) {
       case 'airspace.snapshot':
-        this.session.applySnapshot(message.snapshot);
+        session.applySnapshot(message.snapshot);
         break;
       case 'feed.health':
-        this.session.applyHealth(message.health);
+        session.applyHealth(message.health);
         break;
       case 'error':
-        if (message.recoverable) this.session.recordError(message.message);
-        else this.session.markError(message.message);
+        if (message.recoverable) session.recordError(message.message);
+        else session.markError(message.message);
         break;
       case 'hello':
+        this.bindFeed(session, message);
+        break;
+      case 'pong':
         break;
     }
     this.publish();
   }
 
-  private handleStatus(status: LiveTransportStatus): void {
-    if (status === 'connecting') this.session.markConnecting();
-    else if (status === 'reconnecting') this.session.markConnecting(true);
+  private bindFeed(session: LiveAirspaceSession, binding: LiveFeedBinding): void {
+    if (session.beginFeed(binding)) {
+      this.clock.invalidate();
+      this.publish();
+    }
+  }
+
+  private handleStatus(session: LiveAirspaceSession, status: LiveTransportStatus): void {
+    if (status === 'stopped') {
+      this.stop();
+      return;
+    }
+    if (status === 'connecting') session.markConnecting();
+    else if (status === 'reconnecting') session.markConnecting(true);
     else if (status === 'offline') {
-      this.session.markOffline('The live stream is temporarily offline.');
-    } else if (status === 'open') this.session.markConnected();
+      session.markOffline('The live stream is temporarily offline.');
+    } else if (status === 'open') session.markConnected();
     this.publish();
   }
 
-  private refreshFreshness(): void {
-    const previous = this.state;
-    this.session.evaluateFreshness((this.options.now ?? Date.now)());
-    if (this.state !== previous) this.publish();
+  private refreshFreshness(session: LiveAirspaceSession): void {
+    const previous = session.state;
+    session.updateTime(this.clock.estimate());
+    if (session.state !== previous) this.publish();
   }
 
   private publish(): void {
-    for (const subscriber of this.subscribers) subscriber(this.state);
+    const state = this.state;
+    const generation = this.generation;
+    for (const subscriber of [...this.subscribers]) {
+      if (this.state !== state || this.generation !== generation) break;
+      if (this.subscribers.has(subscriber)) subscriber(state);
+    }
   }
 
   private requireRegion(regionId: string): void {

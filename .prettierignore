@@ -1,5 +1,9 @@
 dist
 dist-offline
+dist-live
+dist-mock-staging
+.wrangler
+.map-data
 /release
 coverage
 node_modules

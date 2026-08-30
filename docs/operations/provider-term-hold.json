@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "operator-procedure.v1",
+  "procedureId": "provider-term-hold",
+  "title": "Provider-term hold",
+  "purpose": "Hold Live source work when reviewed provider terms are unresolved while preserving the currently approved release boundary.",
+  "documentationBoundary": {
+    "mode": "local-documentation-only",
+    "executionClaim": "none",
+    "runtimeControlPlane": "forbidden"
+  },
+  "reasonVocabulary": {
+    "runtimePolicy": ["terms-hold"],
+    "operations": ["PROVIDER_DISABLED"]
+  },
+  "entryEvidence": [
+    {
+      "evidenceId": "dated-provider-record",
+      "source": "provider-written-record",
+      "reasonCode": "terms-hold",
+      "required": true,
+      "observation": "A dated provider record shows that the reviewed production terms are unresolved."
+    },
+    {
+      "evidenceId": "compiled-policy-gate",
+      "source": "runtime-policy",
+      "reasonCode": "terms-hold",
+      "required": true,
+      "observation": "The selected compiled policy identifies terms-hold for its exact policy epoch."
+    },
+    {
+      "evidenceId": "disabled-provider-state",
+      "source": "operations-v1",
+      "reasonCode": "PROVIDER_DISABLED",
+      "required": true,
+      "observation": "The bounded operations projection classifies the provider as disabled."
+    }
+  ],
+  "boundedActions": [
+    {
+      "sequence": 1,
+      "actionId": "capture-hold-evidence",
+      "actionType": "capture-evidence",
+      "authority": "read-only-local",
+      "instruction": "Record the policy ID, policy epoch, release identity, dated provider record, and aggregate operations reason once.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    },
+    {
+      "sequence": 2,
+      "actionId": "prepare-disabled-candidate",
+      "actionType": "prepare-policy-change",
+      "authority": "separate-explicit-approval",
+      "instruction": "Prepare one disabled-source candidate that preserves Replay, Lab, Evidence, maps, offline, and the approved rollback.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 60
+    },
+    {
+      "sequence": 3,
+      "actionId": "request-terms-approval",
+      "actionType": "request-approval",
+      "authority": "separate-explicit-approval",
+      "instruction": "Request separate approval for the exact candidate and documented terms outcome before any release workflow begins.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 30
+    }
+  ],
+  "stopConditions": [
+    {
+      "conditionId": "stop-on-incomplete-terms-evidence",
+      "outcome": "halt",
+      "reasonCode": "terms-hold",
+      "observation": "Stop if the dated provider record, policy ID, policy epoch, or release identity is missing or inconsistent."
+    },
+    {
+      "conditionId": "receipt-on-disabled-provider",
+      "outcome": "ready-for-receipt",
+      "reasonCode": "PROVIDER_DISABLED",
+      "observation": "Stop as ready for a receipt only when the exact operations projection reports the provider disabled."
+    }
+  ],
+  "rollbackActions": [
+    {
+      "sequence": 1,
+      "actionId": "preserve-approved-disabled-release",
+      "actionType": "preserve-current-release",
+      "authority": "read-only-local",
+      "instruction": "Keep the last approved disabled release unchanged if the prepared candidate or its evidence fails verification.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    }
+  ],
+  "verificationReceipt": {
+    "schemaVersion": "operator-verification-receipt.v1",
+    "status": "template-only-not-executed",
+    "privacy": "aggregate-only-no-aircraft-request-client-or-event-data",
+    "requiredFields": [
+      "procedureId",
+      "procedureSha256",
+      "policyId",
+      "policyEpoch",
+      "applicationVersion",
+      "releaseSha",
+      "checkedAt",
+      "runtimePolicyReasonCodes",
+      "operationsReasonCodes",
+      "entryEvidenceIds",
+      "rehearsedActionIds",
+      "stopConditionIds",
+      "result"
+    ],
+    "resultValues": ["verified", "stopped", "rolled-back", "recovered"]
+  }
+}

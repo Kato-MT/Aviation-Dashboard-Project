@@ -11,6 +11,8 @@ export const DETERMINISTIC_AUTHORITY: DetectionComparison['authority'] = 'determ
 
 export type ModelRegistrySchemaVersion = typeof MODEL_REGISTRY_SCHEMA_VERSION;
 export type Sha256Identity = string;
+export type ModelActivationPurpose = 'integrated-advisory' | 'research-evidence-only';
+export type ModelRegistryEntryKey = `${string}@${string}`;
 
 export interface ModelEvidenceReference {
   readonly path: string;
@@ -50,6 +52,8 @@ export type ModelArtifactContract =
 export interface ModelRegistryEntry {
   readonly registryEntryId: string;
   readonly modelVersion: string;
+  /** Declares whether this exact version may be activated or is display-only research evidence. */
+  readonly activationPurpose: ModelActivationPurpose;
   readonly profile: Readonly<Pick<DetectionProfile, 'id' | 'version'>>;
   readonly artifact: Readonly<ModelArtifactContract>;
   readonly compatibility: {

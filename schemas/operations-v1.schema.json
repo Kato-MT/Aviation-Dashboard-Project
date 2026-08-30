@@ -1,0 +1,465 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kato-mt.github.io/Aviation-Dashboard-Project/schemas/operations-v1.schema.json",
+  "title": "Privacy-safe live operations projection v1",
+  "$comment": "Runtime validation also enforces state/reason compatibility, exact window boundaries, counter relationships, recursive forbidden-field rejection, and deep immutability.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "identity",
+    "checkedAt",
+    "application",
+    "admission",
+    "limitations",
+    "regions"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "operations.v1" },
+    "identity": { "$ref": "#/$defs/identity" },
+    "checkedAt": { "$ref": "#/$defs/timestamp" },
+    "application": { "$ref": "#/$defs/applicationClassification" },
+    "admission": { "$ref": "#/$defs/admission" },
+    "limitations": { "$ref": "#/$defs/limitations" },
+    "regions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {
+          "allOf": [
+            { "$ref": "#/$defs/region" },
+            { "type": "object", "properties": { "regionId": { "const": "atlanta" } } }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/region" },
+            {
+              "type": "object",
+              "properties": { "regionId": { "const": "savannah-statesboro" } }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/region" },
+            {
+              "type": "object",
+              "properties": { "regionId": { "const": "central-georgia" } }
+            }
+          ]
+        }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}Z$"
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^(?!(?:\\d{1,3}\\.){3}\\d{1,3}$)[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "counter": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "reasonCode": {
+      "enum": [
+        "APPLICATION_AVAILABLE",
+        "APPLICATION_PARTIAL_REGIONS",
+        "APPLICATION_UNAVAILABLE",
+        "REGION_AVAILABLE",
+        "REGION_READ_UNAVAILABLE",
+        "PROVIDER_LIVE",
+        "PROVIDER_DEGRADED",
+        "PROVIDER_DISABLED",
+        "PROVIDER_CONNECTING",
+        "PROVIDER_EMPTY",
+        "PROVIDER_RATE_LIMITED",
+        "PROVIDER_RETRYING",
+        "PROVIDER_UNAVAILABLE",
+        "DELIVERY_HEALTHY",
+        "DELIVERY_DEGRADED_TIMEOUTS",
+        "DELIVERY_DEGRADED_SEND_FAILURES",
+        "DELIVERY_DEGRADED_INVALID_CONTROLS",
+        "DELIVERY_HIBERNATION_LOSS_POSSIBLE",
+        "DELIVERY_UNAVAILABLE",
+        "ADMISSION_ACCEPTING",
+        "ADMISSION_LIMITED_RATE",
+        "ADMISSION_LIMITED_CAPACITY",
+        "ADMISSION_UNAVAILABLE",
+        "FRESHNESS_CURRENT",
+        "FRESHNESS_DELAYED",
+        "FRESHNESS_STALE",
+        "FRESHNESS_EXPIRED",
+        "FRESHNESS_EMPTY",
+        "FRESHNESS_UNAVAILABLE"
+      ]
+    },
+    "reasonCodes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/reasonCode" }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["applicationVersion", "releaseSha", "source", "policyId"],
+      "properties": {
+        "applicationVersion": { "$ref": "#/$defs/identifier" },
+        "releaseSha": { "$ref": "#/$defs/identifier" },
+        "source": { "$ref": "#/$defs/source" },
+        "policyId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "mode", "providerId", "label", "synthetic"],
+      "properties": {
+        "target": { "enum": ["local-mock", "mock-staging", "live-staging", "production"] },
+        "mode": { "enum": ["disabled", "mock", "live"] },
+        "providerId": { "enum": ["synthetic-test", "adsb-lol"] },
+        "label": {
+          "enum": ["Synthetic integration feed", "ADSB.lol surveillance observations"]
+        },
+        "synthetic": { "type": "boolean" }
+      },
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "target": { "enum": ["local-mock", "mock-staging"] },
+            "mode": { "enum": ["disabled", "mock"] },
+            "providerId": { "const": "synthetic-test" },
+            "label": { "const": "Synthetic integration feed" },
+            "synthetic": { "const": true }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "target": { "enum": ["live-staging", "production"] },
+            "mode": { "enum": ["disabled", "live"] },
+            "providerId": { "const": "adsb-lol" },
+            "label": { "const": "ADSB.lol surveillance observations" },
+            "synthetic": { "const": false }
+          }
+        }
+      ]
+    },
+    "applicationClassification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reasonCodes"],
+      "properties": {
+        "state": { "enum": ["available", "partial", "unavailable"] },
+        "reasonCodes": { "$ref": "#/$defs/reasonCodes" }
+      }
+    },
+    "availabilityClassification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reasonCodes"],
+      "properties": {
+        "state": { "enum": ["available", "unavailable"] },
+        "reasonCodes": { "$ref": "#/$defs/reasonCodes" }
+      }
+    },
+    "providerClassification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reasonCodes"],
+      "properties": {
+        "state": {
+          "enum": [
+            "live",
+            "degraded",
+            "disabled",
+            "connecting",
+            "empty",
+            "rate-limited",
+            "retrying",
+            "unavailable"
+          ]
+        },
+        "reasonCodes": { "$ref": "#/$defs/reasonCodes" }
+      }
+    },
+    "deliveryClassification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reasonCodes"],
+      "properties": {
+        "state": { "enum": ["healthy", "degraded", "unavailable"] },
+        "reasonCodes": { "$ref": "#/$defs/reasonCodes" }
+      }
+    },
+    "admission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reasonCodes", "scope", "windows"],
+      "properties": {
+        "state": { "enum": ["accepting", "limited", "unavailable"] },
+        "reasonCodes": { "$ref": "#/$defs/reasonCodes" },
+        "scope": { "const": "worker-isolate" },
+        "windows": { "$ref": "#/$defs/admissionWindows" }
+      }
+    },
+    "freshnessClassification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reasonCodes", "observationAgeSeconds"],
+      "properties": {
+        "state": {
+          "enum": ["current", "delayed", "stale", "expired", "empty", "unavailable"]
+        },
+        "reasonCodes": { "$ref": "#/$defs/reasonCodes" },
+        "observationAgeSeconds": {
+          "oneOf": [{ "type": "integer", "minimum": 0, "maximum": 4294967295 }, { "type": "null" }]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "type": "object", "properties": { "state": { "const": "current" } } },
+          "then": {
+            "type": "object",
+            "properties": {
+              "observationAgeSeconds": { "type": "integer", "minimum": 0, "maximum": 15 }
+            }
+          }
+        },
+        {
+          "if": { "type": "object", "properties": { "state": { "const": "delayed" } } },
+          "then": {
+            "type": "object",
+            "properties": {
+              "observationAgeSeconds": { "type": "integer", "minimum": 16, "maximum": 45 }
+            }
+          }
+        },
+        {
+          "if": { "type": "object", "properties": { "state": { "const": "stale" } } },
+          "then": {
+            "type": "object",
+            "properties": {
+              "observationAgeSeconds": { "type": "integer", "minimum": 46, "maximum": 119 }
+            }
+          }
+        },
+        {
+          "if": { "type": "object", "properties": { "state": { "const": "expired" } } },
+          "then": {
+            "type": "object",
+            "properties": {
+              "observationAgeSeconds": {
+                "type": "integer",
+                "minimum": 120,
+                "maximum": 4294967295
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": { "state": { "enum": ["empty", "unavailable"] } }
+          },
+          "then": {
+            "type": "object",
+            "properties": { "observationAgeSeconds": { "type": "null" } }
+          }
+        }
+      ]
+    },
+    "accounting": { "enum": ["exact", "best-effort"] },
+    "providerCounters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accounting", "pollCount", "successCount", "failureCount", "rateLimitCount"],
+      "properties": {
+        "accounting": { "$ref": "#/$defs/accounting" },
+        "pollCount": { "$ref": "#/$defs/counter" },
+        "successCount": { "$ref": "#/$defs/counter" },
+        "failureCount": { "$ref": "#/$defs/counter" },
+        "rateLimitCount": { "$ref": "#/$defs/counter" }
+      }
+    },
+    "validationCounters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accounting",
+        "acceptedSnapshotCount",
+        "rejectedSnapshotCount",
+        "invalidFieldCount"
+      ],
+      "properties": {
+        "accounting": { "$ref": "#/$defs/accounting" },
+        "acceptedSnapshotCount": { "$ref": "#/$defs/counter" },
+        "rejectedSnapshotCount": { "$ref": "#/$defs/counter" },
+        "invalidFieldCount": { "$ref": "#/$defs/counter" }
+      }
+    },
+    "deliveryCounters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accounting",
+        "acknowledgmentCount",
+        "timeoutCount",
+        "sendFailureCount",
+        "invalidControlCount",
+        "hibernationLossCount"
+      ],
+      "properties": {
+        "accounting": { "const": "best-effort" },
+        "acknowledgmentCount": { "$ref": "#/$defs/counter" },
+        "timeoutCount": { "$ref": "#/$defs/counter" },
+        "sendFailureCount": { "$ref": "#/$defs/counter" },
+        "invalidControlCount": { "$ref": "#/$defs/counter" },
+        "hibernationLossCount": { "$ref": "#/$defs/counter" }
+      }
+    },
+    "admissionCounters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accounting",
+        "acceptedCount",
+        "rateLimitRejectionCount",
+        "capacityRejectionCount"
+      ],
+      "properties": {
+        "accounting": { "const": "best-effort" },
+        "acceptedCount": { "$ref": "#/$defs/counter" },
+        "rateLimitRejectionCount": { "$ref": "#/$defs/counter" },
+        "capacityRejectionCount": { "$ref": "#/$defs/counter" }
+      }
+    },
+    "aggregateWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startedAt", "provider", "validation", "delivery"],
+      "properties": {
+        "startedAt": { "$ref": "#/$defs/timestamp" },
+        "provider": { "$ref": "#/$defs/providerCounters" },
+        "validation": { "$ref": "#/$defs/validationCounters" },
+        "delivery": { "$ref": "#/$defs/deliveryCounters" }
+      }
+    },
+    "windows": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currentHour", "trailing24Hours"],
+      "properties": {
+        "currentHour": {
+          "allOf": [
+            { "$ref": "#/$defs/aggregateWindow" },
+            {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "object",
+                  "properties": { "accounting": { "const": "exact" } }
+                },
+                "validation": {
+                  "type": "object",
+                  "properties": { "accounting": { "const": "exact" } }
+                }
+              }
+            }
+          ]
+        },
+        "trailing24Hours": {
+          "allOf": [
+            { "$ref": "#/$defs/aggregateWindow" },
+            {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "object",
+                  "properties": { "accounting": { "const": "best-effort" } }
+                },
+                "validation": {
+                  "type": "object",
+                  "properties": { "accounting": { "const": "best-effort" } }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "admissionWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startedAt", "counters"],
+      "properties": {
+        "startedAt": { "$ref": "#/$defs/timestamp" },
+        "counters": { "$ref": "#/$defs/admissionCounters" }
+      }
+    },
+    "admissionWindows": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currentHour", "trailing24Hours"],
+      "properties": {
+        "currentHour": { "$ref": "#/$defs/admissionWindow" },
+        "trailing24Hours": { "$ref": "#/$defs/admissionWindow" }
+      }
+    },
+    "region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["regionId", "availability", "provider", "delivery", "freshness", "windows"],
+      "properties": {
+        "regionId": {
+          "enum": ["atlanta", "savannah-statesboro", "central-georgia"]
+        },
+        "availability": { "$ref": "#/$defs/availabilityClassification" },
+        "provider": { "$ref": "#/$defs/providerClassification" },
+        "delivery": { "$ref": "#/$defs/deliveryClassification" },
+        "freshness": { "$ref": "#/$defs/freshnessClassification" },
+        "windows": {
+          "oneOf": [{ "$ref": "#/$defs/windows" }, { "type": "null" }]
+        }
+      }
+    },
+    "limitations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "regionScope",
+        "retentionDays",
+        "deliveryAccounting",
+        "trailingWindowAccounting",
+        "admissionScope",
+        "globalAvailabilityProof",
+        "platformProcessing"
+      ],
+      "properties": {
+        "regionScope": { "const": "three-fixed-georgia-regions" },
+        "retentionDays": { "const": 30 },
+        "deliveryAccounting": { "const": "best-effort-summary" },
+        "trailingWindowAccounting": { "const": "best-effort-complete-hour-buckets" },
+        "admissionScope": { "const": "worker-isolate" },
+        "globalAvailabilityProof": { "const": "not-provided" },
+        "platformProcessing": { "const": "outside-application-storage" }
+      }
+    }
+  }
+}

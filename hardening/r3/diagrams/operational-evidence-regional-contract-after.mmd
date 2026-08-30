@@ -1,0 +1,13 @@
+flowchart LR
+  Viewer[Explicit operator health read] --> Health[GET /api/v1/health]
+  Health --> Contract[operations.v1 classifier]
+  Contract --> HubA[RegionalFeedHub A aggregate view]
+  Contract --> HubB[RegionalFeedHub B aggregate view]
+  Contract --> HubC[RegionalFeedHub C aggregate view]
+  HubA --> StoreA[(30-day aggregate counters and ages)]
+  HubB --> StoreB[(30-day aggregate counters and ages)]
+  HubC --> StoreC[(30-day aggregate counters and ages)]
+  Contract --> Result[Application, provider, delivery, and freshness states]
+  Privacy[Schema allowlist and privacy scanner] --> Contract
+  Synthetic[Release-bound synthetic availability probe] --> Result
+  Result --> Evidence[Evidence route and release receipt]

@@ -9,7 +9,9 @@ import {
 import {
   createModelRegistry,
   findRegistryEntry,
+  findRegistryEntryByKey,
   modelRegistry,
+  modelRegistryEntryKey,
   robustCovarianceRegistryEntry,
   temporalFaultRegistryEntry,
   temporalFaultResearchRegistryEntry,
@@ -60,6 +62,7 @@ describe('profile-specific model registry', () => {
       true,
     );
     expect(robustCovarianceRegistryEntry.artifact.artifactVersion).toBe('learned-baseline.v1');
+    expect(robustCovarianceRegistryEntry.activationPurpose).toBe('integrated-advisory');
     expect(robustCovarianceRegistryEntry.profile).toEqual({
       id: 'generic-fixed-wing',
       version: '1.0.0',
@@ -82,7 +85,9 @@ describe('profile-specific model registry', () => {
       },
     });
     expect(Object.isFrozen(temporalFaultRegistryEntry.evidence)).toBe(true);
+    expect(temporalFaultRegistryEntry.activationPurpose).toBe('integrated-advisory');
     expect(temporalFaultResearchRegistryEntry.modelVersion).toBe('1.0.0');
+    expect(temporalFaultResearchRegistryEntry.activationPurpose).toBe('research-evidence-only');
   });
 
   it('can create an immutable registry containing the temporal artifact', () => {
@@ -99,6 +104,9 @@ describe('profile-specific model registry', () => {
   });
 
   it('finds exact versions without silently selecting a different model version', () => {
+    expect(modelRegistryEntryKey(temporalFaultRegistryEntry)).toBe(
+      'generic-fixed-wing.temporal-fault@2.0.0',
+    );
     expect(
       findRegistryEntry(modelRegistry, robustCovarianceRegistryEntry.registryEntryId, '1.0.0'),
     ).toBe(robustCovarianceRegistryEntry);
@@ -111,6 +119,12 @@ describe('profile-specific model registry', () => {
     expect(
       findRegistryEntry(modelRegistry, temporalFaultRegistryEntry.registryEntryId, '2.0.0'),
     ).toBe(temporalFaultRegistryEntry);
+    expect(findRegistryEntryByKey(modelRegistry, 'generic-fixed-wing.temporal-fault@2.0.0')).toBe(
+      temporalFaultRegistryEntry,
+    );
+    expect(
+      findRegistryEntryByKey(modelRegistry, 'generic-fixed-wing.temporal-fault@9.0.0'),
+    ).toBeUndefined();
   });
 });
 

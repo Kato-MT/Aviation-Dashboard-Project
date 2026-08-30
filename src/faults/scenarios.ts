@@ -276,7 +276,13 @@ export async function injectFaultScenario(
   injected.runId = `${run.runId}-fault-${id}-seed-${seed}`;
   injected.metadata = {
     ...injected.metadata,
-    injectedFault: { scenarioId: id, seed, synthetic: true },
+    injectedFault: {
+      scenarioId: id,
+      seed,
+      target: scenario.target,
+      expectedRuleIds: [...scenario.expectedRuleIds],
+      synthetic: true,
+    },
   };
   const digestInput = stableStringify({
     schemaVersion: injected.schemaVersion,

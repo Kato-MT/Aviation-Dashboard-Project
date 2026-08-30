@@ -61,6 +61,7 @@ export class BrowserDemoAdapter {
   private timer: ReturnType<typeof setInterval> | undefined;
   private readonly delayedDeliveries = new Set<ReturnType<typeof setTimeout>>();
   private running = false;
+  private disposed = false;
   private startedAt = 0;
   private completionPending = false;
 
@@ -107,12 +108,15 @@ export class BrowserDemoAdapter {
   }
 
   subscribe(listener: DemoAdapterListener): () => void {
+    if (this.disposed) {
+      return () => undefined;
+    }
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
   }
 
   start(): void {
-    if (this.running) {
+    if (this.running || this.disposed) {
       return;
     }
     this.running = true;
@@ -133,7 +137,9 @@ export class BrowserDemoAdapter {
       this.inject(this.createHello(state));
     }
     this.flushQueue();
-    this.timer = setInterval(() => this.tick(), this.options.sampleIntervalMs);
+    if (!this.disposed) {
+      this.timer = setInterval(() => this.tick(), this.options.sampleIntervalMs);
+    }
   }
 
   stop(): void {
@@ -166,7 +172,23 @@ export class BrowserDemoAdapter {
     this.flushQueue();
   }
 
+  dispose(): void {
+    this.disposed = true;
+    this.running = false;
+    if (this.timer !== undefined) {
+      clearInterval(this.timer);
+      this.timer = undefined;
+    }
+    this.clearDelayedDeliveries();
+    this.completionPending = false;
+    this.queue.clear();
+    this.listeners.clear();
+  }
+
   private tick(): void {
+    if (!this.running || this.disposed) {
+      return;
+    }
     let complete = true;
     for (const state of this.states) {
       if (state.sampleIndex >= this.options.samplesPerSource) {
@@ -193,6 +215,9 @@ export class BrowserDemoAdapter {
   }
 
   private finishNormally(): void {
+    if (this.disposed) {
+      return;
+    }
     if (this.timer) {
       clearInterval(this.timer);
       this.timer = undefined;
@@ -214,6 +239,9 @@ export class BrowserDemoAdapter {
       this.enqueue(held);
     }
     this.flushQueue();
+    if (this.disposed) {
+      return;
+    }
     this.running = false;
     this.completionPending = true;
     this.emitCompletionIfReady();
@@ -276,6 +304,9 @@ export class BrowserDemoAdapter {
   }
 
   private inject(message: StreamMessage): void {
+    if (this.disposed) {
+      return;
+    }
     const result = this.injector.transform(message);
     if (result.disconnect) {
       this.emit({ type: 'disconnect', reconnectAfterMs: 1_000 });
@@ -297,6 +328,10 @@ export class BrowserDemoAdapter {
   }
 
   private flushQueue(): void {
+    if (this.disposed) {
+      this.queue.clear();
+      return;
+    }
     for (const delivery of this.queue.drain()) {
       if (delivery.delayMs === 0) {
         this.emit({
@@ -307,6 +342,9 @@ export class BrowserDemoAdapter {
       } else {
         const timer = setTimeout(() => {
           this.delayedDeliveries.delete(timer);
+          if (this.disposed) {
+            return;
+          }
           this.emit({
             type: 'message',
             message: delivery.message,
@@ -339,6 +377,9 @@ export class BrowserDemoAdapter {
   }
 
   private emit(event: DemoAdapterEvent): void {
+    if (this.disposed) {
+      return;
+    }
     for (const listener of this.listeners) {
       listener(event);
     }

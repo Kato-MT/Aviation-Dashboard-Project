@@ -28,11 +28,23 @@ export interface VersionedDiagnosticReport {
     samples?: TelemetryRun['samples'] | undefined;
   };
   analysis: AnalysisResult;
+  injectedFaults: DiagnosticInjectedFaultEvidence[];
   verification?: VerificationRun | undefined;
   exportPolicy: {
     sourceDataIncluded: boolean;
     note: string;
   };
+}
+
+export interface DiagnosticInjectedFaultEvidence {
+  faultId: string;
+  scenarioId: string;
+  seed: number;
+  target: 'canonical' | 'legacy-csv';
+  expectedRuleIds: string[];
+  detectedRuleIds: string[];
+  detected: boolean;
+  synthetic: true;
 }
 
 export function buildDiagnosticReport(
@@ -42,6 +54,16 @@ export function buildDiagnosticReport(
   options: ReportExportOptions = {},
 ): VersionedDiagnosticReport {
   const includeSourceData = options.includeSourceData === true;
+  const injectedFault = run.metadata.injectedFault;
+  const detectedRuleIds = injectedFault
+    ? [
+        ...new Set(
+          analysis.findings
+            .map((finding) => finding.ruleId)
+            .filter((ruleId) => injectedFault.expectedRuleIds.includes(ruleId)),
+        ),
+      ]
+    : [];
   return {
     reportSchemaVersion: 'diagnostic-report.v1',
     generatedAt: options.generatedAt ?? new Date().toISOString(),
@@ -81,6 +103,20 @@ export function buildDiagnosticReport(
       })),
       findingCounts: { ...analysis.findingCounts },
     },
+    injectedFaults: injectedFault
+      ? [
+          {
+            faultId: `${run.runId}:${injectedFault.scenarioId}:seed-${injectedFault.seed}`,
+            scenarioId: injectedFault.scenarioId,
+            seed: injectedFault.seed,
+            target: injectedFault.target,
+            expectedRuleIds: [...injectedFault.expectedRuleIds],
+            detectedRuleIds,
+            detected: detectedRuleIds.length > 0,
+            synthetic: true,
+          },
+        ]
+      : [],
     verification,
     exportPolicy: {
       sourceDataIncluded: includeSourceData,

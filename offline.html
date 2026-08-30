@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A self-contained synthetic flight diagnostics, replay, and engineering evidence workbench."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'unsafe-inline' blob: data:; worker-src blob: data:; child-src blob: data:; style-src 'unsafe-inline'; font-src data:; img-src data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'; manifest-src 'none'"
+    />
+    <meta name="theme-color" content="#f6f7f8" />
+    <title>Offline Workbench | Flight Diagnostics Workbench</title>
+  </head>
+  <body>
+    <div id="offline-root"></div>
+    <noscript>
+      This self-contained workbench requires JavaScript. It does not load aircraft or service data.
+    </noscript>
+    <script type="module" src="/src/offline-main.tsx"></script>
+  </body>
+</html>

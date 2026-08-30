@@ -1,0 +1,12 @@
+flowchart LR
+  Operator[Authenticated operator] --> Control[Operations control Durable Object]
+  Control --> State[(Pause, source, and quota state)]
+  Request[Internet request] --> Rate[Cloudflare Rate Limiting binding]
+  Rate --> Worker[Worker route policy]
+  State --> Worker
+  Env[Immutable build bindings] --> Worker
+  Worker --> API[API and WebSocket]
+  Worker --> Map[Map assets]
+  Worker --> Provider[Fixed provider capability]
+  Audit[Control audit events] --> State
+  Runbooks[Emergency and rollback procedures] --> Operator

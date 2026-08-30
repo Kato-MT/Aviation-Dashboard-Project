@@ -1,113 +1,196 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://kato-mt.github.io/Aviation-Dashboard-Project/schemas/live-stream-v1.schema.json",
-  "title": "Live Airspace WebSocket Message v1",
+  "title": "Live Airspace Domain Message v1",
+  "$comment": "Domain payloads are also used by HTTP/session validation. WebSocket server frames use live-delivery-v1.schema.json and wrap non-hello payloads in a bounded delivery.",
   "oneOf": [
-    { "$ref": "#/$defs/hello" },
-    { "$ref": "#/$defs/snapshot" },
-    { "$ref": "#/$defs/health" },
-    { "$ref": "#/$defs/error" }
+    {
+      "$ref": "#/$defs/hello"
+    },
+    {
+      "$ref": "#/$defs/snapshot"
+    },
+    {
+      "$ref": "#/$defs/health"
+    },
+    {
+      "$ref": "#/$defs/error"
+    },
+    {
+      "$ref": "#/$defs/pong"
+    }
   ],
   "$defs": {
-    "envelope": {
+    "pong": {
       "type": "object",
-      "required": ["type", "protocolVersion"],
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "protocolVersion",
+        "requestId",
+        "generatedAt",
+        "providerId",
+        "regionId",
+        "feedEpoch"
+      ],
       "properties": {
-        "protocolVersion": { "const": "1.0.0" }
+        "type": { "const": "pong" },
+        "protocolVersion": { "const": "1.0.0" },
+        "requestId": { "$ref": "airspace-v1.schema.json#/$defs/identifier" },
+        "providerId": { "$ref": "airspace-v1.schema.json#/$defs/identifier" },
+        "regionId": { "$ref": "airspace-v1.schema.json#/$defs/identifier" },
+        "feedEpoch": { "$ref": "airspace-v1.schema.json#/$defs/identifier" },
+        "generatedAt": { "$ref": "airspace-v1.schema.json#/$defs/timestamp" }
       }
     },
     "hello": {
-      "allOf": [
-        { "$ref": "#/$defs/envelope" },
-        {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "protocolVersion",
+        "schemaVersion",
+        "regionId",
+        "providerId",
+        "feedEpoch",
+        "pollIntervalMs",
+        "generatedAt"
+      ],
+      "properties": {
+        "type": {
+          "const": "hello"
+        },
+        "protocolVersion": {
+          "const": "1.0.0"
+        },
+        "schemaVersion": {
+          "const": "airspace.v1"
+        },
+        "regionId": {
+          "$ref": "airspace-v1.schema.json#/$defs/identifier"
+        },
+        "providerId": {
+          "$ref": "airspace-v1.schema.json#/$defs/identifier"
+        },
+        "feedEpoch": {
+          "$ref": "airspace-v1.schema.json#/$defs/identifier"
+        },
+        "pollIntervalMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 9007199254740991
+        },
+        "generatedAt": {
+          "$ref": "airspace-v1.schema.json#/$defs/timestamp"
+        }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "protocolVersion", "snapshot"],
+      "properties": {
+        "type": {
+          "const": "airspace.snapshot"
+        },
+        "protocolVersion": {
+          "const": "1.0.0"
+        },
+        "snapshot": {
+          "$ref": "airspace-v1.schema.json"
+        }
+      }
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "protocolVersion", "health"],
+      "properties": {
+        "type": {
+          "const": "feed.health"
+        },
+        "protocolVersion": {
+          "const": "1.0.0"
+        },
+        "health": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "type",
-            "protocolVersion",
             "schemaVersion",
             "regionId",
             "providerId",
-            "pollIntervalMs",
-            "generatedAt"
+            "feedEpoch",
+            "status",
+            "checkedAt",
+            "consecutiveFailures",
+            "message"
           ],
           "properties": {
-            "type": { "const": "hello" },
-            "protocolVersion": { "const": "1.0.0" },
-            "schemaVersion": { "const": "airspace.v1" },
-            "regionId": { "type": "string", "minLength": 1 },
-            "providerId": { "type": "string", "minLength": 1 },
-            "pollIntervalMs": { "type": "integer", "minimum": 1000 },
-            "generatedAt": { "type": "string", "format": "date-time" }
-          }
-        }
-      ]
-    },
-    "snapshot": {
-      "allOf": [
-        { "$ref": "#/$defs/envelope" },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["type", "protocolVersion", "snapshot"],
-          "properties": {
-            "type": { "const": "airspace.snapshot" },
-            "protocolVersion": { "const": "1.0.0" },
-            "snapshot": { "$ref": "airspace-v1.schema.json" }
-          }
-        }
-      ]
-    },
-    "health": {
-      "allOf": [
-        { "$ref": "#/$defs/envelope" },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["type", "protocolVersion", "health"],
-          "properties": {
-            "type": { "const": "feed.health" },
-            "protocolVersion": { "const": "1.0.0" },
-            "health": {
-              "type": "object",
-              "required": [
-                "schemaVersion",
-                "regionId",
-                "providerId",
-                "status",
-                "checkedAt",
-                "consecutiveFailures",
-                "message"
-              ]
+            "schemaVersion": {
+              "const": "airspace.v1"
+            },
+            "regionId": {
+              "$ref": "airspace-v1.schema.json#/$defs/identifier"
+            },
+            "providerId": {
+              "$ref": "airspace-v1.schema.json#/$defs/identifier"
+            },
+            "feedEpoch": {
+              "$ref": "airspace-v1.schema.json#/$defs/identifier"
+            },
+            "status": {
+              "enum": ["connecting", "live", "degraded", "stale", "reconnecting", "offline"]
+            },
+            "checkedAt": {
+              "$ref": "airspace-v1.schema.json#/$defs/timestamp"
+            },
+            "lastSuccessAt": {
+              "$ref": "airspace-v1.schema.json#/$defs/timestamp"
+            },
+            "lastSnapshotAt": {
+              "$ref": "airspace-v1.schema.json#/$defs/timestamp"
+            },
+            "upstreamLatencyMs": {
+              "type": "number",
+              "minimum": 0
+            },
+            "consecutiveFailures": {
+              "$ref": "airspace-v1.schema.json#/$defs/safeInteger"
+            },
+            "retryAt": {
+              "$ref": "airspace-v1.schema.json#/$defs/timestamp"
+            },
+            "message": {
+              "$ref": "airspace-v1.schema.json#/$defs/messageText"
             }
           }
         }
-      ]
+      }
     },
     "error": {
-      "allOf": [
-        { "$ref": "#/$defs/envelope" },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["type", "protocolVersion", "code", "message", "recoverable"],
-          "properties": {
-            "type": { "const": "error" },
-            "protocolVersion": { "const": "1.0.0" },
-            "code": {
-              "enum": [
-                "REGION_NOT_FOUND",
-                "UPSTREAM_UNAVAILABLE",
-                "PROTOCOL_ERROR",
-                "INTERNAL_ERROR"
-              ]
-            },
-            "message": { "type": "string", "minLength": 1 },
-            "recoverable": { "type": "boolean" },
-            "retryAt": { "type": "string", "format": "date-time" }
-          }
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "protocolVersion", "code", "message", "recoverable"],
+      "properties": {
+        "type": {
+          "const": "error"
+        },
+        "protocolVersion": {
+          "const": "1.0.0"
+        },
+        "code": {
+          "enum": ["REGION_NOT_FOUND", "UPSTREAM_UNAVAILABLE", "PROTOCOL_ERROR", "INTERNAL_ERROR"]
+        },
+        "message": {
+          "$ref": "airspace-v1.schema.json#/$defs/messageText"
+        },
+        "recoverable": {
+          "type": "boolean"
+        },
+        "retryAt": {
+          "$ref": "airspace-v1.schema.json#/$defs/timestamp"
         }
-      ]
+      }
     }
   }
 }

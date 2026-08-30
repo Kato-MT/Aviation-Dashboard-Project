@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "fdw-approved-rollback.v1",
+  "releaseTag": "v2.2.0",
+  "sourceRevision": "d29e87e07586ca7790f86a65e55b2ce6e2fcc1c7",
+  "publishedAt": "2026-07-19T22:56:18Z",
+  "releaseUrl": "https://github.com/Kato-MT/Aviation-Dashboard-Project/releases/tag/v2.2.0",
+  "archive": {
+    "path": "rollback/v2.2.0/pages-build.tar.gz",
+    "sourceUrl": "https://github.com/Kato-MT/Aviation-Dashboard-Project/releases/download/v2.2.0/pages-build.tar.gz",
+    "sha256": "5c0558fc4818d5f4b152d1348ac0d19cc30a2e30560ffa1f779921012dab0348",
+    "bytes": 935586
+  },
+  "releaseChecksums": {
+    "path": "rollback/v2.2.0/release-checksums.sha256",
+    "sha256": "0468c1ce91d6ae1dfd424cf5306f1d3dcb1e5721a1077e47b34397dd4e20ad84"
+  },
+  "runtimePolicy": {
+    "entryPath": "index.html",
+    "compatibilityUrl": "/v2.html",
+    "approvedBasePath": "/Aviation-Dashboard-Project/",
+    "excludeFromPublicRuntime": ["**/*.map", "sbom.cdx.json"],
+    "retainOriginalArchiveAsEvidence": true
+  },
+  "runtimeFiles": [
+    {
+      "path": "assets/index-CroX61GT.js",
+      "sha256": "bced70ebdc26e3d4e82a50fecf6f943bf2062a34b1e45477e63fc37be856d21e",
+      "bytes": 654421
+    },
+    {
+      "path": "assets/index-CVY95iK7.css",
+      "sha256": "d33257a11fb6395ff358d1109955e933bb146d6f13cd083f54e8038dc6929fda",
+      "bytes": 23439
+    },
+    {
+      "path": "assets/inter-latin-400-normal-C38fXH4l.woff2",
+      "sha256": "8909904ab6c872eb994093482a88a28eca2cd95912d7b6fecd72103b0dc07edc",
+      "bytes": 23664
+    },
+    {
+      "path": "assets/inter-latin-400-normal-CyCys3Eg.woff",
+      "sha256": "e20fa0b4fd2dd26e4d14b3ac3cc922509c3a63fa5e910e90c614544aa042dd45",
+      "bytes": 30696
+    },
+    {
+      "path": "assets/inter-latin-600-normal-CiBQ2DWP.woff",
+      "sha256": "6a9cb3a509b4eeaf12b7dda6c4aacac3e85d07f4201bf4dd716e332e692b87bd",
+      "bytes": 31260
+    },
+    {
+      "path": "assets/inter-latin-600-normal-LgqL8muc.woff2",
+      "sha256": "f9a06e79cd3a2a20951c0f0e28f66dd0e6d3fda73911d640a2125c8fcb78f21a",
+      "bytes": 24452
+    },
+    {
+      "path": "assets/inter-latin-700-normal-BLAVimhd.woff",
+      "sha256": "7c5ed5655730de337704d3fc94628515cd7e3d8d32368871709bf56ac0397e7a",
+      "bytes": 31320
+    },
+    {
+      "path": "assets/inter-latin-700-normal-Yt3aPRUw.woff2",
+      "sha256": "6f56409fd3d64bb85f7d070bce20749db2d66b6d63cec586cc22d1c761be2491",
+      "bytes": 24356
+    },
+    {
+      "path": "assets/jetbrains-mono-latin-400-normal-6-qcROiO.woff",
+      "sha256": "658b9ee07b0249cf910a8d6f3d812d46c962bae81d7379a0355b1db35c61586f",
+      "bytes": 27496
+    },
+    {
+      "path": "assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "sha256": "14425ba9c695763c1547f48a206b7aa60350a33ae23de09f0407877f3fcd89eb",
+      "bytes": 21168
+    },
+    {
+      "path": "assets/jetbrains-mono-latin-600-normal-BfsvjouI.woff",
+      "sha256": "3f4ad0687bcb0edc596c7c85138c5140ba3a9c5a3ce2ee944f27608c0f18bab9",
+      "bytes": 28180
+    },
+    {
+      "path": "assets/jetbrains-mono-latin-600-normal-C8RAYTDA.woff2",
+      "sha256": "400c6bfda18d5d14acad1c15d6dcb9f8e13c015e7286317e0b9a482539bef147",
+      "bytes": 21860
+    },
+    {
+      "path": "index.html",
+      "sha256": "120775c3d03d0a126c223b34515db8619d3711873b3d98c1e2ef91a81dd557b5",
+      "bytes": 42754
+    }
+  ]
+}

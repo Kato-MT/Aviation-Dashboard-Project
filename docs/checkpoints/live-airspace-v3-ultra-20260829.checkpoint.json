@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "objective": "Deliver the Aviation Dashboard v3 A+B experience at Ultra quality: a dominant live regional airspace map connected to an evidence-first investigation rail, backed by a bounded full-stack real-aircraft pipeline, Replay, all six Diagnostics Lab workflows, Evidence, offline support, privacy-safe operations, exact acceptance evidence, and separately authorized release gates.",
+  "scope": "Aviation-Dashboard-Project-v3 local repository. Preserve the fixed Georgia regional console, provider-neutral edge architecture, session-only trails, aggregate-only service persistence, v2 rollback, unified offline artifact, and explicit G0 through G3 authority boundaries.",
+  "owner": "Codex primary agent coordinating the current local thread",
+  "constraints": [
+    "Do not implement an R3 hardening option until Kato selects it.",
+    "Do not contact a provider, enable real aircraft access, deploy, mutate Cloudflare, enable billing, commit, push, or publish without the separately required authority.",
+    "Do not persist aircraft identifiers, callsigns, registrations, positions, trails, provider payloads, request IP addresses, or arbitrary error text.",
+    "Do not represent public ADS-B observations as aircraft health, safety, maintenance, ownership, affiliation, route, or certification evidence.",
+    "Treat current green results as dirty-tree local evidence, not frozen-candidate, hosted, provider, deployment, or release proof."
+  ],
+  "decisions": [
+    "Use the A+B product direction: dominant regional Live map plus evidence-first investigation rail.",
+    "Preserve Live, Replay, Lab, Evidence, and the unified zero-connect offline artifact as distinct workspaces.",
+    "Keep one provider-neutral Worker and one Durable Object per fixed region with shared polling, bounded delivery, and aggregate-only metrics.",
+    "Keep ADSB.lol as the initial provider candidate, not an approved production dependency; keep OpenSky disabled without written authorization.",
+    "Recommend Operational Evidence Option 1 and Runtime Policy Option 2 as the compatible R3 pair.",
+    "Use Cloudflare platform telemetry and account-wide controls only as later G1 supplements, not as the exact application-owned health contract."
+  ],
+  "completed": [
+    "R0 through R2 are locally complete on the current dirty tree, including the provider-neutral regional foundation, all six React Lab workflows, Replay, Evidence, and the one-file zero-network React offline artifact.",
+    "The complete recorded post-offline local matrix is green: static checks, 2,033 application tests, 130 Worker tests, 43 Python tests, browser suites, four builds, artifact isolation, local map seed, and Worker dry run.",
+    "The Ultra roadmap, current execution ledger, historical implementation record, two-opportunity R3 hardening portfolio, six option diagrams, and structured hardening JSON are written and locally validated.",
+    "The R3 review identified a concrete release blocker: generated Wrangler metadata exposes absolute local workspace paths and current candidate retention would copy it."
+  ],
+  "remaining": [
+    "Kato selects or revises the recommended R3 hardening pair.",
+    "Refresh the evidence inventory after selection and implement artifact privacy, target headers, typed runtime policy, deterministic disablement, operations.v1, privacy-safe SLIs, whole-artifact privacy auditing, no-capture G2 evidence, performance and accessibility gates, and operator runbooks.",
+    "Freeze one source revision, build once, retain one production-disabled candidate, run the complete retained-artifact matrix with zero retries, and rerun corrected smoke, maximum, and qualifying 30-minute soak evidence to close local G0.",
+    "Request and execute G1 Cloudflare mock proof, G2 provider-coordinated real-source staging, and G3 exact public release only under their separate approvals.",
+    "Package the final portfolio narrative, architecture, screenshots, evidence, and interview explanation only from verified release state."
+  ],
+  "do_not_repeat": [
+    "Do not reset the regional Worker, Durable Object, MapLibre, Replay, Lab, Evidence, or offline architecture without a concrete incompatibility or measured failure.",
+    "Do not recreate the six React Lab workflows or unified offline boundary that already have current local evidence.",
+    "Do not reuse the historical mock candidate or historical load reports as evidence for changed source.",
+    "Do not claim Live is deployed, provider-approved, free-tier-safe, or publicly released from local tests or generated artifacts."
+  ],
+  "next_action": "Obtain Kato's selection of the recommended R3 pair. Then refresh the hardening evidence digest and begin with the direct artifact-privacy and response-header work package before central policy migration.",
+  "evidence": [
+    {
+      "kind": "local",
+      "path": "C:\\Users\\katom\\Documents\\Codex\\2026-08-27\\i-talked-about-this-before-but\\Aviation-Dashboard-Project-v3\\docs\\v3-ultra-roadmap.md",
+      "supports": "Authoritative product, phase, gate, estimate, and definition-of-done roadmap",
+      "sha256": "1bae6d0550cef81907e1d7a07acc8a88aff802c2ad890779001506537e028afc"
+    },
+    {
+      "kind": "local",
+      "path": "C:\\Users\\katom\\Documents\\Codex\\2026-08-27\\i-talked-about-this-before-but\\Aviation-Dashboard-Project-v3\\docs\\v3-implementation-plan.md",
+      "supports": "Historical architecture rationale, dated implementation evidence, and superseded execution sequences",
+      "sha256": "f71d7e897560712e6e6c8c49945bb924d20c82e161b102d5b1ae7a5d66a1dc78"
+    },
+    {
+      "kind": "local",
+      "path": "C:\\Users\\katom\\Documents\\Codex\\2026-08-27\\i-talked-about-this-before-but\\Aviation-Dashboard-Project-v3\\docs\\v3-execution-ledger.md",
+      "supports": "Current work-package dependencies, statuses, acceptance evidence, authority gates, and completion audit",
+      "sha256": "29259a1885a897c331dad7bdca6ea41102bf70666cceddbfdaa0c45b7399689a"
+    },
+    {
+      "kind": "local",
+      "path": "C:\\Users\\katom\\Documents\\Codex\\2026-08-27\\i-talked-about-this-before-but\\Aviation-Dashboard-Project-v3\\hardening\\r3\\hardening.md",
+      "supports": "R3 opportunity portfolio, recommendations, constraints, and selection boundary",
+      "sha256": "8c4c2b92cb348d0048a331f17e68d5694d75189dd2d93a6fd8214bf79325fb4c"
+    },
+    {
+      "kind": "local",
+      "path": "C:\\Users\\katom\\Documents\\Codex\\2026-08-27\\i-talked-about-this-before-but\\Aviation-Dashboard-Project-v3\\hardening\\r3\\hardening.json",
+      "supports": "Machine-readable option, tradeoff, evidence, and recommendation structure",
+      "sha256": "06d9f9575996013aa53973484026f2698b496301a46c853398b28459f6195972"
+    },
+    {
+      "kind": "local",
+      "path": "C:\\Users\\katom\\Documents\\Codex\\2026-08-27\\i-talked-about-this-before-but\\Aviation-Dashboard-Project-v3\\requirements\\traceability.md",
+      "supports": "Current requirement coverage, historical-versus-current evidence, and open release proof",
+      "sha256": "4ea31c59824403e494231001347ea1ee9ac3f016bc79e5215f8dc35dc763a680"
+    }
+  ],
+  "root": "C:\\Users\\katom\\Documents\\Codex\\2026-08-27\\i-talked-about-this-before-but\\Aviation-Dashboard-Project-v3",
+  "captured_at": "2026-08-29T13:37:31.970635+00:00",
+  "authority_boundary": "not_granted_by_checkpoint"
+}

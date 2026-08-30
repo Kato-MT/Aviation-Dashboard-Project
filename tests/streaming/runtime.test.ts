@@ -147,6 +147,104 @@ describe('bounded streaming runtime', () => {
     expect(telemetry[1]).toEqual(telemetry[0]);
   });
 
+  it('disposes delayed deliveries after browser-demo completion', () => {
+    vi.useFakeTimers();
+    const listener = vi.fn<(event: DemoAdapterEvent) => void>();
+    const adapter = new BrowserDemoAdapter({
+      sampleIntervalMs: 10,
+      samplesPerSource: 1,
+      heartbeatEvery: 10,
+      sources: [{ sourceId: 'alpha', profileId: 'fixed.synthetic.v1', phase: 0 }],
+      faultPlan: {
+        seed: 7,
+        scenarios: [
+          {
+            id: 'latency',
+            enabled: true,
+            startAtMessage: 0,
+            every: 1,
+            value: 100,
+          },
+        ],
+      },
+    });
+    adapter.subscribe(listener);
+
+    adapter.start();
+    vi.advanceTimersByTime(10);
+    expect(vi.getTimerCount()).toBe(3);
+
+    adapter.dispose();
+    expect(vi.getTimerCount()).toBe(0);
+    vi.advanceTimersByTime(200);
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it('allows repeated browser-demo disposal without recreating resources', () => {
+    vi.useFakeTimers();
+    const adapter = new BrowserDemoAdapter({
+      sampleIntervalMs: 10,
+      samplesPerSource: 2,
+      heartbeatEvery: 10,
+      sources: [{ sourceId: 'alpha', profileId: 'fixed.synthetic.v1', phase: 0 }],
+    });
+    adapter.start();
+    expect(vi.getTimerCount()).toBe(1);
+
+    adapter.dispose();
+    expect(() => adapter.dispose()).not.toThrow();
+    expect(vi.getTimerCount()).toBe(0);
+
+    adapter.start();
+    vi.advanceTimersByTime(100);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('keeps stop as an operator end and allows a later restart', () => {
+    vi.useFakeTimers();
+    const events: DemoAdapterEvent[] = [];
+    const adapter = new BrowserDemoAdapter({
+      sampleIntervalMs: 10,
+      samplesPerSource: 1,
+      heartbeatEvery: 10,
+      sources: [{ sourceId: 'alpha', profileId: 'fixed.synthetic.v1', phase: 0 }],
+    });
+    adapter.subscribe((event) => events.push(event));
+
+    adapter.start();
+    adapter.stop();
+    adapter.start();
+    vi.advanceTimersByTime(10);
+
+    const endReasons = events.flatMap((event) =>
+      event.type === 'message' && event.message.type === 'end' ? [event.message.reason] : [],
+    );
+    expect(endReasons).toEqual(['operator_stop', 'complete']);
+    expect(events.filter((event) => event.type === 'complete')).toHaveLength(1);
+  });
+
+  it('does not call existing or new listeners after browser-demo disposal', () => {
+    vi.useFakeTimers();
+    const existingListener = vi.fn<(event: DemoAdapterEvent) => void>();
+    const newListener = vi.fn<(event: DemoAdapterEvent) => void>();
+    const adapter = new BrowserDemoAdapter({
+      sampleIntervalMs: 10,
+      samplesPerSource: 1,
+      heartbeatEvery: 10,
+      sources: [{ sourceId: 'alpha', profileId: 'fixed.synthetic.v1', phase: 0 }],
+    });
+    adapter.subscribe(existingListener);
+    adapter.dispose();
+    adapter.subscribe(newListener);
+
+    adapter.start();
+    adapter.stop();
+    vi.advanceTimersByTime(100);
+
+    expect(existingListener).not.toHaveBeenCalled();
+    expect(newListener).not.toHaveBeenCalled();
+  });
+
   it('surfaces WebSocket queue pressure instead of silently dropping', async () => {
     class FakeSocket implements WebSocketLike {
       readonly readyState = 1;

@@ -8,18 +8,18 @@ No test count, coverage percentage, accessibility result, performance measuremen
 
 ## Test levels
 
-| Level         | Scope                                                                    | Primary command                                |
-| ------------- | ------------------------------------------------------------------------ | ---------------------------------------------- |
-| Unit          | parsers, normalization, rules, phase, fusion, models, campaigns, exports | `pnpm test:coverage`                           |
-| Integration   | adapter to report, temporal investigation, worker, and history import    | `pnpm validate`                                |
-| Browser       | five views, upload, replay, Investigation, campaign, exports, stream     | `pnpm test:e2e`                                |
-| Accessibility | keyboard, focus, names, status semantics, reduced motion, automated scan | `pnpm test:e2e`                                |
-| Responsive    | narrow mobile, tablet, desktop, content reflow and no hidden controls    | `pnpm test:e2e`                                |
-| Security      | hostile strings, formula cells, limits, dependency review, CodeQL        | CI workflows                                   |
-| Offline       | one HTML file, no runtime CDN, supported browser smoke test              | `pnpm build:offline` and `pnpm test:e2e`       |
-| Performance   | deterministic and temporal fixed-seed scales with environment evidence   | `pnpm benchmark` and `pnpm benchmark:temporal` |
-| Analytics     | run and campaign migrations, integrity, queries, repeatable trends       | `pnpm analytics` and `pnpm analytics:campaign` |
-| Model         | disjoint seeds, faults, gates, abstention, identity, and parity          | `pnpm ml:train`                                |
+| Level         | Scope                                                                                                             | Primary command                                |
+| ------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Unit          | parsers, normalization, rules, phase, fusion, models, campaigns, exports                                          | `pnpm test:coverage`                           |
+| Integration   | adapter to report, temporal investigation, worker, and history import                                             | `pnpm validate`                                |
+| Browser       | legacy five-view behavior plus v3 Live, Replay, six-workflow Lab, Evidence, offline, exports, and stream journeys | `pnpm test:e2e` and `pnpm test:live-browser`   |
+| Accessibility | keyboard, focus, names, status semantics, reduced motion, automated scan                                          | `pnpm test:e2e`                                |
+| Responsive    | narrow mobile, tablet, desktop, content reflow and no hidden controls                                             | `pnpm test:e2e`                                |
+| Security      | hostile strings, formula cells, limits, dependency review, CodeQL                                                 | CI workflows                                   |
+| Offline       | one HTML file, no runtime CDN, supported browser smoke test                                                       | `pnpm build:offline` and `pnpm test:e2e`       |
+| Performance   | deterministic and temporal fixed-seed scales with environment evidence                                            | `pnpm benchmark` and `pnpm benchmark:temporal` |
+| Analytics     | run and campaign migrations, integrity, queries, repeatable trends                                                | `pnpm analytics` and `pnpm analytics:campaign` |
+| Model         | disjoint seeds, faults, gates, abstention, identity, and parity                                                   | `pnpm ml:train`                                |
 
 ## v2.0 behavior inventory
 
@@ -85,7 +85,7 @@ Coverage is evidence of exercised control flow, not proof of correctness. The re
 
 ## Accessibility
 
-Automated scans must report zero serious or critical findings on all five views and named application states. Manual checks cover:
+Automated scans must report zero serious or critical findings across the five legacy views and the named v3 workspace and six-workflow React Lab states. Manual checks cover:
 
 - complete keyboard traversal and activation;
 - logical focus order and visible focus;

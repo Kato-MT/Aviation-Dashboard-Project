@@ -14,7 +14,7 @@ async function expectNoSeriousAxeViolations(page: Page): Promise<void> {
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('./');
+  await page.goto('./v2.html');
   await expect(page.locator('#metric-accepted')).toHaveText('85');
 });
 

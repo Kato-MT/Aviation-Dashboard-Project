@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kato-mt.github.io/Aviation-Dashboard-Project/schemas/live-delivery-v1.schema.json",
+  "title": "Live Airspace WebSocket Server Frame v1",
+  "$comment": "Server wire format. Runtime also enforces encoded byte limits, unique payload types and equality of all inner and outer feed bindings. Client acknowledgments use $defs/ack.",
+  "oneOf": [{ "$ref": "live-stream-v1.schema.json#/$defs/hello" }, { "$ref": "#/$defs/delivery" }],
+  "$defs": {
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "protocolVersion",
+        "providerId",
+        "regionId",
+        "feedEpoch",
+        "deliveryId",
+        "messages"
+      ],
+      "properties": {
+        "type": { "const": "delivery" },
+        "protocolVersion": { "const": "1.0.0" },
+        "providerId": { "$ref": "airspace-v1.schema.json#/$defs/identifier" },
+        "regionId": { "$ref": "airspace-v1.schema.json#/$defs/identifier" },
+        "feedEpoch": { "$ref": "airspace-v1.schema.json#/$defs/identifier" },
+        "deliveryId": { "$ref": "airspace-v1.schema.json#/$defs/identifier" },
+        "messages": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": {
+            "oneOf": [
+              { "$ref": "live-stream-v1.schema.json#/$defs/snapshot" },
+              { "$ref": "live-stream-v1.schema.json#/$defs/health" },
+              { "$ref": "live-stream-v1.schema.json#/$defs/error" },
+              { "$ref": "live-stream-v1.schema.json#/$defs/pong" }
+            ]
+          }
+        }
+      }
+    },
+    "ack": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "protocolVersion", "providerId", "regionId", "feedEpoch", "deliveryId"],
+      "properties": {
+        "type": { "const": "ack" },
+        "protocolVersion": { "const": "1.0.0" },
+        "providerId": { "$ref": "airspace-v1.schema.json#/$defs/identifier" },
+        "regionId": { "$ref": "airspace-v1.schema.json#/$defs/identifier" },
+        "feedEpoch": { "$ref": "airspace-v1.schema.json#/$defs/identifier" },
+        "deliveryId": { "$ref": "airspace-v1.schema.json#/$defs/identifier" }
+      }
+    }
+  }
+}

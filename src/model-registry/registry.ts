@@ -4,6 +4,7 @@ import {
   MODEL_REGISTRY_SCHEMA_VERSION,
   type ModelRegistry,
   type ModelRegistryEntry,
+  type ModelRegistryEntryKey,
 } from './types';
 
 function deepFreeze<T>(value: T): Readonly<T> {
@@ -19,6 +20,7 @@ function deepFreeze<T>(value: T): Readonly<T> {
 export const robustCovarianceRegistryEntry = deepFreeze({
   registryEntryId: 'generic-fixed-wing.robust-covariance',
   modelVersion: '1.0.0',
+  activationPurpose: 'integrated-advisory',
   profile: {
     id: 'generic-fixed-wing',
     version: '1.0.0',
@@ -75,6 +77,7 @@ export const robustCovarianceRegistryEntry = deepFreeze({
 export const temporalFaultResearchRegistryEntry = deepFreeze({
   registryEntryId: 'generic-fixed-wing.temporal-fault',
   modelVersion: '1.0.0',
+  activationPurpose: 'research-evidence-only',
   profile: {
     id: 'generic-fixed-wing',
     version: '1.0.0',
@@ -131,6 +134,7 @@ export const temporalFaultResearchRegistryEntry = deepFreeze({
 export const temporalFaultRegistryEntry = deepFreeze({
   registryEntryId: 'generic-fixed-wing.temporal-fault',
   modelVersion: '2.0.0',
+  activationPurpose: 'integrated-advisory',
   profile: {
     id: 'generic-fixed-wing',
     version: '1.0.0',
@@ -187,7 +191,7 @@ export const temporalFaultRegistryEntry = deepFreeze({
 export function createModelRegistry(entries: readonly ModelRegistryEntry[]): ModelRegistry {
   const uniqueKeys = new Set<string>();
   for (const entry of entries) {
-    const key = `${entry.registryEntryId}@${entry.modelVersion}`;
+    const key = modelRegistryEntryKey(entry);
     if (uniqueKeys.has(key)) {
       throw new Error(`Duplicate model registry entry: ${key}.`);
     }
@@ -205,14 +209,25 @@ export const modelRegistry = createModelRegistry([
   temporalFaultResearchRegistryEntry,
 ]);
 
+export function modelRegistryEntryKey(
+  entry: Readonly<Pick<ModelRegistryEntry, 'registryEntryId' | 'modelVersion'>>,
+): ModelRegistryEntryKey {
+  return `${entry.registryEntryId}@${entry.modelVersion}`;
+}
+
 export function findRegistryEntry(
   registry: ModelRegistry,
   registryEntryId: string,
-  modelVersion?: string,
+  modelVersion: string,
 ): Readonly<ModelRegistryEntry> | undefined {
   return registry.entries.find(
-    (entry) =>
-      entry.registryEntryId === registryEntryId &&
-      (modelVersion === undefined || entry.modelVersion === modelVersion),
+    (entry) => entry.registryEntryId === registryEntryId && entry.modelVersion === modelVersion,
   );
+}
+
+export function findRegistryEntryByKey(
+  registry: ModelRegistry,
+  key: ModelRegistryEntryKey,
+): Readonly<ModelRegistryEntry> | undefined {
+  return registry.entries.find((entry) => modelRegistryEntryKey(entry) === key);
 }

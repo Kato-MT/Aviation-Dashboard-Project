@@ -32,6 +32,16 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Prevent v3 source from entering the legacy v2 release path
+        shell: bash
+        run: |
+          [[ "$GITHUB_REF_NAME" == v2.* ]]
+          grep --fixed-strings 'id="workspace"' index.html
+          if grep --fixed-strings 'id="live-root"' index.html; then
+            echo "The v2 release workflow cannot package a v3 root entry."
+            exit 1
+          fi
+
       - name: Require the protected main commit and matching package version
         shell: bash
         run: |

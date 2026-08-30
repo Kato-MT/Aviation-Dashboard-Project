@@ -3,8 +3,15 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['tests/**/*.test.ts'],
-    exclude: ['tests/browser/**', 'tests/accessibility/**', 'tests/worker/**'],
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
+    include: ['tests/**/*.test.{ts,tsx}'],
+    exclude: [
+      'tests/browser/**',
+      'tests/accessibility/**',
+      'tests/worker/**',
+      'tests/live-browser/**',
+    ],
     reporters: ['default'],
     coverage: {
       provider: 'v8',
@@ -23,6 +30,16 @@ export default defineConfig({
         'src/model-registry/**/*.ts',
         'src/temporal/**/*.ts',
         'src/live/**/*.ts',
+        'src/operations/**/*.ts',
+        'src/map/**/*.ts',
+        'src/replay/**/*.ts',
+        'src/evidence/**/*.ts',
+        'src/features/live/**/*.{ts,tsx}',
+        'src/features/lab/**/*.{ts,tsx}',
+        'src/features/replay/**/*.{ts,tsx}',
+        'src/features/evidence/**/*.{ts,tsx}',
+        'src/features/workbench/**/*.{ts,tsx}',
+        'src/ui/charts.ts',
       ],
       exclude: ['**/*.d.ts', '**/index.ts', '**/types.ts', 'src/campaign/browserClient.ts'],
       thresholds: {

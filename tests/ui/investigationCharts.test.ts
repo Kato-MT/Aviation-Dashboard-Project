@@ -1,16 +1,44 @@
-import { describe, expect, it } from 'vitest';
+// @vitest-environment jsdom
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const chartEngine = vi.hoisted(() => ({ create: vi.fn() }));
+vi.mock('chart.js/auto', () => ({
+  default: class {
+    constructor(...args: unknown[]) {
+      return chartEngine.create(...args);
+    }
+  },
+}));
 
 import {
   buildInvestigationMarkerLines,
   buildInvestigationPhaseBands,
   downsampleInvestigationSeries,
   evaluateInvestigationComparison,
+  InvestigationChartRenderer,
+  investigationChartPalette,
   investigationWaveformLabels,
   selectInvestigationSamplePositions,
   validateInvestigationComparisonWaveform,
   validateInvestigationSeries,
   type InvestigationSeries,
 } from '../../src/ui/investigationCharts';
+
+interface FakeChartOwner {
+  data: { datasets: unknown[] };
+  destroy: ReturnType<typeof vi.fn>;
+  draw: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+}
+
+function fakeChartOwner(config: { data: { datasets: unknown[] } }): FakeChartOwner {
+  return {
+    data: config.data,
+    destroy: vi.fn(),
+    draw: vi.fn(),
+    update: vi.fn(),
+  };
+}
 
 function makeSeries(length = 100): InvestigationSeries {
   const sampleIndices = Array.from({ length }, (_, index) => index);
@@ -220,5 +248,106 @@ describe('investigation chart pure helpers', () => {
     expect(() =>
       validateInvestigationComparisonWaveform({ ...waveform, observedAltitude: [1] }, candidate),
     ).toThrow('values must match');
+  });
+});
+
+describe('investigation chart renderer ownership and themes', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    chartEngine.create.mockReset();
+    document.body.replaceChildren();
+    for (const id of ['state-chart', 'residual-chart']) {
+      const canvas = document.createElement('canvas');
+      canvas.id = id;
+      document.body.append(canvas);
+    }
+    chartEngine.create.mockImplementation((_canvas, config) => fakeChartOwner(config));
+  });
+
+  it('keeps the legacy dark palette as the default and applies the explicit light palette', () => {
+    expect(investigationChartPalette()).toMatchObject({
+      label: '#a0abb5',
+      tick: '#73808b',
+      cursor: 'rgba(231, 235, 238, 0.78)',
+      datasets: { predictedAltitude: '#76add5', residual: '#d5747b' },
+    });
+    expect(investigationChartPalette('light')).toMatchObject({
+      label: '#334155',
+      tick: '#526274',
+      cursor: 'rgba(15, 23, 42, 0.72)',
+      datasets: { predictedAltitude: '#2563eb', residual: '#be123c' },
+    });
+
+    const dark = new InvestigationChartRenderer({
+      stateCanvasId: 'state-chart',
+      residualCanvasId: 'residual-chart',
+    });
+    const darkStateConfig = chartEngine.create.mock.calls[0]![1] as {
+      data: { datasets: Array<{ borderColor: string }> };
+      options: { plugins: { legend: { labels: { color: string } } } };
+    };
+    expect(darkStateConfig.data.datasets[3]!.borderColor).toBe('#76add5');
+    expect(darkStateConfig.options.plugins.legend.labels.color).toBe('#a0abb5');
+    dark.destroy();
+
+    chartEngine.create.mockClear();
+    const light = new InvestigationChartRenderer({
+      stateCanvasId: 'state-chart',
+      residualCanvasId: 'residual-chart',
+      theme: 'light',
+    });
+    const lightStateConfig = chartEngine.create.mock.calls[0]![1] as {
+      data: { datasets: Array<{ borderColor: string }> };
+      options: { plugins: { legend: { labels: { color: string } } } };
+    };
+    expect(lightStateConfig.data.datasets[3]!.borderColor).toBe('#2563eb');
+    expect(lightStateConfig.options.plugins.legend.labels.color).toBe('#334155');
+    light.destroy();
+  });
+
+  it('destroys the first chart when construction of the second chart fails', () => {
+    const first = fakeChartOwner({ data: { datasets: [] } });
+    const addListener = vi.spyOn(HTMLCanvasElement.prototype, 'addEventListener');
+    chartEngine.create.mockReturnValueOnce(first).mockImplementationOnce(() => {
+      throw new Error('residual chart failed');
+    });
+
+    expect(
+      () =>
+        new InvestigationChartRenderer({
+          stateCanvasId: 'state-chart',
+          residualCanvasId: 'residual-chart',
+        }),
+    ).toThrow('residual chart failed');
+    expect(first.destroy).toHaveBeenCalledOnce();
+    expect(addListener.mock.calls.filter(([type]) => type === 'keydown')).toHaveLength(0);
+  });
+
+  it('removes both keyboard listeners and destroys both charts exactly once', () => {
+    const owners: FakeChartOwner[] = [];
+    chartEngine.create.mockImplementation((_canvas, config) => {
+      const owner = fakeChartOwner(config);
+      owners.push(owner);
+      return owner;
+    });
+    const addListener = vi.spyOn(HTMLCanvasElement.prototype, 'addEventListener');
+    const removeListener = vi.spyOn(HTMLCanvasElement.prototype, 'removeEventListener');
+    const renderer = new InvestigationChartRenderer({
+      stateCanvasId: 'state-chart',
+      residualCanvasId: 'residual-chart',
+    });
+    const keydownAdds = addListener.mock.calls.filter(([type]) => type === 'keydown');
+    expect(keydownAdds).toHaveLength(2);
+
+    renderer.destroy();
+    renderer.destroy();
+
+    const keydownRemovals = removeListener.mock.calls.filter(([type]) => type === 'keydown');
+    expect(keydownRemovals).toHaveLength(2);
+    expect(keydownRemovals.map(([, listener]) => listener)).toEqual(
+      keydownAdds.map(([, listener]) => listener),
+    );
+    expect(owners).toHaveLength(2);
+    expect(owners.every(({ destroy }) => destroy.mock.calls.length === 1)).toBe(true);
   });
 });

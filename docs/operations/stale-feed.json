@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "operator-procedure.v1",
+  "procedureId": "stale-feed",
+  "title": "Stale or empty feed",
+  "purpose": "Distinguish a valid empty feed from an upstream feed that crosses the fixed freshness boundary without treating retained observations as current.",
+  "documentationBoundary": {
+    "mode": "local-documentation-only",
+    "executionClaim": "none",
+    "runtimeControlPlane": "forbidden"
+  },
+  "reasonVocabulary": {
+    "runtimePolicy": ["upstream-stale"],
+    "operations": [
+      "PROVIDER_EMPTY",
+      "FRESHNESS_EMPTY",
+      "FRESHNESS_STALE",
+      "FRESHNESS_EXPIRED",
+      "FRESHNESS_UNAVAILABLE",
+      "FRESHNESS_CURRENT"
+    ]
+  },
+  "entryEvidence": [
+    {
+      "evidenceId": "stale-incident-classification",
+      "source": "incident-record",
+      "reasonCode": "upstream-stale",
+      "required": true,
+      "observation": "A bounded incident record classifies the selected policy epoch as upstream-stale."
+    },
+    {
+      "evidenceId": "stale-freshness-state",
+      "source": "operations-v1",
+      "reasonCode": "FRESHNESS_STALE",
+      "required": true,
+      "observation": "The operations projection reports the fixed stale state and bounded observation age for an exact region."
+    },
+    {
+      "evidenceId": "valid-empty-provider-state",
+      "source": "operations-v1",
+      "reasonCode": "PROVIDER_EMPTY",
+      "required": true,
+      "observation": "The aggregate operations projection distinguishes a successful valid-empty provider response from provider unavailability."
+    },
+    {
+      "evidenceId": "valid-empty-freshness-state",
+      "source": "operations-v1",
+      "reasonCode": "FRESHNESS_EMPTY",
+      "required": true,
+      "observation": "The aggregate operations projection identifies valid-empty freshness without inventing an observation age."
+    }
+  ],
+  "boundedActions": [
+    {
+      "sequence": 1,
+      "actionId": "capture-stale-evidence",
+      "actionType": "capture-evidence",
+      "authority": "read-only-local",
+      "instruction": "Record checkedAt, policy identity, exact region, freshness reason, and observation age from one operations projection.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 10
+    },
+    {
+      "sequence": 2,
+      "actionId": "verify-two-freshness-reads",
+      "actionType": "verify-read-only",
+      "authority": "read-only-local",
+      "instruction": "Inspect at most two later operations projections for the same region and policy identity within ten minutes.",
+      "maximumAttempts": 2,
+      "maximumDurationMinutes": 10
+    },
+    {
+      "sequence": 3,
+      "actionId": "prepare-stale-disabled-candidate",
+      "actionType": "prepare-policy-change",
+      "authority": "separate-explicit-approval",
+      "instruction": "Prepare one disabled-source candidate carrying upstream-stale if the bounded readings do not recover to current.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 60
+    }
+  ],
+  "stopConditions": [
+    {
+      "conditionId": "receipt-on-valid-empty-feed",
+      "outcome": "ready-for-receipt",
+      "reasonCode": "FRESHNESS_EMPTY",
+      "observation": "Stop as ready for a valid-empty receipt only when provider and freshness classifications both identify the empty state."
+    },
+    {
+      "conditionId": "stop-on-expired-feed",
+      "outcome": "halt",
+      "reasonCode": "FRESHNESS_EXPIRED",
+      "observation": "Stop the recovery check if the selected region crosses the fixed expired freshness boundary."
+    },
+    {
+      "conditionId": "stop-on-unavailable-freshness",
+      "outcome": "halt",
+      "reasonCode": "FRESHNESS_UNAVAILABLE",
+      "observation": "Stop the recovery check if the regional read no longer provides freshness evidence."
+    },
+    {
+      "conditionId": "receipt-on-current-freshness",
+      "outcome": "ready-for-receipt",
+      "reasonCode": "FRESHNESS_CURRENT",
+      "observation": "Stop as ready for a receipt after a bounded projection reports current freshness for the same region and policy identity."
+    }
+  ],
+  "rollbackActions": [
+    {
+      "sequence": 1,
+      "actionId": "preserve-stale-safe-release",
+      "actionType": "preserve-current-release",
+      "authority": "read-only-local",
+      "instruction": "Keep the last approved safe release unchanged if the disabled candidate or recovery evidence fails verification.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    }
+  ],
+  "verificationReceipt": {
+    "schemaVersion": "operator-verification-receipt.v1",
+    "status": "template-only-not-executed",
+    "privacy": "aggregate-only-no-aircraft-request-client-or-event-data",
+    "requiredFields": [
+      "procedureId",
+      "procedureSha256",
+      "policyId",
+      "policyEpoch",
+      "applicationVersion",
+      "releaseSha",
+      "checkedAt",
+      "runtimePolicyReasonCodes",
+      "operationsReasonCodes",
+      "entryEvidenceIds",
+      "rehearsedActionIds",
+      "stopConditionIds",
+      "result"
+    ],
+    "resultValues": ["verified", "stopped", "rolled-back", "recovered"]
+  }
+}

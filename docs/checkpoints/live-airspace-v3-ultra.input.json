@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "objective": "Deliver the Aviation Dashboard v3 A+B experience at Ultra quality: a dominant live regional airspace map connected to an evidence-first investigation rail, backed by a bounded full-stack real-aircraft pipeline, Replay, all six Diagnostics Lab workflows, Evidence, offline support, privacy-safe operations, exact acceptance evidence, and separately authorized release gates.",
+  "scope": "Aviation-Dashboard-Project-v3 local repository. Preserve the fixed Georgia regional console, provider-neutral edge architecture, session-only trails, aggregate-only service persistence, v2 rollback, unified offline artifact, and explicit G0 through G3 authority boundaries.",
+  "owner": "Codex primary agent coordinating the current local thread",
+  "constraints": [
+    "Do not implement an R3 hardening option until Kato selects it.",
+    "Do not contact a provider, enable real aircraft access, deploy, mutate Cloudflare, enable billing, commit, push, or publish without the separately required authority.",
+    "Do not persist aircraft identifiers, callsigns, registrations, positions, trails, provider payloads, request IP addresses, or arbitrary error text.",
+    "Do not represent public ADS-B observations as aircraft health, safety, maintenance, ownership, affiliation, route, or certification evidence.",
+    "Treat current green results as dirty-tree local evidence, not frozen-candidate, hosted, provider, deployment, or release proof."
+  ],
+  "decisions": [
+    "Use the A+B product direction: dominant regional Live map plus evidence-first investigation rail.",
+    "Preserve Live, Replay, Lab, Evidence, and the unified zero-connect offline artifact as distinct workspaces.",
+    "Keep one provider-neutral Worker and one Durable Object per fixed region with shared polling, bounded delivery, and aggregate-only metrics.",
+    "Keep ADSB.lol as the initial provider candidate, not an approved production dependency; keep OpenSky disabled without written authorization.",
+    "Recommend Operational Evidence Option 1 and Runtime Policy Option 2 as the compatible R3 pair.",
+    "Use Cloudflare platform telemetry and account-wide controls only as later G1 supplements, not as the exact application-owned health contract."
+  ],
+  "completed": [
+    "R0 through R2 are locally complete on the current dirty tree, including the provider-neutral regional foundation, all six React Lab workflows, Replay, Evidence, and the one-file zero-network React offline artifact.",
+    "The complete recorded post-offline local matrix is green: static checks, 2,051 application tests across 108 files at the configured coverage thresholds with one real-filesystem POSIX executable-mode integration skipped on Windows, 130 Worker tests, 43 Python tests, browser suites, four builds, artifact isolation, local map seed, and Worker dry run.",
+    "The Ultra roadmap, current execution ledger, historical implementation record, two-opportunity R3 hardening portfolio, six option diagrams, and structured hardening JSON are written and locally validated.",
+    "The load harness now requires an explicit raw artifact or verified clean-source candidate root, independently inventories tracked source bytes and executable mode, hashes the complete selected artifact, executes only a private hash-matched snapshot, removes that snapshot before publishing, confines reports to an untracked canonical dedicated output root, and unconditionally reverifies candidates after the load step. Executable-mode mismatch accounting passes deterministically on every host; the separate real-filesystem chmod integration still requires Linux CI. Independent final review found no remaining high or medium integrity findings; the focused fault suite and final Ultra-hardened raw-artifact smoke pass are recorded without claiming G0.",
+    "The R3 review identified a concrete release blocker: generated Wrangler metadata exposes absolute local workspace paths and current candidate retention would copy it. The clean load-report output boundary is separate and does not close that blocker."
+  ],
+  "remaining": [
+    "Kato selects or revises the recommended R3 hardening pair.",
+    "Refresh the evidence inventory after selection and implement artifact privacy, target headers, typed runtime policy, deterministic disablement, operations.v1, privacy-safe SLIs, whole-artifact privacy auditing, no-capture G2 evidence, performance and accessibility gates, and operator runbooks.",
+    "Freeze one source revision, build once, retain one production-disabled candidate, run the complete retained-artifact matrix with zero retries, and rerun candidate-mode smoke, maximum, and qualifying 30-minute soak evidence to close local G0.",
+    "Request and execute G1 Cloudflare mock proof, G2 provider-coordinated real-source staging, and G3 exact public release only under their separate approvals.",
+    "Package the final portfolio narrative, architecture, screenshots, evidence, and interview explanation only from verified release state."
+  ],
+  "do_not_repeat": [
+    "Do not reset the regional Worker, Durable Object, MapLibre, Replay, Lab, Evidence, or offline architecture without a concrete incompatibility or measured failure.",
+    "Do not recreate the six React Lab workflows or unified offline boundary that already have current local evidence.",
+    "Do not reuse the historical mock candidate or historical load reports as evidence for changed source.",
+    "Do not claim Live is deployed, provider-approved, free-tier-safe, or publicly released from local tests or generated artifacts."
+  ],
+  "next_action": "Obtain Kato's selection of the recommended R3 pair. The evidence inventory is refreshed through the explicit artifact-input prerequisite; after selection, begin with the direct artifact-privacy and response-header work package before central policy migration.",
+  "evidence": [
+    {
+      "kind": "local",
+      "path": "docs/v3-ultra-roadmap.md",
+      "supports": "Authoritative product, phase, gate, estimate, and definition-of-done roadmap"
+    },
+    {
+      "kind": "local",
+      "path": "docs/v3-implementation-plan.md",
+      "supports": "Historical architecture rationale, dated implementation evidence, and superseded execution sequences"
+    },
+    {
+      "kind": "local",
+      "path": "docs/v3-execution-ledger.md",
+      "supports": "Current work-package dependencies, statuses, acceptance evidence, authority gates, and completion audit"
+    },
+    {
+      "kind": "local",
+      "path": "hardening/r3/hardening.md",
+      "supports": "R3 opportunity portfolio, recommendations, constraints, and selection boundary"
+    },
+    {
+      "kind": "local",
+      "path": "hardening/r3/hardening.json",
+      "supports": "Machine-readable option, tradeoff, evidence, and recommendation structure"
+    },
+    {
+      "kind": "local",
+      "path": "requirements/traceability.md",
+      "supports": "Current requirement coverage, historical-versus-current evidence, and open release proof"
+    },
+    {
+      "kind": "local",
+      "path": "tools/live/loadArtifactInput.ts",
+      "supports": "Explicit artifact selection, private execution snapshot, canonical output, and integrity gates"
+    },
+    {
+      "kind": "local",
+      "path": "tools/live/loadHarness.ts",
+      "supports": "Private-snapshot execution, measured lifecycle, cleanup-before-publication, and report assembly"
+    },
+    {
+      "kind": "local",
+      "path": "tools/live/retainCandidate.ts",
+      "supports": "Tracked source byte and executable-mode identity plus retained-candidate provenance"
+    },
+    {
+      "kind": "local",
+      "path": "test-results/live-load/smoke.json",
+      "supports": "Final Ultra-hardened raw-artifact smoke development evidence"
+    }
+  ]
+}

@@ -1,13 +1,17 @@
 /* global console, process */
 
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
+import { isAbsolute, relative, resolve, sep } from 'node:path';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const requirementsPath = resolve(repositoryRoot, 'requirements', 'requirements.md');
 const testCasesPath = resolve(repositoryRoot, 'requirements', 'test-cases.md');
 const matrixPath = resolve(repositoryRoot, 'requirements', 'traceability.json');
 const requireEvidencePaths = process.argv.includes('--require-evidence-paths');
+const selectedR3Areas = new Set([
+  'live-airspace-operational-evidence',
+  'live-airspace-runtime-release-policy',
+]);
 
 function collectIds(text, pattern) {
   return new Set([...text.matchAll(pattern)].map((match) => match[1]));
@@ -62,10 +66,64 @@ if (matrix.schemaVersion !== '1.0.0' || !Array.isArray(matrix.mappings)) {
     }
 
     if (requireEvidencePaths) {
+      const observedEvidencePaths = new Set();
       for (const evidencePath of mapping.evidencePaths || []) {
+        if (
+          typeof evidencePath !== 'string' ||
+          evidencePath.length === 0 ||
+          evidencePath.includes('\\') ||
+          evidencePath.startsWith('/') ||
+          evidencePath.endsWith('/') ||
+          isAbsolute(evidencePath) ||
+          evidencePath
+            .split('/')
+            .some((segment) => segment === '' || segment === '.' || segment === '..')
+        ) {
+          errors.push(`${label} has an invalid repository-relative evidence path: ${evidencePath}`);
+          continue;
+        }
+        if (observedEvidencePaths.has(evidencePath)) {
+          errors.push(`${label} has duplicate evidence path: ${evidencePath}`);
+          continue;
+        }
+        observedEvidencePaths.add(evidencePath);
         const absolutePath = resolve(repositoryRoot, evidencePath);
+        const relativePath = relative(repositoryRoot, absolutePath);
+        if (
+          relativePath === '' ||
+          relativePath === '..' ||
+          relativePath.startsWith(`..${sep}`) ||
+          isAbsolute(relativePath)
+        ) {
+          errors.push(`${label} evidence path escapes the repository: ${evidencePath}`);
+          continue;
+        }
         if (!existsSync(absolutePath)) {
           errors.push(`${label} evidence path does not exist: ${evidencePath}`);
+          continue;
+        }
+        const status = lstatSync(absolutePath);
+        if (status.isSymbolicLink()) {
+          errors.push(`${label} evidence path must not be a symbolic link: ${evidencePath}`);
+          continue;
+        }
+        if (!status.isFile() && !status.isDirectory()) {
+          errors.push(`${label} evidence path is not a regular file or directory: ${evidencePath}`);
+          continue;
+        }
+        const realRoot = realpathSync(repositoryRoot);
+        const realEvidencePath = realpathSync(absolutePath);
+        const realRelative = relative(realRoot, realEvidencePath);
+        if (
+          realRelative === '..' ||
+          realRelative.startsWith(`..${sep}`) ||
+          isAbsolute(realRelative)
+        ) {
+          errors.push(`${label} evidence path resolves outside the repository: ${evidencePath}`);
+          continue;
+        }
+        if (selectedR3Areas.has(label) && !status.isFile()) {
+          errors.push(`${label} selected-R3 evidence path must be a regular file: ${evidencePath}`);
         }
       }
     }

@@ -39,6 +39,10 @@ export default tseslint.config(
       'tmp????????/**',
       'dist/**',
       'dist-offline/**',
+      'dist-live/**',
+      'dist-mock-staging/**',
+      '.wrangler/**',
+      '.map-data/**',
       'coverage/**',
       'node_modules/**',
       'playwright-report/**',
@@ -50,7 +54,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['src/**/*.ts', 'tests/**/*.ts'],
+    files: ['src/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
     languageOptions: { globals: browserGlobals },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',

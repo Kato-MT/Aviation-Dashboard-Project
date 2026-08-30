@@ -1,12 +1,27 @@
 export const AIRSPACE_SCHEMA_VERSION = 'airspace.v1' as const;
+export const DEFAULT_LIVE_PROVIDER_ID = 'adsb-lol';
+
+export interface LiveFeedBinding {
+  providerId: string;
+  regionId: string;
+  feedEpoch: string;
+}
 
 export type AirspaceSchemaVersion = typeof AIRSPACE_SCHEMA_VERSION;
+
+export type LiveTransportStatus = 'connecting' | 'open' | 'reconnecting' | 'offline' | 'stopped';
 
 export type LiveFeedStatus =
   'connecting' | 'live' | 'degraded' | 'stale' | 'reconnecting' | 'offline';
 
 export type AircraftQualityFlag =
-  'missing-position' | 'stale-position' | 'stale-contact' | 'provider-time-regression';
+  | 'missing-position'
+  | 'stale-position'
+  | 'stale-contact'
+  | 'provider-time-regression'
+  | 'time-uncertain';
+
+export type VerticalRateBasis = 'barometric' | 'geometric';
 
 export interface GeographicPoint {
   latitude: number;
@@ -32,7 +47,8 @@ export interface RegionConfig {
 
 export interface AircraftState {
   aircraftId: string;
-  identifierKind: 'icao24' | 'other';
+  /** Live ingress accepts only icao24/other; synthetic is reserved for validated local replay. */
+  identifierKind: 'icao24' | 'other' | 'synthetic';
   callsign?: string | undefined;
   registration?: string | undefined;
   aircraftType?: string | undefined;
@@ -43,11 +59,15 @@ export interface AircraftState {
   groundSpeedKnots?: number | undefined;
   trackDegrees?: number | undefined;
   verticalRateFeetPerMinute?: number | undefined;
-  onGround: boolean;
+  verticalRateBasis?: VerticalRateBasis | undefined;
+  onGround: boolean | null;
   sourceType?: string | undefined;
+  // Available state/contact time, not a claim of simultaneous field measurements.
   observedAt: string;
   lastContactAt: string;
   lastPositionAt?: string | undefined;
+  // Ages are relative to the immutable server receipt time, not browser arrival.
+  // A small negative age is permitted only with explicit time-uncertain evidence.
   contactAgeSeconds: number;
   positionAgeSeconds?: number | undefined;
   qualityFlags: AircraftQualityFlag[];
@@ -61,21 +81,18 @@ export interface SnapshotValidationSummary {
   invalidFields: number;
 }
 
-export interface AirspaceSnapshot {
+export interface AirspaceSnapshot extends LiveFeedBinding {
   schemaVersion: AirspaceSchemaVersion;
-  providerId: string;
-  regionId: string;
   sequence: number;
+  // Immutable server receipt/normalization time; cached deliveries must retain it.
   generatedAt: string;
   providerGeneratedAt: string;
   aircraft: AircraftState[];
   validation: SnapshotValidationSummary;
 }
 
-export interface LiveFeedHealth {
+export interface LiveFeedHealth extends LiveFeedBinding {
   schemaVersion: AirspaceSchemaVersion;
-  regionId: string;
-  providerId: string;
   status: LiveFeedStatus;
   checkedAt: string;
   lastSuccessAt?: string | undefined;
@@ -87,7 +104,7 @@ export interface LiveFeedHealth {
 }
 
 export type LiveQualityEventCode =
-  'LIVE-DQ-001' | 'LIVE-DQ-002' | 'LIVE-DQ-003' | 'LIVE-DQ-004' | 'LIVE-DQ-005';
+  'LIVE-DQ-001' | 'LIVE-DQ-002' | 'LIVE-DQ-003' | 'LIVE-DQ-004' | 'LIVE-DQ-005' | 'LIVE-DQ-006';
 
 export interface LiveQualityEvent {
   code: LiveQualityEventCode;
@@ -100,6 +117,7 @@ export interface LiveQualityEvent {
     | 'stale-position'
     | 'missing-position'
     | 'provider-time-regression'
+    | 'time-uncertain'
     | 'upstream-degraded';
 }
 

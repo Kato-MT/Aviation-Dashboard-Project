@@ -142,13 +142,32 @@ def integrity_check(connection: sqlite3.Connection) -> dict[str, Any]:
 
 
 def ingest_verification_report(connection: sqlite3.Connection, document: Mapping[str, Any]) -> str:
-    telemetry_run = as_mapping(document.get("telemetryRun"))
-    provenance = as_mapping(document.get("provenance"))
+    diagnostic_run = as_mapping(document.get("run"))
+    diagnostic_analysis = as_mapping(document.get("analysis"))
+    diagnostic_verification = as_mapping(document.get("verification"))
+    is_diagnostic_report = document.get("reportSchemaVersion") == "diagnostic-report.v1"
+    telemetry_run = (
+        diagnostic_run if is_diagnostic_report else as_mapping(document.get("telemetryRun"))
+    )
+    run_provenance = as_mapping(diagnostic_run.get("provenance"))
+    verification_provenance = as_mapping(diagnostic_verification.get("provenance"))
+    provenance = (
+        {**run_provenance, **verification_provenance}
+        if is_diagnostic_report
+        else as_mapping(document.get("provenance"))
+    )
     validation = as_mapping(document.get("validation"))
-    comparison = as_mapping(document.get("comparison"))
-    counts = as_mapping(document.get("recordCounts"))
-    run_id = str(
-        nested(
+    comparison = (
+        diagnostic_verification
+        if is_diagnostic_report
+        else as_mapping(document.get("comparison"))
+    )
+    if is_diagnostic_report:
+        run_id_value = diagnostic_run.get("runId") or stable_id("run", document)
+        accepted_value = run_provenance.get("acceptedRecords")
+        quarantined_value = run_provenance.get("quarantinedRecords")
+    else:
+        run_id_value = nested(
             document,
             "runId",
             "verificationRunId",
@@ -156,45 +175,66 @@ def ingest_verification_report(connection: sqlite3.Connection, document: Mapping
             "provenance.runId",
             default=stable_id("run", document),
         )
-    )
-    created_at = str(
-        nested(document, "createdAt", "generatedAt", "provenance.generatedAt", default=utc_now())
-    )
-    accepted_records = integer(
-        nested(
+        accepted_value = nested(
             document,
             "recordCounts.accepted",
             "recordCounts.acceptedRecords",
             "telemetryRun.acceptedRecords",
             default=len(as_sequence(telemetry_run.get("samples"))),
         )
-    )
-    quarantined_records = integer(
-        nested(
+        quarantined_value = nested(
             document,
             "recordCounts.quarantined",
             "recordCounts.quarantinedRecords",
             "telemetryRun.quarantinedRecords",
             default=len(as_sequence(telemetry_run.get("quarantinedRows"))),
         )
+    run_id = str(run_id_value)
+    created_at = str(
+        nested(document, "createdAt", "generatedAt", "provenance.generatedAt", default=utc_now())
     )
-    validation_issues = as_sequence(validation.get("issues"))
+    accepted_records = integer(accepted_value)
+    quarantined_records = integer(quarantined_value)
+    validation_issues = (
+        as_sequence(diagnostic_run.get("validationIssues"))
+        if is_diagnostic_report
+        else as_sequence(validation.get("issues"))
+    )
     validation_errors = integer(
-        nested(document, "recordCounts.validationErrors", "validation.errorCount", default=None),
+        as_mapping(diagnostic_verification.get("candidate")).get("fatalValidationIssueCount")
+        if is_diagnostic_report
+        else nested(
+            document, "recordCounts.validationErrors", "validation.errorCount", default=None
+        ),
         default=sum(
             1
             for issue in validation_issues
-            if str(as_mapping(issue).get("severity", "")).lower() in {"error", "fatal"}
+            if str(
+                as_mapping(issue).get("disposition", as_mapping(issue).get("severity", ""))
+            ).lower()
+            in {"error", "fatal"}
         ),
     )
     status = normalize_status(
         nested(document, "status", "verification.status", "comparison.status", default="not-run")
     )
     profile_id = str(
-        nested(document, "profileId", "profile.id", "provenance.profileId", default="unknown")
+        verification_provenance.get("profileId", diagnostic_run.get("profileId", "unknown"))
+        if is_diagnostic_report
+        else nested(document, "profileId", "profile.id", "provenance.profileId", default="unknown")
     )
     profile_version = str(
-        nested(document, "profileVersion", "profile.version", "provenance.profileVersion", default="unknown")
+        verification_provenance.get(
+            "profileVersion", diagnostic_run.get("profileVersion", "unknown")
+        )
+        if is_diagnostic_report
+        else nested(
+            document,
+            "profileVersion",
+            "profile.version",
+            "provenance.profileVersion",
+            default="unknown",
+        )
     )
 
     connection.execute(
@@ -224,8 +264,16 @@ def ingest_verification_report(connection: sqlite3.Connection, document: Mapping
             str(provenance.get("applicationVersion", document.get("applicationVersion", "unknown"))),
             profile_id,
             profile_version,
-            str(provenance.get("adapter", document.get("adapter", "unknown"))),
-            str(provenance.get("datasetHash", document.get("datasetHash", "unknown"))),
+            (
+                f"{diagnostic_run.get('adapterId', 'unknown')}@{diagnostic_run.get('adapterVersion', 'unknown')}"
+                if is_diagnostic_report
+                else str(provenance.get("adapter", document.get("adapter", "unknown")))
+            ),
+            str(
+                run_provenance.get("datasetSha256", "unknown")
+                if is_diagnostic_report
+                else provenance.get("datasetHash", document.get("datasetHash", "unknown"))
+            ),
             accepted_records,
             quarantined_records,
             validation_errors,
@@ -268,7 +316,25 @@ def ingest_verification_report(connection: sqlite3.Connection, document: Mapping
             ),
         )
 
-    findings = as_sequence(document.get("findings")) or as_sequence(comparison.get("findings"))
+    if is_diagnostic_report and diagnostic_verification:
+        findings = []
+        for classification_key, finding_side, classification_label in (
+            ("resolved", "baseline", "resolved"),
+            ("persisting", "candidate", "persisting"),
+            ("newlyIntroduced", "candidate", "newly-introduced"),
+        ):
+            for classification_value in as_sequence(
+                diagnostic_verification.get(classification_key)
+            ):
+                classification = as_mapping(classification_value)
+                classified_finding = dict(as_mapping(classification.get(finding_side)))
+                if classified_finding:
+                    classified_finding["classification"] = classification_label
+                    findings.append(classified_finding)
+    elif is_diagnostic_report:
+        findings = list(as_sequence(diagnostic_analysis.get("findings")))
+    else:
+        findings = list(as_sequence(document.get("findings")) or as_sequence(comparison.get("findings")))
     for index, finding_value in enumerate(findings):
         finding = as_mapping(finding_value)
         finding_id = str(finding.get("findingId") or finding.get("id") or stable_id("finding", [run_id, index, finding]))
@@ -322,13 +388,18 @@ def ingest_verification_report(connection: sqlite3.Connection, document: Mapping
                 str(fault.get("scenarioId", fault.get("id", "unknown"))),
                 fault.get("sourceId"),
                 fault.get("timestamp") or fault.get("injectedAt"),
-                fault.get("expectedRuleId"),
+                fault.get("expectedRuleId")
+                or next(iter(as_sequence(fault.get("expectedRuleIds"))), None),
                 int(bool(fault.get("detected", False))),
                 canonical_json(fault),
             ),
         )
 
-    requirements = as_sequence(document.get("requirementResults"))
+    requirements = (
+        as_sequence(diagnostic_verification.get("requirementResults"))
+        if is_diagnostic_report
+        else as_sequence(document.get("requirementResults"))
+    )
     for requirement_value in requirements:
         requirement = as_mapping(requirement_value)
         requirement_id = str(requirement.get("requirementId", requirement.get("id", "unknown")))

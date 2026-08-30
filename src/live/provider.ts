@@ -18,17 +18,27 @@ export type LiveProviderErrorCode =
 export class LiveProviderError extends Error {
   readonly code: LiveProviderErrorCode;
   readonly retryAfterSeconds: number | undefined;
+  readonly retryAtMs: number | undefined;
+  readonly retryBlocked: boolean;
   readonly status: number | undefined;
 
   constructor(
     code: LiveProviderErrorCode,
     message: string,
-    options: { retryAfterSeconds?: number; status?: number; cause?: unknown } = {},
+    options: {
+      retryAfterSeconds?: number;
+      retryAtMs?: number;
+      retryBlocked?: boolean;
+      status?: number;
+      cause?: unknown;
+    } = {},
   ) {
     super(message, { cause: options.cause });
     this.name = 'LiveProviderError';
     this.code = code;
     this.retryAfterSeconds = options.retryAfterSeconds;
+    this.retryAtMs = options.retryAtMs;
+    this.retryBlocked = options.retryBlocked ?? false;
     this.status = options.status;
   }
 }

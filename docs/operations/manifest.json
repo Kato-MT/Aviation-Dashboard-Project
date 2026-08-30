@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "operator-procedure-manifest.v1",
+  "mode": "closed-synthetic-rehearsal-only",
+  "privacy": "aggregate-only-no-aircraft-request-client-or-event-data",
+  "procedureCount": 8,
+  "procedures": [
+    {
+      "procedureId": "provider-term-hold",
+      "path": "provider-term-hold.json",
+      "bytes": 4012,
+      "sha256": "95037f881a8cd002af31c5f65bbee2609d3799542dfbf140b887beca3393fcf0"
+    },
+    {
+      "procedureId": "quota-hold",
+      "path": "quota-hold.json",
+      "bytes": 4010,
+      "sha256": "06af3e3c3cee9f17ee49a6f731809c0d6d4c4803c790a7c8ea76a4ffc35e6281"
+    },
+    {
+      "procedureId": "stale-feed",
+      "path": "stale-feed.json",
+      "bytes": 5069,
+      "sha256": "f4d894067ec6219036c95a3192f05656ce9647900b7c60e8e11a0e1d9003344a"
+    },
+    {
+      "procedureId": "internal-fault",
+      "path": "internal-fault.json",
+      "bytes": 4622,
+      "sha256": "b4b7df4b680f5f2321e46be2341fac295e6aee0f67a006d7d0ba6ceaaad9b455"
+    },
+    {
+      "procedureId": "disablement",
+      "path": "disablement.json",
+      "bytes": 4184,
+      "sha256": "a00e6408e5a1c11a45b83b3f5a258b12a9010a4816ca65c83dddc86505600099"
+    },
+    {
+      "procedureId": "rollback",
+      "path": "rollback.json",
+      "bytes": 4491,
+      "sha256": "bdec8c377ff3de55a4ffff2a4e26f5c40a2c87f3a287a1394e01feed78ac733a"
+    },
+    {
+      "procedureId": "candidate-retention",
+      "path": "candidate-retention.json",
+      "bytes": 4514,
+      "sha256": "4f3d52bb2672f53f9ae9beb1c17a5b6ccb67b02419246096df77e01f33127c3d"
+    },
+    {
+      "procedureId": "recovery",
+      "path": "recovery.json",
+      "bytes": 4825,
+      "sha256": "1ccd7618bede270b5f73d38e6a4229bb594e273100a9cd41e600e5331a4696b3"
+    }
+  ]
+}

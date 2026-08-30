@@ -45,9 +45,10 @@ async function validResult(): Promise<CampaignResult> {
   });
 }
 
-async function cancelledResult(completedCases = 0): Promise<CampaignResult> {
-  const campaign = spec();
-  campaign.seeds = Array.from({ length: Math.max(2, completedCases + 1) }, (_, index) => index + 1);
+async function cancelledResult(
+  campaign: CampaignSpec = spec(),
+  completedCases = 0,
+): Promise<CampaignResult> {
   const controller = new AbortController();
   if (completedCases === 0) controller.abort('cancel-before-start');
   return runCampaign(
@@ -63,6 +64,31 @@ async function cancelledResult(completedCases = 0): Promise<CampaignResult> {
       },
     },
   );
+}
+
+function progressResponse(
+  requestId: string,
+  overrides: Partial<{
+    campaignId: string;
+    completedCases: number;
+    totalCases: number;
+    currentCaseId: string | null;
+    currentCaseStatus: 'completed' | 'failed' | 'cancelled' | null;
+  }> = {},
+) {
+  return {
+    protocolVersion: CAMPAIGN_WORKER_PROTOCOL_VERSION,
+    type: 'campaign.progress' as const,
+    requestId,
+    progress: {
+      campaignId: spec().campaignId,
+      completedCases: 1,
+      totalCases: 1,
+      currentCaseId: 'case-1',
+      currentCaseStatus: 'completed' as const,
+      ...overrides,
+    },
+  };
 }
 
 class FakeWorker implements CampaignWorkerLike {
@@ -139,18 +165,7 @@ describe('temporal campaign browser client', () => {
       onProgress: (event) => progress.push(event.completedCases),
     });
     expect(worker.messages[0]).toMatchObject({ type: 'campaign.run', requestId: 'success' });
-    worker.emitMessage({
-      protocolVersion: CAMPAIGN_WORKER_PROTOCOL_VERSION,
-      type: 'campaign.progress',
-      requestId: 'success',
-      progress: {
-        campaignId: spec().campaignId,
-        completedCases: 1,
-        totalCases: 1,
-        currentCaseId: 'case-1',
-        currentCaseStatus: 'completed',
-      },
-    });
+    worker.emitMessage(progressResponse('success'));
     const result = await validResult();
     worker.emitMessage({
       protocolVersion: CAMPAIGN_WORKER_PROTOCOL_VERSION,
@@ -166,13 +181,15 @@ describe('temporal campaign browser client', () => {
   it('sends cancellation and rejects with visible completed-case evidence', async () => {
     const worker = new FakeWorker();
     const client = new TemporalCampaignBrowserClient(() => worker);
-    const promise = client.run(spec(), { requestId: 'cancel-me' });
+    const submittedSpec = spec();
+    submittedSpec.seeds = [1, 2];
+    const promise = client.run(submittedSpec, { requestId: 'cancel-me' });
     expect(client.cancel()).toBe(true);
     expect(worker.messages.at(-1)).toMatchObject({
       type: 'campaign.cancel',
       requestId: 'cancel-me',
     });
-    const partialResult = await cancelledResult(1);
+    const partialResult = await cancelledResult(submittedSpec, 1);
     worker.emitMessage({
       protocolVersion: CAMPAIGN_WORKER_PROTOCOL_VERSION,
       type: 'campaign.cancelled',
@@ -183,6 +200,130 @@ describe('temporal campaign browser client', () => {
     const error = await promise.catch((caught: unknown) => caught);
     expect(error).toBeInstanceOf(CampaignCancelledError);
     expect(error).toMatchObject({ completedCases: 1, partialResult });
+  });
+
+  it('rejects an invalid submitted spec before posting a worker request', async () => {
+    const worker = new FakeWorker();
+    const client = new TemporalCampaignBrowserClient(() => worker);
+    const invalidSpec = spec();
+    invalidSpec.seeds = [];
+
+    await expect(client.run(invalidSpec, { requestId: 'invalid-spec' })).rejects.toThrow(
+      'seeds must contain at least one seed',
+    );
+    expect(worker.messages).toEqual([]);
+
+    const valid = client.run(spec(), { requestId: 'valid-after-invalid' });
+    expect(worker.messages).toHaveLength(1);
+    client.terminate();
+    await expect(valid).rejects.toThrow('terminated');
+  });
+
+  it('binds progress to the submitted campaign and exact matrix size', async () => {
+    const campaignWorker = new FakeWorker();
+    const campaignClient = new TemporalCampaignBrowserClient(() => campaignWorker);
+    const campaignPromise = campaignClient.run(spec(), { requestId: 'wrong-campaign' });
+    campaignWorker.emitMessage(
+      progressResponse('wrong-campaign', { campaignId: 'substituted-campaign' }),
+    );
+    await expect(campaignPromise).rejects.toThrow(
+      'campaignId does not match the submitted campaign',
+    );
+
+    const totalWorker = new FakeWorker();
+    const totalClient = new TemporalCampaignBrowserClient(() => totalWorker);
+    const totalPromise = totalClient.run(spec(), { requestId: 'wrong-total' });
+    totalWorker.emitMessage(progressResponse('wrong-total', { totalCases: 2 }));
+    await expect(totalPromise).rejects.toThrow(
+      'totalCases does not match the submitted campaign matrix',
+    );
+  });
+
+  it('rejects regressing, skipped, and post-cancellation progress', async () => {
+    const regressionSpec = spec();
+    regressionSpec.seeds = [1, 2];
+    const regressionWorker = new FakeWorker();
+    const regressionClient = new TemporalCampaignBrowserClient(() => regressionWorker);
+    const regressionPromise = regressionClient.run(regressionSpec, { requestId: 'regression' });
+    regressionWorker.emitMessage(
+      progressResponse('regression', { completedCases: 1, totalCases: 2 }),
+    );
+    regressionWorker.emitMessage(
+      progressResponse('regression', {
+        completedCases: 0,
+        totalCases: 2,
+        currentCaseId: null,
+        currentCaseStatus: null,
+      }),
+    );
+    await expect(regressionPromise).rejects.toThrow('completedCases regressed');
+
+    const skippedSpec = spec();
+    skippedSpec.seeds = [1, 2];
+    const skippedWorker = new FakeWorker();
+    const skippedClient = new TemporalCampaignBrowserClient(() => skippedWorker);
+    const skippedPromise = skippedClient.run(skippedSpec, { requestId: 'skipped' });
+    skippedWorker.emitMessage(progressResponse('skipped', { completedCases: 2, totalCases: 2 }));
+    await expect(skippedPromise).rejects.toThrow('advance exactly one processed case');
+
+    const cancellationWorker = new FakeWorker();
+    const cancellationClient = new TemporalCampaignBrowserClient(() => cancellationWorker);
+    const cancellationPromise = cancellationClient.run(regressionSpec, {
+      requestId: 'post-cancel-progress',
+    });
+    cancellationWorker.emitMessage(
+      progressResponse('post-cancel-progress', {
+        completedCases: 0,
+        totalCases: 2,
+        currentCaseStatus: 'cancelled',
+      }),
+    );
+    cancellationWorker.emitMessage(
+      progressResponse('post-cancel-progress', { completedCases: 1, totalCases: 2 }),
+    );
+    await expect(cancellationPromise).rejects.toThrow(
+      'progress after reporting cancellation progress',
+    );
+  });
+
+  it('rejects self-consistent terminal results substituted for the submitted spec', async () => {
+    const campaignWorker = new FakeWorker();
+    const campaignClient = new TemporalCampaignBrowserClient(() => campaignWorker);
+    const campaignPromise = campaignClient.run(spec(), { requestId: 'terminal-campaign' });
+    const differentCampaignSpec = spec();
+    differentCampaignSpec.campaignId = 'substituted-campaign';
+    const differentCampaignResult = await runCampaign(differentCampaignSpec, {
+      buildScenario: () => ({ input: null }),
+      evaluateScenario: () => ({ detections: [], calibration: [], syntheticDurationMs: 179_000 }),
+    });
+    campaignWorker.emitMessage({
+      protocolVersion: CAMPAIGN_WORKER_PROTOCOL_VERSION,
+      type: 'campaign.result',
+      requestId: 'terminal-campaign',
+      result: differentCampaignResult,
+    });
+    await expect(campaignPromise).rejects.toThrow(
+      'result campaignId does not match the submitted campaign',
+    );
+
+    const specWorker = new FakeWorker();
+    const specClient = new TemporalCampaignBrowserClient(() => specWorker);
+    const specPromise = specClient.run(spec(), { requestId: 'terminal-spec' });
+    const differentSpec = spec();
+    differentSpec.seeds = [2];
+    const differentSpecResult = await runCampaign(differentSpec, {
+      buildScenario: () => ({ input: null }),
+      evaluateScenario: () => ({ detections: [], calibration: [], syntheticDurationMs: 179_000 }),
+    });
+    specWorker.emitMessage({
+      protocolVersion: CAMPAIGN_WORKER_PROTOCOL_VERSION,
+      type: 'campaign.result',
+      requestId: 'terminal-spec',
+      result: differentSpecResult,
+    });
+    await expect(specPromise).rejects.toThrow(
+      'result spec does not match the submitted campaign spec',
+    );
   });
 
   it('surfaces evaluator errors and browser worker errors', async () => {

@@ -85,14 +85,16 @@ The normalized representation has one time basis and explicitly declared units. 
 - observed value and expected condition;
 - deterministic evidence and quality context.
 
-`VerificationRun` contains:
+Current writers emit `verification.v2`. The frozen `verification.v1` schema remains available for older artifacts. `VerificationRun` contains:
 
 - application, schema, profile, and adapter versions;
 - dataset hashes and record counts;
 - validation summaries;
 - baseline and candidate findings;
 - resolved, persisting, and newly introduced classifications;
-- requirement results and final pass or fail status.
+- a versioned finding-comparison identity;
+- canonical requirement results with linked test IDs;
+- final pass, fail, or blocked status.
 
 ### 4. Deterministic rule engine
 
@@ -125,15 +127,19 @@ Verification uses a stable finding identity derived from rule ID, source, and di
 
 The comparison records validation changes as well as detection changes. A candidate with fatal validation errors cannot pass.
 
+Before comparison, the writer rejects duplicate finding fingerprints, a run paired with another analysis, and accepted or quarantined provenance counts that disagree with the captured run. Declared profile mismatch remains an inspectable blocked analysis; only baseline and candidate analyses using different active profile identities are incompatible.
+
 ### 7. Presentation
 
-The browser layer renders five views from immutable application state:
+The preserved v2 browser layer renders five views from immutable application state:
 
 - **Monitor:** charts, gauges, alerts, and replay controls.
 - **Diagnostics:** filterable findings and evidence.
 - **Verification:** baseline and candidate selection, classification, and pass or fail evidence.
 - **Investigation:** seeded temporal missions, linked traces, phase and lifecycle bands, sensor-fusion residuals, deterministic indications, advisory hypotheses, and campaign evidence.
 - **Configuration:** active versions, mappings, rules, provenance, and declared limits.
+
+The v3 React shell places that diagnostics capability inside four workspaces: Live Airspace, Synthetic Replay, Diagnostics Lab, and Evidence. Diagnostics Lab separates Campaign into a sixth routed workflow alongside the five preserved v2 concepts. The unified offline entry keeps Replay, all six Lab workflows, and static Evidence available while presenting Live Airspace as unavailable and excluding the Live service and geographic map runtime.
 
 All status is represented with text and icons in addition to color. Controls expose accessible names and keyboard behavior. A failed load clears or replaces incompatible current state so prior results cannot be mistaken for the new file.
 

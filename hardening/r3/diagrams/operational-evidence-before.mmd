@@ -1,0 +1,13 @@
+flowchart LR
+  Viewer[Browser or operator] --> Health[GET /api/v1/health]
+  Health --> HubA[RegionalFeedHub A]
+  Health --> HubB[RegionalFeedHub B]
+  Health --> HubC[RegionalFeedHub C]
+  HubA --> StoreA[(Control state and hourly poll metrics)]
+  HubB --> StoreB[(Control state and hourly poll metrics)]
+  HubC --> StoreC[(Control state and hourly poll metrics)]
+  HubA --> Delivery[In-memory delivery and ACK state]
+  Health --> Result[Top-level ok plus regional health]
+  Worker[Worker routes and static assets] -. no owned SLI contract .-> Result
+  Delivery -. no retained aggregate .-> Result
+  Platform[Cloudflare platform metrics] -. not bound to release evidence .-> Viewer

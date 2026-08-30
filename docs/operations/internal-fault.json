@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "operator-procedure.v1",
+  "procedureId": "internal-fault",
+  "title": "Internal fault",
+  "purpose": "Contain an application-owned regional read fault while preserving partial regional evidence and the fixed release boundary.",
+  "documentationBoundary": {
+    "mode": "local-documentation-only",
+    "executionClaim": "none",
+    "runtimeControlPlane": "forbidden"
+  },
+  "reasonVocabulary": {
+    "runtimePolicy": ["internal-fault"],
+    "operations": [
+      "REGION_READ_UNAVAILABLE",
+      "APPLICATION_PARTIAL_REGIONS",
+      "APPLICATION_UNAVAILABLE",
+      "APPLICATION_AVAILABLE"
+    ]
+  },
+  "entryEvidence": [
+    {
+      "evidenceId": "internal-incident-classification",
+      "source": "incident-record",
+      "reasonCode": "internal-fault",
+      "required": true,
+      "observation": "A bounded incident record classifies the selected release and policy epoch as internal-fault."
+    },
+    {
+      "evidenceId": "regional-read-failure",
+      "source": "operations-v1",
+      "reasonCode": "REGION_READ_UNAVAILABLE",
+      "required": true,
+      "observation": "The operations projection marks one exact regional read unavailable without removing other regional results."
+    }
+  ],
+  "boundedActions": [
+    {
+      "sequence": 1,
+      "actionId": "capture-internal-fault-evidence",
+      "actionType": "capture-evidence",
+      "authority": "read-only-local",
+      "instruction": "Record the policy identity, release identity, checkedAt, and all three ordered regional classifications once.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    },
+    {
+      "sequence": 2,
+      "actionId": "verify-fixed-region-set",
+      "actionType": "verify-read-only",
+      "authority": "read-only-local",
+      "instruction": "Inspect one later operations projection and verify that the exact three-region order and partial result boundary remain intact.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    },
+    {
+      "sequence": 3,
+      "actionId": "prepare-internal-fault-candidate",
+      "actionType": "prepare-policy-change",
+      "authority": "separate-explicit-approval",
+      "instruction": "Prepare one disabled-source candidate carrying internal-fault if the bounded regional verification does not recover.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 60
+    },
+    {
+      "sequence": 4,
+      "actionId": "request-internal-fault-approval",
+      "actionType": "request-approval",
+      "authority": "separate-explicit-approval",
+      "instruction": "Request separate approval for the exact candidate and its aggregate-only verification plan.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 30
+    }
+  ],
+  "stopConditions": [
+    {
+      "conditionId": "stop-on-partial-application",
+      "outcome": "halt",
+      "reasonCode": "APPLICATION_PARTIAL_REGIONS",
+      "observation": "Stop candidate progression if any region remains unreadable and the application classification remains partial."
+    },
+    {
+      "conditionId": "stop-on-unavailable-application",
+      "outcome": "halt",
+      "reasonCode": "APPLICATION_UNAVAILABLE",
+      "observation": "Stop all progression if the operations projection classifies every fixed region unavailable."
+    },
+    {
+      "conditionId": "receipt-on-available-application",
+      "outcome": "ready-for-receipt",
+      "reasonCode": "APPLICATION_AVAILABLE",
+      "observation": "Stop as ready for a receipt only after the exact ordered region set classifies the application available."
+    }
+  ],
+  "rollbackActions": [
+    {
+      "sequence": 1,
+      "actionId": "restore-approved-disabled-policy",
+      "actionType": "restore-approved-policy",
+      "authority": "separate-explicit-approval",
+      "instruction": "Restore the last approved disabled policy through a separately approved release workflow if the prepared candidate fails verification.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 60
+    }
+  ],
+  "verificationReceipt": {
+    "schemaVersion": "operator-verification-receipt.v1",
+    "status": "template-only-not-executed",
+    "privacy": "aggregate-only-no-aircraft-request-client-or-event-data",
+    "requiredFields": [
+      "procedureId",
+      "procedureSha256",
+      "policyId",
+      "policyEpoch",
+      "applicationVersion",
+      "releaseSha",
+      "checkedAt",
+      "runtimePolicyReasonCodes",
+      "operationsReasonCodes",
+      "entryEvidenceIds",
+      "rehearsedActionIds",
+      "stopConditionIds",
+      "result"
+    ],
+    "resultValues": ["verified", "stopped", "rolled-back", "recovered"]
+  }
+}

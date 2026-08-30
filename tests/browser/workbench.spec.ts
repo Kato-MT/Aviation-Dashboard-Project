@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./v2.html');
   await expect(
     page.getByRole('heading', { name: 'Flight Diagnostics Workbench', exact: true }),
   ).toBeVisible();

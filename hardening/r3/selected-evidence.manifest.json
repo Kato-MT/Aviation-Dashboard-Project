@@ -1,0 +1,900 @@
+{
+  "schemaVersion": "selected-r3-evidence.v1",
+  "selection": {
+    "status": "approved_for_local_implementation",
+    "optionIds": ["regional-operations-contract", "central-runtime-policy-contract"],
+    "authorityBoundary": "Local R3 implementation only. No commit, push, provider contact, Cloudflare mutation, billing, deployment, or publication authority."
+  },
+  "contract": {
+    "requirementIds": [
+      "FDW-OPS-001",
+      "FDW-OPS-002",
+      "FDW-OPS-003",
+      "FDW-OPS-004",
+      "FDW-OPS-005",
+      "FDW-OPS-006",
+      "FDW-OPS-007",
+      "FDW-OPS-008",
+      "FDW-POL-001",
+      "FDW-POL-002",
+      "FDW-POL-003",
+      "FDW-POL-004",
+      "FDW-POL-005",
+      "FDW-POL-006",
+      "FDW-POL-007",
+      "FDW-POL-008"
+    ],
+    "testCases": [
+      {
+        "id": "TC-OPS-001",
+        "requirementId": "FDW-OPS-001",
+        "evidencePaths": [
+          "schemas/operations-v1.schema.json",
+          "src/operations/contract.ts",
+          "tests/live/operations-contract.test.ts"
+        ]
+      },
+      {
+        "id": "TC-OPS-002",
+        "requirementId": "FDW-OPS-002",
+        "evidencePaths": [
+          "src/evidence/health.ts",
+          "worker/index.ts",
+          "worker/regionalFeedHub.ts",
+          "tests/worker/worker.test.ts",
+          "tests/evidence/health.test.ts"
+        ]
+      },
+      {
+        "id": "TC-OPS-003",
+        "requirementId": "FDW-OPS-003",
+        "evidencePaths": [
+          "src/operations/classifier.ts",
+          "worker/metrics.ts",
+          "worker/delivery.ts",
+          "worker/admission.ts",
+          "tests/live/admission.test.ts",
+          "tests/worker/metrics.test.ts",
+          "tests/worker/delivery.test.ts",
+          "tests/live/operations-classifier.test.ts"
+        ]
+      },
+      {
+        "id": "TC-OPS-004",
+        "requirementId": "FDW-OPS-004",
+        "evidencePaths": [
+          "src/operations/contract.ts",
+          "tools/live/operationsPrivacyAudit.ts",
+          "tools/live/runG2Firebreak.ts",
+          "tools/live/retainCandidate.ts",
+          "tools/live/verifyBuilds.ts",
+          "tests/live/operations-privacy.test.ts",
+          "tests/live/g2-evidence-policy.test.ts",
+          "tests/live/retain-candidate.test.ts",
+          "tests/live-browser/g2-provider-smoke.spec.ts",
+          "playwright.g2.config.ts"
+        ]
+      },
+      {
+        "id": "TC-OPS-005",
+        "requirementId": "FDW-OPS-005",
+        "evidencePaths": [
+          "worker/metrics.ts",
+          "worker/regionalFeedHub.ts",
+          "tests/worker/retention.test.ts",
+          "tests/worker/metrics.test.ts"
+        ]
+      },
+      {
+        "id": "TC-OPS-006",
+        "requirementId": "FDW-OPS-006",
+        "evidencePaths": [
+          "worker/delivery.ts",
+          "worker/admission.ts",
+          "tests/worker/delivery.test.ts",
+          "tests/live/admission.test.ts",
+          "tests/live/operations-classifier.test.ts",
+          "tests/live/regional-delivery.test.ts"
+        ]
+      },
+      {
+        "id": "TC-OPS-007",
+        "requirementId": "FDW-OPS-007",
+        "evidencePaths": [
+          "src/features/evidence/EvidenceApp.tsx",
+          "src/features/evidence/evidence.css",
+          "tests/evidence/EvidenceApp.test.tsx",
+          "tests/live-browser/replay-evidence.spec.ts",
+          "tests/accessibility/workbench.spec.ts"
+        ]
+      },
+      {
+        "id": "TC-OPS-008",
+        "requirementId": "FDW-OPS-008",
+        "evidencePaths": [
+          "tools/live/loadHarness.ts",
+          "tools/live/loadHarnessReport.ts",
+          "tools/live/recordCandidateAcceptance.ts",
+          "tests/live/candidate-acceptance.test.ts",
+          "tests/live/load-harness-artifact.test.ts",
+          "tests/live/workflow-policy.test.ts"
+        ]
+      },
+      {
+        "id": "TC-POL-001",
+        "requirementId": "FDW-POL-001",
+        "evidencePaths": [
+          "schemas/runtime-policy-v1.schema.json",
+          "src/live/runtimePolicy.ts",
+          "src/live/runtimePolicyLimits.ts",
+          "tests/live/runtime-policy.test.ts",
+          "tests/live/runtime-policy-limits.test.ts"
+        ]
+      },
+      {
+        "id": "TC-POL-002",
+        "requirementId": "FDW-POL-002",
+        "evidencePaths": [
+          "src/live/runtimePolicy.ts",
+          "tests/live/runtime-policy.test.ts",
+          "tests/live/provider-config.test.ts",
+          "tests/worker/worker.test.ts"
+        ]
+      },
+      {
+        "id": "TC-POL-003",
+        "requirementId": "FDW-POL-003",
+        "evidencePaths": [
+          "tools/live/runtimePolicyArtifact.ts",
+          "vite.live.config.ts",
+          "tools/live/verifyBuilds.ts",
+          "tools/live/retainCandidate.ts",
+          "tests/live/artifact-policy.test.ts",
+          "tests/live/retain-candidate.test.ts"
+        ]
+      },
+      {
+        "id": "TC-POL-004",
+        "requirementId": "FDW-POL-004",
+        "evidencePaths": [
+          "public/_headers",
+          "worker/responsePolicy.ts",
+          "tests/live/artifact-policy.test.ts",
+          "tests/worker/worker.test.ts",
+          "tests/live-browser/live-flow.spec.ts",
+          "tests/live-browser/m34-entry-artifact.spec.ts"
+        ]
+      },
+      {
+        "id": "TC-POL-005",
+        "requirementId": "FDW-POL-005",
+        "evidencePaths": [
+          "src/live/runtimePolicy.ts",
+          "worker/regionalFeedHub.ts",
+          "tests/worker/worker.test.ts",
+          "tests/worker/polling.test.ts",
+          "tests/live-browser/replay-evidence.spec.ts"
+        ]
+      },
+      {
+        "id": "TC-POL-006",
+        "requirementId": "FDW-POL-006",
+        "evidencePaths": [
+          "src/live/runtimePolicy.ts",
+          "worker/index.ts",
+          "worker/providerConfig.ts",
+          "worker/mapAssets.ts",
+          "tools/live/buildConfig.ts",
+          "tests/live/runtime-policy.test.ts",
+          "tests/live/admission.test.ts"
+        ]
+      },
+      {
+        "id": "TC-POL-007",
+        "requirementId": "FDW-POL-007",
+        "evidencePaths": [
+          "docs/operations/manifest.json",
+          "docs/operations/candidate-retention.json",
+          "docs/operations/disablement.json",
+          "docs/operations/internal-fault.json",
+          "docs/operations/provider-term-hold.json",
+          "docs/operations/quota-hold.json",
+          "docs/operations/recovery.json",
+          "docs/operations/rollback.json",
+          "docs/operations/stale-feed.json",
+          "tools/live/verifyRunbooks.ts",
+          "tools/live/rehearseRunbooks.ts",
+          "tools/live/rehearseCandidateRunbooks.ts",
+          "tests/live/runbook-policy.test.ts",
+          "tests/live/runbook-rehearsal.test.ts",
+          "tests/live/rehearse-candidate-runbooks.test.ts",
+          "tests/live/workflow-policy.test.ts"
+        ]
+      },
+      {
+        "id": "TC-POL-008",
+        "requirementId": "FDW-POL-008",
+        "evidencePaths": [
+          ".github/workflows/v3-release-preflight.yml",
+          ".github/workflows/ci.yml",
+          "tools/live/verifyBuilds.ts",
+          "tools/live/verifyBrowserBudgets.ts",
+          "tools/live/runBrowserPerformance.ts",
+          "tools/live/performanceReporter.ts",
+          "tools/live/rehearseCandidateRunbooks.ts",
+          "tools/live/recordCandidateAcceptance.ts",
+          "playwright.performance.config.ts",
+          "playwright.visual.config.ts",
+          "vite.performance.config.ts",
+          "tests/live/browser-budgets.test.ts",
+          "tests/live/rehearse-candidate-runbooks.test.ts",
+          "tests/live/workflow-policy.test.ts",
+          "tests/live/candidate-acceptance.test.ts",
+          "tests/live-browser/performanceHarness.tsx",
+          "tests/live-browser/performance.spec.ts",
+          "tests/live-browser/visual-regression.spec.ts",
+          "tests/live-browser/visual-regression.spec.ts-snapshots/design-a-overview-desktop.png",
+          "tests/live-browser/visual-regression.spec.ts-snapshots/design-a-overview-mobile.png",
+          "tests/live-browser/visual-regression.spec.ts-snapshots/design-b-investigation-desktop.png",
+          "tests/live-browser/visual-regression.spec.ts-snapshots/design-b-investigation-mobile.png",
+          "tests/live-browser/m34-entry-artifact.spec.ts"
+        ]
+      }
+    ],
+    "traceabilityAreas": [
+      {
+        "area": "live-airspace-operational-evidence",
+        "requirementIds": [
+          "FDW-OPS-001",
+          "FDW-OPS-002",
+          "FDW-OPS-003",
+          "FDW-OPS-004",
+          "FDW-OPS-005",
+          "FDW-OPS-006",
+          "FDW-OPS-007",
+          "FDW-OPS-008"
+        ],
+        "testIds": [
+          "TC-OPS-001",
+          "TC-OPS-002",
+          "TC-OPS-003",
+          "TC-OPS-004",
+          "TC-OPS-005",
+          "TC-OPS-006",
+          "TC-OPS-007",
+          "TC-OPS-008"
+        ],
+        "evidencePaths": [
+          "playwright.g2.config.ts",
+          "schemas/operations-v1.schema.json",
+          "src/evidence/health.ts",
+          "src/features/evidence/EvidenceApp.tsx",
+          "src/features/evidence/evidence.css",
+          "src/operations/classifier.ts",
+          "src/operations/contract.ts",
+          "tests/accessibility/workbench.spec.ts",
+          "tests/evidence/EvidenceApp.test.tsx",
+          "tests/evidence/health.test.ts",
+          "tests/live-browser/g2-provider-smoke.spec.ts",
+          "tests/live-browser/replay-evidence.spec.ts",
+          "tests/live/admission.test.ts",
+          "tests/live/candidate-acceptance.test.ts",
+          "tests/live/g2-evidence-policy.test.ts",
+          "tests/live/load-harness-artifact.test.ts",
+          "tests/live/operations-classifier.test.ts",
+          "tests/live/operations-contract.test.ts",
+          "tests/live/operations-privacy.test.ts",
+          "tests/live/regional-delivery.test.ts",
+          "tests/live/retain-candidate.test.ts",
+          "tests/live/workflow-policy.test.ts",
+          "tests/worker/delivery.test.ts",
+          "tests/worker/metrics.test.ts",
+          "tests/worker/retention.test.ts",
+          "tests/worker/worker.test.ts",
+          "tools/live/loadHarness.ts",
+          "tools/live/loadHarnessReport.ts",
+          "tools/live/operationsPrivacyAudit.ts",
+          "tools/live/recordCandidateAcceptance.ts",
+          "tools/live/retainCandidate.ts",
+          "tools/live/runG2Firebreak.ts",
+          "tools/live/verifyBuilds.ts",
+          "worker/admission.ts",
+          "worker/delivery.ts",
+          "worker/index.ts",
+          "worker/metrics.ts",
+          "worker/regionalFeedHub.ts"
+        ]
+      },
+      {
+        "area": "live-airspace-runtime-release-policy",
+        "requirementIds": [
+          "FDW-POL-001",
+          "FDW-POL-002",
+          "FDW-POL-003",
+          "FDW-POL-004",
+          "FDW-POL-005",
+          "FDW-POL-006",
+          "FDW-POL-007",
+          "FDW-POL-008"
+        ],
+        "testIds": [
+          "TC-POL-001",
+          "TC-POL-002",
+          "TC-POL-003",
+          "TC-POL-004",
+          "TC-POL-005",
+          "TC-POL-006",
+          "TC-POL-007",
+          "TC-POL-008"
+        ],
+        "evidencePaths": [
+          ".github/workflows/ci.yml",
+          ".github/workflows/v3-release-preflight.yml",
+          "docs/operations/candidate-retention.json",
+          "docs/operations/disablement.json",
+          "docs/operations/internal-fault.json",
+          "docs/operations/manifest.json",
+          "docs/operations/provider-term-hold.json",
+          "docs/operations/quota-hold.json",
+          "docs/operations/recovery.json",
+          "docs/operations/rollback.json",
+          "docs/operations/stale-feed.json",
+          "playwright.performance.config.ts",
+          "playwright.visual.config.ts",
+          "public/_headers",
+          "schemas/runtime-policy-v1.schema.json",
+          "src/live/runtimePolicy.ts",
+          "src/live/runtimePolicyLimits.ts",
+          "tests/live-browser/live-flow.spec.ts",
+          "tests/live-browser/m34-entry-artifact.spec.ts",
+          "tests/live-browser/performance.spec.ts",
+          "tests/live-browser/performanceHarness.tsx",
+          "tests/live-browser/replay-evidence.spec.ts",
+          "tests/live-browser/visual-regression.spec.ts",
+          "tests/live-browser/visual-regression.spec.ts-snapshots/design-a-overview-desktop.png",
+          "tests/live-browser/visual-regression.spec.ts-snapshots/design-a-overview-mobile.png",
+          "tests/live-browser/visual-regression.spec.ts-snapshots/design-b-investigation-desktop.png",
+          "tests/live-browser/visual-regression.spec.ts-snapshots/design-b-investigation-mobile.png",
+          "tests/live/admission.test.ts",
+          "tests/live/artifact-policy.test.ts",
+          "tests/live/browser-budgets.test.ts",
+          "tests/live/candidate-acceptance.test.ts",
+          "tests/live/provider-config.test.ts",
+          "tests/live/rehearse-candidate-runbooks.test.ts",
+          "tests/live/retain-candidate.test.ts",
+          "tests/live/runbook-policy.test.ts",
+          "tests/live/runbook-rehearsal.test.ts",
+          "tests/live/runtime-policy-limits.test.ts",
+          "tests/live/runtime-policy.test.ts",
+          "tests/live/workflow-policy.test.ts",
+          "tests/worker/polling.test.ts",
+          "tests/worker/worker.test.ts",
+          "tools/live/buildConfig.ts",
+          "tools/live/performanceReporter.ts",
+          "tools/live/recordCandidateAcceptance.ts",
+          "tools/live/rehearseCandidateRunbooks.ts",
+          "tools/live/rehearseRunbooks.ts",
+          "tools/live/retainCandidate.ts",
+          "tools/live/runBrowserPerformance.ts",
+          "tools/live/runtimePolicyArtifact.ts",
+          "tools/live/verifyBrowserBudgets.ts",
+          "tools/live/verifyBuilds.ts",
+          "tools/live/verifyRunbooks.ts",
+          "vite.live.config.ts",
+          "vite.performance.config.ts",
+          "worker/index.ts",
+          "worker/mapAssets.ts",
+          "worker/providerConfig.ts",
+          "worker/regionalFeedHub.ts",
+          "worker/responsePolicy.ts"
+        ]
+      }
+    ]
+  },
+  "source": {
+    "baseHead": "80c1e47b1d3662163f297b67e8a3c86477159231",
+    "dirty": true,
+    "content": {
+      "schemaVersion": "selected-r3-source-content.v1",
+      "excludedPaths": ["hardening/r3/selected-evidence.manifest.json"],
+      "fileCount": 559,
+      "totalBytes": 9172316,
+      "missingTrackedFileCount": 0,
+      "trackedWorktreeMismatchCount": 0,
+      "untrackedFileCount": 0,
+      "indexDiffersFromHead": true,
+      "sha256": "5f5491dcb201b9262f134de1287ec9fb11b7fb31b50bf79f7ccd61ebca49a35d"
+    }
+  },
+  "evidence": {
+    "digestFormat": "sha256(sorted UTF-8 `<path>|<sha256>\\n` lines)",
+    "scope": [
+      "The two options approved for local R3 implementation.",
+      "The exact FDW-OPS-001..008 and FDW-POL-001..008 requirement rows.",
+      "The exact TC-OPS-001..008 and TC-POL-001..008 rows and their regular-file evidence paths.",
+      "The selected hardening record and proposal basis.",
+      "The current non-ignored Git source content, excluding only this self-referential generated manifest."
+    ],
+    "exclusions": [
+      "Ignored build outputs, dependency caches, test outputs, credentials, and local temporary files.",
+      "Cloudflare account state, hosted routes, billing, platform observability, and deployment evidence.",
+      "Provider terms, provider contact, authorization for real-aircraft access, and real-source captures.",
+      "Commit, push, hosted CI, retained-candidate, release, deployment, and publication proof."
+    ],
+    "fileCount": 94,
+    "totalBytes": 2761715,
+    "collectionSha256": "c7bde96a98f4e6497b430e00373854502e88381c412c6fe4e0bd5e827b1cbb61",
+    "files": [
+      {
+        "path": ".github/workflows/ci.yml",
+        "bytes": 19218,
+        "sha256": "9711ccf9339d264692e22effa9154a51421b6971755cb1e3989c5618eb90b159"
+      },
+      {
+        "path": ".github/workflows/v3-release-preflight.yml",
+        "bytes": 1093,
+        "sha256": "d70eb1b8a0ce1936d4ca3df44a1e2e838f0c2cea299abcdeac3c7973584b8be5"
+      },
+      {
+        "path": "docs/operations/candidate-retention.json",
+        "bytes": 4514,
+        "sha256": "4f3d52bb2672f53f9ae9beb1c17a5b6ccb67b02419246096df77e01f33127c3d"
+      },
+      {
+        "path": "docs/operations/disablement.json",
+        "bytes": 4184,
+        "sha256": "a00e6408e5a1c11a45b83b3f5a258b12a9010a4816ca65c83dddc86505600099"
+      },
+      {
+        "path": "docs/operations/internal-fault.json",
+        "bytes": 4622,
+        "sha256": "b4b7df4b680f5f2321e46be2341fac295e6aee0f67a006d7d0ba6ceaaad9b455"
+      },
+      {
+        "path": "docs/operations/manifest.json",
+        "bytes": 1734,
+        "sha256": "7504feb92165c58de45ba4bcdd36da9e44eabc3ba3db6f4dbfda5e7611a83b30"
+      },
+      {
+        "path": "docs/operations/provider-term-hold.json",
+        "bytes": 4012,
+        "sha256": "95037f881a8cd002af31c5f65bbee2609d3799542dfbf140b887beca3393fcf0"
+      },
+      {
+        "path": "docs/operations/quota-hold.json",
+        "bytes": 4010,
+        "sha256": "06af3e3c3cee9f17ee49a6f731809c0d6d4c4803c790a7c8ea76a4ffc35e6281"
+      },
+      {
+        "path": "docs/operations/recovery.json",
+        "bytes": 4825,
+        "sha256": "1ccd7618bede270b5f73d38e6a4229bb594e273100a9cd41e600e5331a4696b3"
+      },
+      {
+        "path": "docs/operations/rollback.json",
+        "bytes": 4491,
+        "sha256": "bdec8c377ff3de55a4ffff2a4e26f5c40a2c87f3a287a1394e01feed78ac733a"
+      },
+      {
+        "path": "docs/operations/stale-feed.json",
+        "bytes": 5069,
+        "sha256": "f4d894067ec6219036c95a3192f05656ce9647900b7c60e8e11a0e1d9003344a"
+      },
+      {
+        "path": "hardening/r3/context.md",
+        "bytes": 3099,
+        "sha256": "b3355cf230d6913acd001a311fcb70cbb2db0b44f506d4a29a672f6a38f2f92c"
+      },
+      {
+        "path": "hardening/r3/hardening.json",
+        "bytes": 44540,
+        "sha256": "d2755ef39970623dbc381d428c4aaa46fe264142db108eff1d1ec54401fdb7b0"
+      },
+      {
+        "path": "hardening/r3/hardening.md",
+        "bytes": 6853,
+        "sha256": "2ed97ab92488c85d08fa83a55b22223f6c2ca4361d0058100cde76907f5b74f1"
+      },
+      {
+        "path": "hardening/r3/proposals/operational-evidence.md",
+        "bytes": 23566,
+        "sha256": "d30f62707bcc0e0ffec89618c550160d99c9f4bb262871b97f6fe54b3c813b56"
+      },
+      {
+        "path": "hardening/r3/proposals/runtime-policy.md",
+        "bytes": 28336,
+        "sha256": "c52c5b2f8554668b79f6596ad314a6f499517ef19090fe1b3f9704c2156bf092"
+      },
+      {
+        "path": "playwright.g2.config.ts",
+        "bytes": 959,
+        "sha256": "867657942d669ada66b103045c277bc80809ce276a165e5498dea3fbeb4df5a6"
+      },
+      {
+        "path": "playwright.performance.config.ts",
+        "bytes": 1449,
+        "sha256": "0052e018c4557d36855cb7468df76edf070e9bba5908d462833f86577fb2c157"
+      },
+      {
+        "path": "playwright.visual.config.ts",
+        "bytes": 1632,
+        "sha256": "c733030effce4bb6ef634a8f649cc031536582aed5e872567b1e3df5a9b353c0"
+      },
+      {
+        "path": "public/_headers",
+        "bytes": 615,
+        "sha256": "ffd7fbc31f39614e1c5b4c81bfe0e8afc69133bcc9b7eb4f9f58c50a4d745345"
+      },
+      {
+        "path": "requirements/requirements.md",
+        "bytes": 124762,
+        "sha256": "180c6ef7f9b9960c0b525d8cc0e34ec6cf1f0f09d22e3e3c52fc62d79ee3b486"
+      },
+      {
+        "path": "requirements/test-cases.md",
+        "bytes": 180535,
+        "sha256": "3da698f047c8f9063fc7022f7f626ca0b023b77ba08fc751f0fa19fde50e5da2"
+      },
+      {
+        "path": "requirements/traceability.json",
+        "bytes": 30688,
+        "sha256": "5dc4fde0c27f93f3c6cdcef27543ad72d30517dd8a931a8a99fff470f564ea4c"
+      },
+      {
+        "path": "schemas/operations-v1.schema.json",
+        "bytes": 15129,
+        "sha256": "659adf0e4f42e8b08464850e6398dac4ed729d7387d86a03b9e1fa98d177a1e9"
+      },
+      {
+        "path": "schemas/runtime-policy-v1.schema.json",
+        "bytes": 23300,
+        "sha256": "1ecbbab5d5be0d99a7d9d721f0061c4c92c3d9bc423b169406bc1291f7db2688"
+      },
+      {
+        "path": "src/evidence/health.ts",
+        "bytes": 1468,
+        "sha256": "89acbc42242017d1b39882731fa2b10aaa4d71619d5022662e6ae3cc9c854d04"
+      },
+      {
+        "path": "src/features/evidence/EvidenceApp.tsx",
+        "bytes": 29653,
+        "sha256": "e7353014113fb606fce3516ebc56d67cb7b8f4bd06105ceca5e3decd084b6e0a"
+      },
+      {
+        "path": "src/features/evidence/evidence.css",
+        "bytes": 9899,
+        "sha256": "6ac99ff9e34db744d90d9212a2b943d909be746e6762fdabaf6b994f75c63116"
+      },
+      {
+        "path": "src/live/runtimePolicy.ts",
+        "bytes": 32212,
+        "sha256": "29e6979171ff0ea594dd91ab651e94197d878b097aa6c6726c12db00e92242d8"
+      },
+      {
+        "path": "src/live/runtimePolicyLimits.ts",
+        "bytes": 2971,
+        "sha256": "827c20e8d3c979c1bb3b7ead8a0d5a3c5341b26e13abce004d33514751f4aae3"
+      },
+      {
+        "path": "src/operations/classifier.ts",
+        "bytes": 10002,
+        "sha256": "769797274cb7915eb80e598cebaee1346f27cfbd5f7bd6818c21e05d73f6a907"
+      },
+      {
+        "path": "src/operations/contract.ts",
+        "bytes": 30049,
+        "sha256": "9d5ab055c857b01bf21d825374fd39dc85c14f138fac17564b19b5da3a394a01"
+      },
+      {
+        "path": "tests/accessibility/workbench.spec.ts",
+        "bytes": 4372,
+        "sha256": "d6f92c58cafb69641f7b14dc20382d0194636edadd5ae4c00908a4e2f4442423"
+      },
+      {
+        "path": "tests/evidence/EvidenceApp.test.tsx",
+        "bytes": 11757,
+        "sha256": "36ad51f2686001d42c246ac1c6df3e50c1aef2cbdf17cb257f81d4870138c362"
+      },
+      {
+        "path": "tests/evidence/health.test.ts",
+        "bytes": 2708,
+        "sha256": "77640b8a29cf7d17205b9e1053a84cec6b9999937c3ba979bced978366232ae3"
+      },
+      {
+        "path": "tests/live-browser/g2-provider-smoke.spec.ts",
+        "bytes": 3027,
+        "sha256": "4915412d482417dfb252f65dbae8a41ffd84a11ece732c92e7d27ffb2140d7f1"
+      },
+      {
+        "path": "tests/live-browser/live-flow.spec.ts",
+        "bytes": 4082,
+        "sha256": "f8484fb5e2f8ac0c141362155103ab5a1af4c5e055de47e645c257567e9ba405"
+      },
+      {
+        "path": "tests/live-browser/m34-entry-artifact.spec.ts",
+        "bytes": 33297,
+        "sha256": "75850ac9d5303ac0c476d916ba7bb20a8c95bc4284e5f79b4d06ec0c740a20e4"
+      },
+      {
+        "path": "tests/live-browser/performance.spec.ts",
+        "bytes": 24251,
+        "sha256": "c7cd1db1614e48099053bd3d75e6c117ce59876c5636d909dc82eac68c45baaf"
+      },
+      {
+        "path": "tests/live-browser/performanceHarness.tsx",
+        "bytes": 18091,
+        "sha256": "9f2d4aac17e489e43fca062b9ad732f4b191053852c52aa5a0ef1fc43d37e87d"
+      },
+      {
+        "path": "tests/live-browser/replay-evidence.spec.ts",
+        "bytes": 12412,
+        "sha256": "ba6bc696264c8d13ebdbcb2cd484285f85eaf8ea63201b08aca6ee1055b8547d"
+      },
+      {
+        "path": "tests/live-browser/visual-regression.spec.ts",
+        "bytes": 5025,
+        "sha256": "445d6d80661ccf2b94ad36173c80a98e608f8bb88c05625e6e16bb0adeabff2d"
+      },
+      {
+        "path": "tests/live-browser/visual-regression.spec.ts-snapshots/design-a-overview-desktop.png",
+        "bytes": 214052,
+        "sha256": "cb50bd78e1fbd911a31dc5647e2f680a4432f3ed302429a65d5ed0c95f88ed8b"
+      },
+      {
+        "path": "tests/live-browser/visual-regression.spec.ts-snapshots/design-a-overview-mobile.png",
+        "bytes": 192987,
+        "sha256": "51560731699cfce452869820fd021ed0fa5f2600b6e6760da2e8727cedf5826a"
+      },
+      {
+        "path": "tests/live-browser/visual-regression.spec.ts-snapshots/design-b-investigation-desktop.png",
+        "bytes": 224457,
+        "sha256": "2eb3589a8943b2b1274355f173301e76063004629c74ea81965471ba26a2f48e"
+      },
+      {
+        "path": "tests/live-browser/visual-regression.spec.ts-snapshots/design-b-investigation-mobile.png",
+        "bytes": 258094,
+        "sha256": "825303a150e42b519b6f5742b4b0587ac41126905687254c2f6ceb0efb6ed7a7"
+      },
+      {
+        "path": "tests/live/admission.test.ts",
+        "bytes": 10658,
+        "sha256": "60ca337077b86200c4ffa67bcac68c838cbd7e20f149c95c6c3bfd4843d5287d"
+      },
+      {
+        "path": "tests/live/artifact-policy.test.ts",
+        "bytes": 32418,
+        "sha256": "db5a0e4a2c7078edcb63d6218fed3ceae227240b76d63195fa563f49e4c90f7a"
+      },
+      {
+        "path": "tests/live/browser-budgets.test.ts",
+        "bytes": 9406,
+        "sha256": "fe0c72b19b13812cab420da610178854e101666855d1d8ad319b5a065c834ddc"
+      },
+      {
+        "path": "tests/live/candidate-acceptance.test.ts",
+        "bytes": 20773,
+        "sha256": "5e1e266117734044c1fe9f63875c35e377797e9171704b22bffef5166e57f687"
+      },
+      {
+        "path": "tests/live/g2-evidence-policy.test.ts",
+        "bytes": 3116,
+        "sha256": "bbffb764b75b6ad060be0f01f12e2bda32f8fe2efb3b116c4513c3f213ca8d5d"
+      },
+      {
+        "path": "tests/live/load-harness-artifact.test.ts",
+        "bytes": 19142,
+        "sha256": "9fc2a77e8e836458a536f198c27ce2db42d1862d9cbe36c0ed88ca3eaedca186"
+      },
+      {
+        "path": "tests/live/operations-classifier.test.ts",
+        "bytes": 12594,
+        "sha256": "39e2ca79435ba04772cb2c349e60306b1027877ed9a24fe54c6a1fce1e9049f6"
+      },
+      {
+        "path": "tests/live/operations-contract.test.ts",
+        "bytes": 16213,
+        "sha256": "713aa020681e8b6f7158dc1765289c8a6130675b051b22dae3eeabd941f07e8c"
+      },
+      {
+        "path": "tests/live/operations-privacy.test.ts",
+        "bytes": 30193,
+        "sha256": "10546a0437feb3ad1a8834c05ab932b93b49b57c3b3c334189ec1bcc3746260d"
+      },
+      {
+        "path": "tests/live/provider-config.test.ts",
+        "bytes": 8935,
+        "sha256": "b98df17d88bf35e89da095d58e3f81006f23c670c99da5748f99bdfb0d2fe48c"
+      },
+      {
+        "path": "tests/live/regional-delivery.test.ts",
+        "bytes": 26547,
+        "sha256": "a9600cad2af76e8618cf9d04bf1449f6f36c75faaf421f858d09f799b1eead68"
+      },
+      {
+        "path": "tests/live/rehearse-candidate-runbooks.test.ts",
+        "bytes": 14367,
+        "sha256": "368f0787bf55861320d6a2bb6feeaa0553c2dc4aa359aeceee22bbcc92870c16"
+      },
+      {
+        "path": "tests/live/retain-candidate.test.ts",
+        "bytes": 38539,
+        "sha256": "23ce599a96bbb6b371e23266cfdcc0d80a3579c4918cb1b27cf776ce58e14b8e"
+      },
+      {
+        "path": "tests/live/runbook-policy.test.ts",
+        "bytes": 11727,
+        "sha256": "690147e83e94171f4ecb33aafea8cfd806e0d7cd09c959c0d4b00fa417d54da1"
+      },
+      {
+        "path": "tests/live/runbook-rehearsal.test.ts",
+        "bytes": 10372,
+        "sha256": "22a91abe4e703ff9f03a64df33b03e74231b8de88a9ad4746b24c362bba2e74b"
+      },
+      {
+        "path": "tests/live/runtime-policy-limits.test.ts",
+        "bytes": 4351,
+        "sha256": "4a3dc8bb5984ad92757e13d58a43db0ba9fe3ed30cb7e249928068f24404d6b0"
+      },
+      {
+        "path": "tests/live/runtime-policy.test.ts",
+        "bytes": 32513,
+        "sha256": "aeef239da03bd088b1febdb1c89f04bd774b850ea1ac2488c3abd89d341eed7a"
+      },
+      {
+        "path": "tests/live/workflow-policy.test.ts",
+        "bytes": 11020,
+        "sha256": "c2d39f7c94c0574b2c80f0cdd50c1f0eb913872993ac452d07771c92b4e738fa"
+      },
+      {
+        "path": "tests/worker/delivery.test.ts",
+        "bytes": 15819,
+        "sha256": "d9cfb4acc08d5478d5ebdd98cce98a5138c3a3140258cccf8d5679d46959af2a"
+      },
+      {
+        "path": "tests/worker/metrics.test.ts",
+        "bytes": 9336,
+        "sha256": "d37f2bc0dd97777353949589eba1e657a11e5fa242e330a05c904164b67137c2"
+      },
+      {
+        "path": "tests/worker/polling.test.ts",
+        "bytes": 20472,
+        "sha256": "aa074a628c76013c4d9a3d8e40eb402863cac47da53f29945d30ef138a3fea88"
+      },
+      {
+        "path": "tests/worker/retention.test.ts",
+        "bytes": 29510,
+        "sha256": "72c7db290e10f7db8ac5fbe72eb6fddf7ca9c7ce707615ccefc7b8c3f6f3c482"
+      },
+      {
+        "path": "tests/worker/worker.test.ts",
+        "bytes": 55179,
+        "sha256": "c9709ede83c6b15b3f896bbaf0eb4c6f88df56a83313e97985f8e83687806263"
+      },
+      {
+        "path": "tools/live/buildConfig.ts",
+        "bytes": 5518,
+        "sha256": "1a2da746a715a16eadcea6fa7cce63ed61210a7604ff84261ca1ca0eb5516217"
+      },
+      {
+        "path": "tools/live/loadHarness.ts",
+        "bytes": 113056,
+        "sha256": "2dd5e99c2147b6d415dec16223f373d816bf38c57c327e518ca2d853658eb64c"
+      },
+      {
+        "path": "tools/live/loadHarnessReport.ts",
+        "bytes": 20920,
+        "sha256": "f4baba6943620c97873ccd62e832f67f4d130f5204d8fb756971bab339187261"
+      },
+      {
+        "path": "tools/live/operationsPrivacyAudit.ts",
+        "bytes": 75186,
+        "sha256": "c96dd0508131d20e9b24593b25338b5575743be24219f0ed2be151ca95a25f04"
+      },
+      {
+        "path": "tools/live/performanceReporter.ts",
+        "bytes": 27356,
+        "sha256": "f9b553ec1c40c905d86c5277258737e61ad7c67537c91c42d88fb4abc72221b5"
+      },
+      {
+        "path": "tools/live/recordCandidateAcceptance.ts",
+        "bytes": 27502,
+        "sha256": "eb513c6cf5b99f26b7ddcd03d97fa9f3d76ad314ecc23ba188860b564c8184db"
+      },
+      {
+        "path": "tools/live/rehearseCandidateRunbooks.ts",
+        "bytes": 18017,
+        "sha256": "1e43d925025caff8393ca0c14572d2d65e538d4730e13ef7684277a999e4683c"
+      },
+      {
+        "path": "tools/live/rehearseRunbooks.ts",
+        "bytes": 39837,
+        "sha256": "35ae14dcee3d69f3dd2523e9ae0f8d98b8e936d64a656aebc8e5bb79e8b2386d"
+      },
+      {
+        "path": "tools/live/retainCandidate.ts",
+        "bytes": 83669,
+        "sha256": "2922c62b4881fef6ff9f8a15a7af048711a06a5860e47b47c399a7dd58474d95"
+      },
+      {
+        "path": "tools/live/runBrowserPerformance.ts",
+        "bytes": 5460,
+        "sha256": "2c8c9034a56ff267e88900828c6ce1e54b1ca0218e2b39260dda63b68d111390"
+      },
+      {
+        "path": "tools/live/runG2Firebreak.ts",
+        "bytes": 1507,
+        "sha256": "0f2cb010dd6fce4f35da568740250b4d71b113226594c3921a65289c0cd47f39"
+      },
+      {
+        "path": "tools/live/runtimePolicyArtifact.ts",
+        "bytes": 40431,
+        "sha256": "4dc22c9bd288da55d058dc2ec5863089d00f01a5e6c854340c3fb9f2351c73de"
+      },
+      {
+        "path": "tools/live/verifyBrowserBudgets.ts",
+        "bytes": 21500,
+        "sha256": "b6e5052fb1f67f251cdd0f9d593b9dee4cc7d668f530d5c5877db72a5c3694b6"
+      },
+      {
+        "path": "tools/live/verifyBuilds.ts",
+        "bytes": 7773,
+        "sha256": "18435dd057cdbfc5a914c4a66d379dc1d1663af12aed1b9850424b09191ef169"
+      },
+      {
+        "path": "tools/live/verifyRunbooks.ts",
+        "bytes": 35610,
+        "sha256": "92425a9f1bfe2a3ba343698107defa0a78478e82f789d9df6b4777112b2ed588"
+      },
+      {
+        "path": "vite.live.config.ts",
+        "bytes": 6029,
+        "sha256": "dc3d2df92481cbc023ad2b5d8810f1a92751e44cdea674da1c974efce33eb786"
+      },
+      {
+        "path": "vite.performance.config.ts",
+        "bytes": 887,
+        "sha256": "6053bf56a8c69c8bd806a9afa43d1cd784dee825eea96bf8f0403fd2d113561a"
+      },
+      {
+        "path": "worker/admission.ts",
+        "bytes": 12479,
+        "sha256": "de776b09892c47d8486fa88aafa06033abd25c5081eaa72e1abf26b5ac870b93"
+      },
+      {
+        "path": "worker/delivery.ts",
+        "bytes": 20781,
+        "sha256": "06bad587a3c61b28acc3a60133fc4579dbc1085bde988fcb757df000383f9e2d"
+      },
+      {
+        "path": "worker/index.ts",
+        "bytes": 13770,
+        "sha256": "2f031448b6416ed7d66ce89b0a111d7c3c28266e29be0c00877c98e155be1067"
+      },
+      {
+        "path": "worker/mapAssets.ts",
+        "bytes": 8626,
+        "sha256": "552ba74fda31294a5606f3856d101247a5bdf34a98eab0201b9b0c061ae91743"
+      },
+      {
+        "path": "worker/metrics.ts",
+        "bytes": 23514,
+        "sha256": "3169c7cf10d5648080182b45e6099eb183f16aab3cdd3a0b5af9692a1a698675"
+      },
+      {
+        "path": "worker/providerConfig.ts",
+        "bytes": 4957,
+        "sha256": "f296fc91341ebc9a5497faff9c1d95537e780d77a533468d4ca31e4ce34c58c5"
+      },
+      {
+        "path": "worker/regionalFeedHub.ts",
+        "bytes": 35033,
+        "sha256": "d52d3c1cb6b8e69ee70e1b1aa5d44a377e050af5fc0ea9aab461513bb4173f3f"
+      },
+      {
+        "path": "worker/responsePolicy.ts",
+        "bytes": 996,
+        "sha256": "5c3990920d6895be4b7aa5f8b04d62e6597ffecab61f7cf9a58a597c83da6e4b"
+      }
+    ]
+  }
+}

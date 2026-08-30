@@ -1,0 +1,730 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kato-mt.github.io/Aviation-Dashboard-Project/schemas/runtime-policy-v1.schema.json",
+  "title": "Flight Diagnostics Workbench Runtime Policy v1",
+  "$comment": "Minimized immutable runtime and release policy. The policyId is the lowercase SHA-256 of the canonical JSON object with policyId omitted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "policyId",
+    "policyEpoch",
+    "target",
+    "deploymentClass",
+    "release",
+    "providerGate",
+    "source",
+    "origins",
+    "routes",
+    "headers",
+    "featureGates",
+    "admission",
+    "limits",
+    "artifact",
+    "reasonCodes"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "runtime-policy.v1" },
+    "policyId": { "$ref": "#/$defs/sha256" },
+    "policyEpoch": { "$ref": "#/$defs/canonicalIdentifier" },
+    "target": { "$ref": "#/$defs/target" },
+    "deploymentClass": {
+      "enum": ["loopback", "isolated-cloud", "public"]
+    },
+    "release": { "$ref": "#/$defs/release" },
+    "providerGate": { "$ref": "#/$defs/providerGate" },
+    "source": { "$ref": "#/$defs/source" },
+    "origins": { "$ref": "#/$defs/origins" },
+    "routes": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "prefixItems": [
+        {
+          "allOf": [
+            { "$ref": "#/$defs/route" },
+            {
+              "type": "object",
+              "properties": {
+                "id": { "const": "api-regions" },
+                "matcher": { "const": "exact" },
+                "path": { "const": "/api/v1/regions" },
+                "methods": { "const": ["GET", "OPTIONS"] },
+                "feature": { "const": "live-metadata" },
+                "enabled": { "const": true }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/route" },
+            {
+              "type": "object",
+              "properties": {
+                "id": { "const": "api-health" },
+                "matcher": { "const": "exact" },
+                "path": { "const": "/api/v1/health" },
+                "methods": { "const": ["GET", "OPTIONS"] },
+                "feature": { "const": "live-metadata" },
+                "enabled": { "const": true }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/route" },
+            {
+              "type": "object",
+              "properties": {
+                "id": { "const": "api-operations" },
+                "matcher": { "const": "exact" },
+                "path": { "const": "/api/v1/operations" },
+                "methods": { "const": ["GET", "OPTIONS"] },
+                "feature": { "const": "live-metadata" },
+                "enabled": { "const": true }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/route" },
+            {
+              "type": "object",
+              "properties": {
+                "id": { "const": "api-snapshot" },
+                "matcher": { "const": "regional-template" },
+                "path": { "const": "/api/v1/airspace/{regionId}/snapshot" },
+                "methods": { "const": ["GET", "OPTIONS"] },
+                "feature": { "const": "live-source" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/route" },
+            {
+              "type": "object",
+              "properties": {
+                "id": { "const": "api-stream" },
+                "matcher": { "const": "regional-template" },
+                "path": { "const": "/api/v1/airspace/{regionId}/stream" },
+                "methods": { "const": ["GET", "OPTIONS"] },
+                "upgrade": { "const": "websocket-required" },
+                "feature": { "const": "live-source" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/route" },
+            {
+              "type": "object",
+              "properties": {
+                "id": { "const": "map-assets" },
+                "matcher": { "const": "prefix" },
+                "path": { "const": "/map-assets" },
+                "methods": { "const": ["GET", "HEAD"] },
+                "feature": { "const": "maps" },
+                "enabled": { "const": true }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/route" },
+            {
+              "type": "object",
+              "properties": {
+                "id": { "const": "static-assets" },
+                "matcher": { "const": "asset-manifest" },
+                "path": { "const": "/" },
+                "methods": { "const": ["GET", "HEAD"] },
+                "feature": { "const": "static" },
+                "enabled": { "const": true }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
+    },
+    "headers": { "$ref": "#/$defs/headers" },
+    "featureGates": { "$ref": "#/$defs/featureGates" },
+    "admission": { "$ref": "#/$defs/admission" },
+    "limits": { "$ref": "#/$defs/limits" },
+    "artifact": { "$ref": "#/$defs/artifact" },
+    "reasonCodes": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "prefixItems": [
+        { "const": "source-disabled" },
+        { "const": "terms-hold" },
+        { "const": "quota-hold" },
+        { "const": "upstream-stale" },
+        { "const": "admission-limited" },
+        { "const": "internal-fault" },
+        { "const": "rollback" }
+      ],
+      "items": false
+    }
+  },
+  "allOf": [
+    {
+      "if": { "type": "object", "properties": { "target": { "const": "local-mock" } } },
+      "then": {
+        "type": "object",
+        "properties": {
+          "deploymentClass": { "const": "loopback" },
+          "release": {
+            "type": "object",
+            "properties": { "buildTarget": { "const": "local-mock" } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": { "target": { "const": "mock-staging" } }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "deploymentClass": { "enum": ["loopback", "isolated-cloud"] },
+          "release": {
+            "type": "object",
+            "properties": { "buildTarget": { "const": "mock-staging" } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": { "target": { "const": "live-staging" } }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "deploymentClass": { "enum": ["loopback", "isolated-cloud"] },
+          "release": {
+            "type": "object",
+            "properties": { "buildTarget": { "const": "live-staging" } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "type": "object", "properties": { "target": { "const": "production" } } },
+      "then": {
+        "type": "object",
+        "properties": {
+          "deploymentClass": { "enum": ["loopback", "public"] },
+          "release": {
+            "type": "object",
+            "properties": { "buildTarget": { "const": "production" } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "object",
+            "properties": {
+              "descriptor": {
+                "type": "object",
+                "properties": { "mode": { "const": "live" } }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": { "providerGate": { "$ref": "#/$defs/approvedGate" } }
+      },
+      "else": {
+        "type": "object",
+        "properties": { "providerGate": { "$ref": "#/$defs/closedGate" } }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "canonicalIdentifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9][a-z0-9._:-]*$"
+    },
+    "target": {
+      "enum": ["local-mock", "mock-staging", "live-staging", "production"]
+    },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["applicationVersion", "releaseSha", "releaseStatus", "buildTarget"],
+      "properties": {
+        "applicationVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]*$"
+        },
+        "releaseSha": {
+          "anyOf": [
+            { "const": "local-unreleased" },
+            { "type": "string", "pattern": "^[a-f0-9]{40}$" }
+          ]
+        },
+        "releaseStatus": { "enum": ["unreleased", "exact-release"] },
+        "buildTarget": { "$ref": "#/$defs/target" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": { "releaseStatus": { "const": "exact-release" } }
+          },
+          "then": {
+            "type": "object",
+            "properties": { "releaseSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" } }
+          }
+        }
+      ]
+    },
+    "closedGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason"],
+      "properties": {
+        "status": { "const": "closed" },
+        "reason": { "enum": ["source-disabled", "terms-hold", "quota-hold"] }
+      }
+    },
+    "approvedGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "receiptSha256"],
+      "properties": {
+        "status": { "const": "approved" },
+        "receiptSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "providerGate": {
+      "oneOf": [{ "$ref": "#/$defs/closedGate" }, { "$ref": "#/$defs/approvedGate" }]
+    },
+    "sourceDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "mode", "providerId", "label", "synthetic"],
+      "properties": {
+        "target": { "$ref": "#/$defs/target" },
+        "mode": { "enum": ["disabled", "mock", "live"] },
+        "providerId": { "enum": ["synthetic-test", "adsb-lol"] },
+        "label": {
+          "enum": ["Synthetic integration feed", "ADSB.lol surveillance observations"]
+        },
+        "synthetic": { "type": "boolean" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["descriptor", "capability", "providerOrigin", "providerPaths"],
+      "properties": {
+        "descriptor": { "$ref": "#/$defs/sourceDescriptor" },
+        "capability": { "enum": ["none", "mock-service", "fixed-https"] },
+        "providerOrigin": {
+          "enum": [null, "https://mock-provider.invalid", "https://api.adsb.lol"]
+        },
+        "providerPaths": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "/v2/point/33.6407/-84.4277/100",
+              "/v2/point/32.3/-81.5/100",
+              "/v2/point/32.65/-83.6/100"
+            ]
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "type": "object", "properties": { "capability": { "const": "none" } } },
+          "then": {
+            "type": "object",
+            "properties": {
+              "descriptor": {
+                "type": "object",
+                "properties": { "mode": { "const": "disabled" } }
+              },
+              "providerOrigin": { "const": null },
+              "providerPaths": { "type": "array", "maxItems": 0 }
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": { "capability": { "const": "mock-service" } }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "descriptor": {
+                "type": "object",
+                "properties": {
+                  "mode": { "const": "mock" },
+                  "providerId": { "const": "synthetic-test" },
+                  "synthetic": { "const": true }
+                }
+              },
+              "providerOrigin": { "const": "https://mock-provider.invalid" },
+              "providerPaths": { "type": "array", "minItems": 3, "maxItems": 3 }
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": { "capability": { "const": "fixed-https" } }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "descriptor": {
+                "type": "object",
+                "properties": {
+                  "mode": { "const": "live" },
+                  "providerId": { "const": "adsb-lol" },
+                  "synthetic": { "const": false }
+                }
+              },
+              "providerOrigin": { "const": "https://api.adsb.lol" },
+              "providerPaths": { "type": "array", "minItems": 3, "maxItems": 3 }
+            }
+          }
+        }
+      ]
+    },
+    "httpOrigin": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 256,
+      "format": "uri",
+      "pattern": "^https?://[^/?#]+$"
+    },
+    "websocketOrigin": {
+      "type": "string",
+      "minLength": 7,
+      "maxLength": 256,
+      "format": "uri",
+      "pattern": "^wss?://[^/?#]+$"
+    },
+    "origins": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "websocket"],
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/httpOrigin" }
+        },
+        "websocket": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/websocketOrigin" }
+        }
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "matcher",
+        "path",
+        "methods",
+        "query",
+        "body",
+        "upgrade",
+        "feature",
+        "enabled"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "api-regions",
+            "api-health",
+            "api-operations",
+            "api-snapshot",
+            "api-stream",
+            "map-assets",
+            "static-assets"
+          ]
+        },
+        "matcher": { "enum": ["exact", "regional-template", "prefix", "asset-manifest"] },
+        "path": { "type": "string", "minLength": 1, "maxLength": 96 },
+        "methods": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": { "enum": ["GET", "HEAD", "OPTIONS"] }
+        },
+        "query": { "const": "forbidden" },
+        "body": { "const": "forbidden" },
+        "upgrade": { "enum": ["forbidden", "websocket-required"] },
+        "feature": { "enum": ["live-metadata", "live-source", "maps", "static"] },
+        "enabled": { "type": "boolean" }
+      }
+    },
+    "staticHeaderValues": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content-security-policy",
+        "cross-origin-opener-policy",
+        "cross-origin-resource-policy",
+        "permissions-policy",
+        "referrer-policy",
+        "x-content-type-options",
+        "x-frame-options"
+      ],
+      "properties": {
+        "content-security-policy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "pattern": "^default-src 'self';.*connect-src .*; worker-src 'self' blob: data:;.*img-src 'self' data: blob:; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'$"
+        },
+        "cross-origin-opener-policy": { "const": "same-origin" },
+        "cross-origin-resource-policy": { "const": "same-origin" },
+        "permissions-policy": {
+          "const": "camera=(), geolocation=(), microphone=(), payment=(), usb=()"
+        },
+        "referrer-policy": { "const": "no-referrer" },
+        "x-content-type-options": { "const": "nosniff" },
+        "x-frame-options": { "const": "DENY" }
+      }
+    },
+    "workerHeaderValues": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content-security-policy",
+        "cross-origin-opener-policy",
+        "cross-origin-resource-policy",
+        "permissions-policy",
+        "referrer-policy",
+        "x-content-type-options",
+        "x-frame-options"
+      ],
+      "properties": {
+        "content-security-policy": {
+          "const": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'"
+        },
+        "cross-origin-opener-policy": { "const": "same-origin" },
+        "cross-origin-resource-policy": { "const": "same-origin" },
+        "permissions-policy": {
+          "const": "camera=(), geolocation=(), microphone=(), payment=(), usb=()"
+        },
+        "referrer-policy": { "const": "no-referrer" },
+        "x-content-type-options": { "const": "nosniff" },
+        "x-frame-options": { "const": "DENY" }
+      }
+    },
+    "headers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile", "contentType", "static", "worker", "strictTransportSecurity"],
+      "properties": {
+        "profile": { "$ref": "#/$defs/target" },
+        "contentType": { "const": "required-per-route" },
+        "static": { "$ref": "#/$defs/staticHeaderValues" },
+        "worker": { "$ref": "#/$defs/workerHeaderValues" },
+        "strictTransportSecurity": { "const": "deferred-until-approved-https-target" }
+      }
+    },
+    "featureGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "reason"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "reason": {
+          "enum": [null, "source-disabled", "terms-hold", "quota-hold"]
+        }
+      }
+    },
+    "enabledFeatureGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "reason"],
+      "properties": {
+        "enabled": { "const": true },
+        "reason": { "const": null }
+      }
+    },
+    "featureGates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["live", "replay", "lab", "evidence", "offline", "maps", "rollback"],
+      "properties": {
+        "live": { "$ref": "#/$defs/featureGate" },
+        "replay": { "$ref": "#/$defs/enabledFeatureGate" },
+        "lab": { "$ref": "#/$defs/enabledFeatureGate" },
+        "evidence": { "$ref": "#/$defs/enabledFeatureGate" },
+        "offline": { "$ref": "#/$defs/enabledFeatureGate" },
+        "maps": { "$ref": "#/$defs/enabledFeatureGate" },
+        "rollback": { "$ref": "#/$defs/enabledFeatureGate" }
+      }
+    },
+    "admission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "exactGlobalAccounting",
+        "exactAccountAccounting",
+        "regionalLimitsRemainAuthoritative"
+      ],
+      "properties": {
+        "scope": { "const": "worker-isolate" },
+        "exactGlobalAccounting": { "const": false },
+        "exactAccountAccounting": { "const": false },
+        "regionalLimitsRemainAuthoritative": { "const": true }
+      }
+    },
+    "limits": {
+      "const": {
+        "schemaVersion": "runtime-policy-limits.v1",
+        "protocol": {
+          "maximumMessageBytes": 2097152,
+          "maximumAircraft": 2000,
+          "maximumValidationErrors": 32,
+          "maximumFutureOffsetMs": 5000
+        },
+        "provider": {
+          "maximumResponseBytes": 2097152,
+          "maximumAircraft": 2000,
+          "requestTimeoutMs": 8000,
+          "pollIntervalMs": 10000,
+          "circuitBreakerFailures": 3,
+          "circuitBreakerMs": 60000
+        },
+        "history": {
+          "retentionMs": 900000,
+          "maximumSamplesPerAircraft": 120,
+          "maximumAircraft": 500,
+          "maximumQualityEvents": 200
+        },
+        "delivery": {
+          "maximumRegionalViewers": 100,
+          "maximumRegionalBytes": 8388608,
+          "acknowledgmentTimeoutMs": 10000,
+          "minimumPingIntervalMs": 1000,
+          "maximumViewerAttachmentBytes": 1024,
+          "controlWindowMs": 1000,
+          "maximumControlsPerWindow": 8,
+          "maximumRegionalControlBurst": 512,
+          "regionalControlRefillPerSecond": 256,
+          "maximumControlBytes": 512,
+          "maximumHandshakeBytes": 1024,
+          "maximumMessagesPerDelivery": 4
+        },
+        "admission": {
+          "total": { "burst": 512, "refillPerSecond": 64 },
+          "preflight": { "burst": 64, "refillPerSecond": 2 },
+          "regionCatalog": { "burst": 128, "refillPerSecond": 4 },
+          "health": { "burst": 6, "refillPerSecond": 0.2, "concurrency": 1 },
+          "snapshot": {
+            "burst": 128,
+            "refillPerSecond": 4,
+            "responseByteBurst": 16777216,
+            "responseBytesPerSecond": 8388608,
+            "concurrency": 8
+          },
+          "stream": { "burst": 128, "refillPerSecond": 4, "concurrency": 8 },
+          "map": {
+            "operationBurst": 128,
+            "operationsPerSecond": 16,
+            "responseByteBurst": 67108864,
+            "responseBytesPerSecond": 16777216,
+            "concurrency": 8
+          }
+        },
+        "map": { "maximumRangeBytes": 8388608 },
+        "browser": {
+          "bundle": {
+            "initialShellGzipBytes": 204800,
+            "lazyMapGzipBytes": 512000
+          },
+          "performance": {
+            "paintWarmups": 5,
+            "paintIterations": 30,
+            "paintP95Ms": { "desktop": 500, "mobile": 750 },
+            "interactionLimitMs": { "desktop": 1000, "mobile": 1000 },
+            "ageTickLimitMs": { "desktop": 250, "mobile": 375 },
+            "browserJsHeapBytes": 536870912,
+            "ageTickJsHeapGrowthBytes": 16777216,
+            "responseBodyBytes": 67108864
+          }
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifestMode",
+        "allowedBindings",
+        "sourceCapability",
+        "forbiddenMetadataKeys",
+        "rejectAbsolutePaths",
+        "rejectLocalIdentity",
+        "rejectSecrets",
+        "rejectSourceMaps",
+        "mutableControlPlane"
+      ],
+      "properties": {
+        "manifestMode": { "const": "allowlist" },
+        "allowedBindings": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": { "enum": ["ASSETS", "MAP_ASSETS", "REGION_FEEDS", "MOCK_PROVIDER"] }
+        },
+        "sourceCapability": { "enum": ["none", "mock-service", "fixed-https"] },
+        "forbiddenMetadataKeys": { "const": ["configPath", "userConfigPath"] },
+        "rejectAbsolutePaths": { "const": true },
+        "rejectLocalIdentity": { "const": true },
+        "rejectSecrets": { "const": true },
+        "rejectSourceMaps": { "const": true },
+        "mutableControlPlane": { "const": false }
+      }
+    }
+  }
+}

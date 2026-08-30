@@ -18,6 +18,7 @@ import {
   injectFaultScenario,
   injectLegacyCsvFault,
 } from '../../src/faults/scenarios';
+import { LabSession } from '../../src/features/lab/session';
 import { createSeededRandom, deterministicIndex } from '../../src/faults/prng';
 import { includedBaselineProfile } from '../../src/profiles/included-baseline';
 import { classifyFindings, createVerificationRun } from '../../src/verification/compare';
@@ -115,6 +116,8 @@ describe('seeded deterministic fault injection', () => {
     expect(injected.metadata.injectedFault).toEqual({
       scenarioId: 'stale-feed',
       seed: 2,
+      target: 'canonical',
+      expectedRuleIds: ['time.timestamp.gap', 'feed.source.stale'],
       synthetic: true,
     });
     expect(injected.provenance.datasetSha256).toMatch(/^[a-f0-9]{64}$/);
@@ -164,7 +167,7 @@ describe('before-and-after verification', () => {
     ]);
   }
 
-  it('classifies a finding present in both runs as persisting', () => {
+  it('TC-VER-002 classifies a finding present in both runs as persisting', () => {
     const run = runWithSpeeds(600, 200);
     const analysis = fixedAnalysis(run, thresholdProfile);
     const classes = classifyFindings(analysis.findings, analysis.findings);
@@ -173,13 +176,13 @@ describe('before-and-after verification', () => {
     expect(classes.newlyIntroduced).toHaveLength(0);
   });
 
-  it('classifies a removed finding as resolved', () => {
+  it('TC-VER-001 classifies a removed finding as resolved', () => {
     const baseline = fixedAnalysis(runWithSpeeds(600, 200), thresholdProfile);
     const candidate = fixedAnalysis(runWithSpeeds(200, 200), thresholdProfile);
     expect(classifyFindings(baseline.findings, candidate.findings).resolved).toHaveLength(1);
   });
 
-  it('classifies a candidate-only finding as newly introduced', () => {
+  it('TC-VER-003 classifies a candidate-only finding as newly introduced', () => {
     const baseline = fixedAnalysis(runWithSpeeds(200, 200), thresholdProfile);
     const candidate = fixedAnalysis(runWithSpeeds(200, 600), thresholdProfile);
     expect(classifyFindings(baseline.findings, candidate.findings).newlyIntroduced).toHaveLength(1);
@@ -212,7 +215,7 @@ describe('before-and-after verification', () => {
     expect(verification.summary.newlyIntroduced).toBe(1);
   });
 
-  it('blocks when either analysis is blocked', () => {
+  it('TC-VER-005 blocks when either analysis is blocked', () => {
     const baselineRun = runWithSpeeds(200, 200);
     const candidateRun = runWithSpeeds(200, 200);
     candidateRun.fatal = true;
@@ -289,6 +292,86 @@ describe('evidence exports', () => {
       reportSchemaVersion: 'diagnostic-report.v1',
       generatedAt: fixedTime,
     });
+  });
+
+  it('exports detected canonical fault provenance without source telemetry by default', async () => {
+    const run = await injectFaultScenario(nominalRun(), 'stale-feed', 2_026);
+    const analysis = fixedAnalysis(run, includedBaselineProfile);
+    const report = buildDiagnosticReport(run, analysis, undefined, { generatedAt: fixedTime });
+    const fault = report.injectedFaults[0];
+
+    expect(report.injectedFaults).toHaveLength(1);
+    expect(fault).toMatchObject({
+      faultId: `${run.runId}:stale-feed:seed-2026`,
+      scenarioId: 'stale-feed',
+      seed: 2_026,
+      target: 'canonical',
+      expectedRuleIds: ['time.timestamp.gap', 'feed.source.stale'],
+      detected: true,
+      synthetic: true,
+    });
+    expect([...(fault?.detectedRuleIds ?? [])].sort()).toEqual(
+      ['time.timestamp.gap', 'feed.source.stale'].sort(),
+    );
+    expect(report.run.samples).toBeUndefined();
+    expect(report.run.sources).toBeUndefined();
+    expect(report.exportPolicy.sourceDataIncluded).toBe(false);
+  });
+
+  it('exports detected CSV fault provenance while retaining minimized JSON and stable CSV evidence', async () => {
+    const session = new LabSession();
+    try {
+      await session.start();
+      session.setFaultScenario('blank-csv-value');
+      session.setFaultSeed('4242');
+      expect(await session.createFaultCandidate()).toBe(true);
+
+      const state = session.getState();
+      const current = state.current;
+      expect(current).toBeDefined();
+      const report = buildDiagnosticReport(current!.run, current!.analysis, state.verification, {
+        generatedAt: fixedTime,
+      });
+      const fault = report.injectedFaults[0];
+
+      expect(current?.inputFormat).toBe('injected');
+      expect(report.injectedFaults).toHaveLength(1);
+      expect(fault).toMatchObject({
+        faultId: `${current!.run.runId}:blank-csv-value:seed-4242`,
+        scenarioId: 'blank-csv-value',
+        seed: 4_242,
+        target: 'legacy-csv',
+        expectedRuleIds: ['data.value.blank'],
+        detectedRuleIds: ['data.value.blank'],
+        detected: true,
+        synthetic: true,
+      });
+      expect(report.run.samples).toBeUndefined();
+      expect(report.run.sources).toBeUndefined();
+      expect(report.run.quarantinedRows).not.toHaveLength(0);
+      expect(report.run.quarantinedRows.every((row) => row.raw === undefined)).toBe(true);
+      expect(report.exportPolicy.sourceDataIncluded).toBe(false);
+
+      const findingsCsv = exportFindingsCsv(current!.analysis.findings);
+      const parsed = parseCsv(findingsCsv);
+      expect(parsed.records[0]).toEqual([
+        'finding_id',
+        'rule_id',
+        'severity',
+        'source_id',
+        'timestamp',
+        'sample_index',
+        'row_number',
+        'channel',
+        'observed_value',
+        'expected_condition',
+        'evidence',
+      ]);
+      expect(parsed.records.slice(1).every((record) => record.length === 11)).toBe(true);
+      expect(parsed.records.some((record) => record[1] === 'data.value.blank')).toBe(true);
+    } finally {
+      session.stop();
+    }
   });
 
   it('exports a fixed findings-only CSV header', () => {

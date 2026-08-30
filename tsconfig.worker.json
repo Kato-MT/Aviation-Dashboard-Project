@@ -5,5 +5,12 @@
     "types": ["@cloudflare/workers-types"],
     "noEmit": true
   },
-  "include": ["worker/**/*.ts", "src/live/**/*.ts"]
+  "include": [
+    "worker/**/*.ts",
+    "src/live/**/*.ts",
+    "tests/support/denyNativeEgress.ts",
+    "tests/support/guardedAirspaceWorker.ts",
+    "tests/support/guardedMockProvider.ts",
+    "tests/support/mockProvider.ts"
+  ]
 }

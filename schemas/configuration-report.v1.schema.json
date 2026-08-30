@@ -1,0 +1,380 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kato-mt.github.io/Aviation-Dashboard-Project/schemas/configuration-report.v1.schema.json",
+  "title": "Privacy-safe Configuration Report",
+  "type": "object",
+  "required": [
+    "reportSchemaVersion",
+    "generatedAt",
+    "buildIdentities",
+    "run",
+    "selectedAnalysisProfile",
+    "models",
+    "simulator",
+    "exportPolicy"
+  ],
+  "properties": {
+    "reportSchemaVersion": { "const": "configuration-report.v1" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "buildIdentities": { "$ref": "#/$defs/buildIdentities" },
+    "run": { "$ref": "#/$defs/run" },
+    "selectedAnalysisProfile": { "$ref": "#/$defs/profile" },
+    "models": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/model" }
+    },
+    "simulator": { "$ref": "#/$defs/simulator" },
+    "exportPolicy": { "$ref": "#/$defs/exportPolicy" }
+  },
+  "$defs": {
+    "buildIdentities": {
+      "type": "object",
+      "required": ["reactShell", "deterministicEngine"],
+      "properties": {
+        "reactShell": {
+          "type": "object",
+          "required": ["applicationVersion", "releaseSha", "releaseStatus", "buildTarget"],
+          "properties": {
+            "applicationVersion": { "type": "string", "minLength": 1 },
+            "releaseSha": { "type": "string", "minLength": 1 },
+            "releaseStatus": { "enum": ["unreleased", "exact-release"] },
+            "buildTarget": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        },
+        "deterministicEngine": {
+          "type": "object",
+          "required": ["applicationVersion", "authority"],
+          "properties": {
+            "applicationVersion": { "type": "string", "minLength": 1 },
+            "authority": { "const": "deterministic-rules" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "run": {
+      "oneOf": [{ "$ref": "#/$defs/noRun" }, { "$ref": "#/$defs/readyRun" }]
+    },
+    "noRun": {
+      "type": "object",
+      "required": ["state", "identity", "counts", "provenance"],
+      "properties": {
+        "state": { "const": "no-run" },
+        "identity": { "type": "null" },
+        "counts": { "type": "null" },
+        "provenance": { "type": "null" }
+      },
+      "additionalProperties": false
+    },
+    "readyRun": {
+      "type": "object",
+      "required": ["state", "identity", "counts", "provenance"],
+      "properties": {
+        "state": { "const": "ready" },
+        "identity": { "$ref": "#/$defs/runIdentity" },
+        "counts": { "$ref": "#/$defs/runCounts" },
+        "provenance": { "$ref": "#/$defs/runProvenance" }
+      },
+      "additionalProperties": false
+    },
+    "runIdentity": {
+      "type": "object",
+      "required": ["runId", "schemaVersion", "adapterId", "adapterVersion", "declaredProfile"],
+      "properties": {
+        "runId": { "type": "string", "minLength": 1 },
+        "schemaVersion": { "type": "string", "minLength": 1 },
+        "adapterId": { "type": "string", "minLength": 1 },
+        "adapterVersion": { "type": "string", "minLength": 1 },
+        "declaredProfile": {
+          "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/profileIdentity" }]
+        }
+      },
+      "additionalProperties": false
+    },
+    "runCounts": {
+      "type": "object",
+      "required": [
+        "acceptedRecords",
+        "quarantinedRecords",
+        "validationIssues",
+        "fatalValidationIssues",
+        "findings"
+      ],
+      "properties": {
+        "acceptedRecords": { "type": "integer", "minimum": 0 },
+        "quarantinedRecords": { "type": "integer", "minimum": 0 },
+        "validationIssues": { "type": "integer", "minimum": 0 },
+        "fatalValidationIssues": { "type": "integer", "minimum": 0 },
+        "findings": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "runProvenance": {
+      "type": "object",
+      "required": [
+        "applicationVersion",
+        "datasetSha256",
+        "generatedAt",
+        "inputBytes",
+        "totalRows",
+        "inputFormat"
+      ],
+      "properties": {
+        "applicationVersion": { "type": "string", "minLength": 1 },
+        "datasetSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "inputBytes": { "type": "integer", "minimum": 0 },
+        "totalRows": { "type": "integer", "minimum": 0 },
+        "inputFormat": { "enum": ["csv", "json", "generated", "injected"] }
+      },
+      "additionalProperties": false
+    },
+    "profileIdentity": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "profile": {
+      "type": "object",
+      "required": [
+        "id",
+        "version",
+        "key",
+        "label",
+        "description",
+        "synthetic",
+        "dataClassification",
+        "platformCategory",
+        "contract",
+        "channels",
+        "rules"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "key": { "type": "string", "pattern": "^.+@.+$" },
+        "label": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "synthetic": { "const": true },
+        "dataClassification": { "const": "SYNTHETIC_UNCLASSIFIED" },
+        "platformCategory": {
+          "enum": ["included-baseline", "generic-fixed-wing", "generic-rotary-wing"]
+        },
+        "contract": { "$ref": "#/$defs/profileContract" },
+        "channels": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/channel" }
+        },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/rule" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "profileContract": {
+      "type": "object",
+      "required": ["expectedCadenceMs", "cadenceToleranceMs", "staleAfterMs", "sequencePolicy"],
+      "properties": {
+        "expectedCadenceMs": { "type": ["number", "null"], "minimum": 0 },
+        "cadenceToleranceMs": { "type": ["number", "null"], "minimum": 0 },
+        "staleAfterMs": { "type": ["number", "null"], "minimum": 0 },
+        "sequencePolicy": { "enum": ["optional", "required"] }
+      },
+      "additionalProperties": false
+    },
+    "channel": {
+      "type": "object",
+      "required": ["channel", "label", "unit", "required", "minimum", "maximum"],
+      "properties": {
+        "channel": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "unit": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "minimum": { "type": ["number", "null"] },
+        "maximum": { "type": ["number", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "rule": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "label",
+        "description",
+        "severity",
+        "enabled",
+        "channel",
+        "condition",
+        "parameters"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "enum": ["threshold", "range", "rate", "decrease-rate", "window-decrease", "frozen"]
+        },
+        "label": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "severity": { "enum": ["info", "warning", "error", "critical"] },
+        "enabled": { "type": "boolean" },
+        "channel": { "type": "string", "minLength": 1 },
+        "condition": { "type": "string", "minLength": 1 },
+        "parameters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ruleParameter" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ruleParameter": {
+      "type": "object",
+      "required": ["name", "value"],
+      "properties": {
+        "name": {
+          "enum": [
+            "operator",
+            "threshold",
+            "minimum",
+            "maximum",
+            "maximumAbsoluteRate",
+            "maximumDecreaseRate",
+            "maximumDecrease",
+            "windowMs",
+            "toleranceMs",
+            "minimumDurationMs",
+            "tolerance"
+          ]
+        },
+        "value": {
+          "oneOf": [{ "type": "string" }, { "type": "number" }]
+        }
+      },
+      "additionalProperties": false
+    },
+    "model": {
+      "type": "object",
+      "required": [
+        "key",
+        "family",
+        "activationPurpose",
+        "context",
+        "expectedIdentities",
+        "observedIdentities",
+        "identityVerification",
+        "qualityGate",
+        "userSelection",
+        "supported",
+        "reasons",
+        "eligibility",
+        "active",
+        "authority"
+      ],
+      "properties": {
+        "key": { "type": "string", "pattern": "^.+@.+$" },
+        "family": { "enum": ["robust-covariance", "temporal"] },
+        "activationPurpose": { "enum": ["integrated-advisory", "research-evidence-only"] },
+        "context": { "type": "string", "minLength": 1 },
+        "expectedIdentities": { "$ref": "#/$defs/modelIdentities" },
+        "observedIdentities": { "$ref": "#/$defs/modelIdentities" },
+        "identityVerification": { "$ref": "#/$defs/identityVerification" },
+        "qualityGate": { "$ref": "#/$defs/qualityGate" },
+        "userSelection": { "enum": ["enabled", "disabled"] },
+        "supported": { "type": "boolean" },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
+        },
+        "eligibility": { "enum": ["eligible", "ineligible"] },
+        "active": { "type": "boolean" },
+        "authority": { "const": "deterministic-rules" }
+      },
+      "additionalProperties": false
+    },
+    "modelIdentities": {
+      "type": "object",
+      "required": ["artifactSha256", "configurationSha256"],
+      "properties": {
+        "artifactSha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "configurationSha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "identityVerification": {
+      "type": "object",
+      "required": ["artifact", "configuration"],
+      "properties": {
+        "artifact": { "enum": ["pending", "verified", "mismatch", "unavailable"] },
+        "configuration": { "enum": ["pending", "verified", "mismatch", "unavailable"] }
+      },
+      "additionalProperties": false
+    },
+    "qualityGate": {
+      "type": "object",
+      "required": ["state", "storedPassed", "recomputedPassed"],
+      "properties": {
+        "state": { "enum": ["pending", "passed", "failed", "unavailable"] },
+        "storedPassed": { "type": ["boolean", "null"] },
+        "recomputedPassed": { "type": ["boolean", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "simulator": {
+      "type": "object",
+      "required": ["phase", "aggregateTotals", "injectedFaultIds"],
+      "properties": {
+        "phase": {
+          "enum": ["idle", "running", "degraded", "stale", "complete", "stopped", "failed"]
+        },
+        "aggregateTotals": {
+          "type": "object",
+          "required": [
+            "sourceCount",
+            "receivedMessages",
+            "droppedMessages",
+            "queueDepth",
+            "reconnectAttempts",
+            "maximumHeartbeatAgeMs"
+          ],
+          "properties": {
+            "sourceCount": { "type": "integer", "minimum": 0 },
+            "receivedMessages": { "type": "integer", "minimum": 0 },
+            "droppedMessages": { "type": "integer", "minimum": 0 },
+            "queueDepth": { "type": "integer", "minimum": 0 },
+            "reconnectAttempts": { "type": "integer", "minimum": 0 },
+            "maximumHeartbeatAgeMs": { "type": ["number", "null"], "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        "injectedFaultIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "exportPolicy": {
+      "type": "object",
+      "required": ["sourceDataIncluded", "streamPayloadsIncluded", "note"],
+      "properties": {
+        "sourceDataIncluded": { "const": false },
+        "streamPayloadsIncluded": { "const": false },
+        "note": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

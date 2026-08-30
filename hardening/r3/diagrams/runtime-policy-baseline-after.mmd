@@ -1,0 +1,9 @@
+flowchart LR
+  Env[Raw environment strings] --> Existing[Existing dispersed controls]
+  Request[Internet request] --> Existing
+  Existing --> API[API, WebSocket, and map]
+  Existing --> Upstream[Fixed provider paths]
+  Checklist[Operator checklist and runbooks] --> Env
+  Tests[Existing policy tests plus procedure checks] --> Existing
+  HTML[CSP meta] --> Browser[Browser]
+  Static[Static asset responses] --> Browser

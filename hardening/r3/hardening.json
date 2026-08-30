@@ -1,0 +1,793 @@
+{
+  "documentType": "codex-security.hardening-analysis",
+  "schemaVersion": "1.0",
+  "analysisId": "aviation_r3_20260829",
+  "sourceEvidence": {
+    "kind": "selected_contract_manifest",
+    "label": "Aviation Dashboard selected R3 implementation evidence",
+    "manifestPath": "hardening/r3/selected-evidence.manifest.json",
+    "verificationCommand": "pnpm requirements:check",
+    "sourceDrift": "present",
+    "targetRevision": "80c1e47b1d3662163f297b67e8a3c86477159231"
+  },
+  "assessment": {
+    "outcome": "selected_implementation_verified_current_dirty",
+    "summary": "Kato selected and locally implemented the compatible regional operations contract and central typed runtime-policy contract; the current dirty source and exact traceability contract are machine-bound without claiming a retained candidate, hosted completion, or release."
+  },
+  "selection": {
+    "status": "approved_for_local_implementation",
+    "selectedAt": "2026-08-29",
+    "selectedOptionIds": ["regional-operations-contract", "central-runtime-policy-contract"],
+    "checkout": "feat/live-airspace-v3",
+    "authorityBoundary": "No commit, push, provider contact, Cloudflare mutation, billing, deployment, or publication authority is granted by this selection."
+  },
+  "constraints": {
+    "profile": "balanced",
+    "changeHorizons": ["incremental", "medium_term"],
+    "nonNegotiables": [
+      "Keep Live disabled by default until separately authorized release gates pass.",
+      "Do not persist aircraft identity, callsign, registration, coordinates, trails, provider payloads, client IP addresses, or arbitrary error text.",
+      "Do not contact a provider, deploy, enable billing, or exercise real aircraft endpoints during local R3 work.",
+      "Preserve Replay, Lab, Evidence, unified offline, and v2 behavior."
+    ],
+    "assumptions": [
+      "The regional Durable Object topology remains the preferred local baseline.",
+      "No measured account-wide rate, billing, hosted availability, or platform-retention evidence was supplied.",
+      "Every material non-ignored source change requires a refreshed selected evidence manifest before the local R3 evidence is current."
+    ]
+  },
+  "opportunities": [
+    {
+      "opportunityId": "operational-evidence",
+      "title": "Own a privacy-safe operational evidence plane",
+      "summary": "Separate application health from provider health and give operators exact, bounded, privacy-safe state and SLI semantics.",
+      "diagnosis": "Regional coordinators own provider polling truth, but current health and metrics do not expose application faults, valid-empty observations, stale data, partial regional failure, delivery outcomes, or admission outcomes as distinct states.",
+      "evidence": [
+        {
+          "claimType": "observed",
+          "sourceKind": "source",
+          "evidenceId": "E15",
+          "path": "worker/index.ts",
+          "claim": "The health route aggregates regional objects as one request and does not preserve a partial result when one region rejects."
+        },
+        {
+          "claimType": "observed",
+          "sourceKind": "source",
+          "evidenceId": "E17",
+          "path": "worker/metrics.ts",
+          "claim": "Hourly, aggregate-only provider poll metrics have a fixed 30-day cleanup boundary."
+        },
+        {
+          "claimType": "observed",
+          "sourceKind": "source",
+          "evidenceId": "E19",
+          "path": "worker/regionalFeedHub.ts",
+          "claim": "Provider failures, internal application faults, and successful observations are handled separately internally, but the distinction is not fully retained or projected."
+        },
+        {
+          "claimType": "inferred",
+          "sourceKind": "source",
+          "evidenceId": "E19",
+          "path": "worker/regionalFeedHub.ts",
+          "claim": "Operational truth has no single owned schema, so a warm object can project an earlier live state without enough reason codes to distinguish stale or valid-empty data."
+        }
+      ],
+      "desiredInvariants": [
+        "Application availability and provider observation health are separate dimensions.",
+        "Valid-empty, stale, disabled, unavailable, rate-limited, and partial-regional states use fixed reason codes.",
+        "Every stored or exported operational value remains aggregate-only and bounded.",
+        "Health is explicit user action in Evidence and never creates a hidden polling loop.",
+        "A dedicated G2 harness cannot retain screenshots, traces, HAR, response bodies, or aircraft detail."
+      ],
+      "proposalPath": "proposals/operational-evidence.md",
+      "options": [
+        {
+          "optionId": "regional-operations-contract",
+          "title": "Extend the existing regional contract",
+          "kind": "incremental",
+          "summary": "Add a versioned operations-health schema, fixed outcome vocabulary, aggregate SLIs, partial-region aggregation, and a comprehensive privacy receipt to existing regional ownership.",
+          "diagramPaths": {
+            "before": "diagrams/operational-evidence-before.mmd",
+            "after": "diagrams/operational-evidence-regional-contract-after.mmd"
+          },
+          "evidenceCoverage": [
+            {
+              "evidenceId": "E15",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "The health route must switch to partial regional aggregation and preserve fixed application and provider dimensions."
+            },
+            {
+              "evidenceId": "E17",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "The existing bounded aggregate schema is extended with application, delivery, admission, outcome, and freshness counters."
+            },
+            {
+              "evidenceId": "E19",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "The coordinator becomes the owner of stable operational reason codes while retaining no aircraft detail."
+            }
+          ],
+          "tradeoffs": [
+            {
+              "dimension": "security",
+              "direction": "improves",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "Fixed enums, recursive privacy checks, and separate no-capture G2 evidence narrow data-leak and health-misclassification paths without adding a new trusted service.",
+              "validationPlan": "Seed privacy canaries across Durable Object, browser, report, test-output, and retained-artifact surfaces and require one aggregate-only receipt."
+            },
+            {
+              "dimension": "performance",
+              "direction": "neutral",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Classification and bounded counters stay inside the existing polling and explicit health paths; no new network hop is added.",
+              "validationPlan": "Compare poll latency, health latency, and event-loop delay before and after at ordinary, 500-aircraft, and 2,000-record fixtures."
+            },
+            {
+              "dimension": "memory",
+              "direction": "neutral",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "A fixed schema adds bounded counters and timestamps but no per-aircraft retention or unbounded queue.",
+              "validationPlan": "Inspect all stored values and compare heap and Durable Object storage size at retention steady state."
+            },
+            {
+              "dimension": "reliability",
+              "direction": "improves",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "Partial aggregation prevents one failed region from erasing the status of healthy regions, while stable reason codes make stale and empty observations deterministic.",
+              "validationPlan": "Fault one region, inject internal failures, valid-empty payloads, stale timestamps, rate limits, and recovery, then verify state transitions and backward compatibility."
+            },
+            {
+              "dimension": "operability",
+              "direction": "improves",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "Operators receive one application-owned vocabulary and bounded SLI receipt without depending on account logging.",
+              "validationPlan": "Rehearse stale-feed, partial outage, disabled, quota, rollback, and provider-failure runbooks against deterministic fixtures."
+            },
+            {
+              "dimension": "migration",
+              "direction": "neutral",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "The schema can be added alongside the existing response for one compatibility window and rolled back without changing Live delivery.",
+              "validationPlan": "Run old and new health consumers in parallel, compare projections, then remove compatibility fields only after acceptance."
+            }
+          ],
+          "residualRisks": [
+            "Application-owned metrics cannot prove Cloudflare account logging, physical deletion, billing, or global availability.",
+            "Regional counters do not provide exact cross-region event ordering."
+          ],
+          "implementationReadiness": {
+            "affectedComponents": [
+              "worker/regionalFeedHub.ts",
+              "worker/index.ts",
+              "worker/metrics.ts",
+              "src/evidence/health.ts",
+              "src/features/evidence/EvidenceApp.tsx",
+              "tests/worker",
+              "tests/live"
+            ],
+            "workPackages": [
+              "Define operations.v1 and pure classifiers.",
+              "Add bounded application and provider SLI counters.",
+              "Return partial regional health and preserve compatibility.",
+              "Add whole-artifact privacy auditing and a no-capture G2 harness.",
+              "Project the new dimensions through explicit Evidence health checks."
+            ],
+            "acceptanceCriteria": [
+              "All required states and partial failures produce deterministic fixed reason codes.",
+              "No canary aircraft or request identity appears in any permitted persistence or artifact surface.",
+              "Existing Live, Replay, Lab, Evidence, offline, and v2 gates remain green."
+            ],
+            "migrationNotes": ["Keep the existing health fields for one compatibility window."],
+            "rollback": "Disable the new projection and counters while retaining the existing health response and all product routes."
+          }
+        },
+        {
+          "optionId": "central-operations-ledger",
+          "title": "Create a central OperationsLedger",
+          "kind": "structural",
+          "summary": "Send bounded regional events to one Durable Object that owns exact cross-region aggregation and retention.",
+          "diagramPaths": {
+            "before": "diagrams/operational-evidence-before.mmd",
+            "after": "diagrams/operational-evidence-ledger-after.mmd"
+          },
+          "evidenceCoverage": [
+            {
+              "evidenceId": "E15",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "A ledger can own partial aggregation, but the current health route still needs a safe compatibility and failure-isolation change."
+            },
+            {
+              "evidenceId": "E19",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Regional coordinators emit fixed bounded events while the ledger owns cross-region projections."
+            }
+          ],
+          "tradeoffs": [
+            {
+              "dimension": "security",
+              "direction": "improves",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "One schema and retention boundary narrow semantic drift, but the ledger becomes a new trusted data sink and must reject arbitrary fields.",
+              "validationPlan": "Fuzz event schemas, seed privacy canaries, inspect every retained value, and verify events fail closed on unknown fields."
+            },
+            {
+              "dimension": "performance",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Each regional outcome gains serialization and a cross-object call or buffered delivery path.",
+              "validationPlan": "Measure regional poll completion and ledger ingestion p95 with one, three, and faulted regions against the current no-ledger baseline."
+            },
+            {
+              "dimension": "memory",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "The design adds a retained event or aggregate index and potentially a bounded retry buffer.",
+              "validationPlan": "Set an explicit storage and in-memory queue ceiling, then measure steady state and outage backlog."
+            },
+            {
+              "dimension": "reliability",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Exact cross-region ownership improves consistency, but a central object can become an availability and backpressure dependency unless regional delivery fails open.",
+              "validationPlan": "Fault, delay, restart, and saturate the ledger, then prove Live polling and delivery continue while bounded evidence gaps are explicit."
+            },
+            {
+              "dimension": "operability",
+              "direction": "improves",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Operators gain exact cross-region correlation and one retention schedule at the cost of another binding, schema, alarm, and incident surface.",
+              "validationPlan": "Run migration, retention, saturation, replay, and rollback drills with clear alert ownership."
+            },
+            {
+              "dimension": "migration",
+              "direction": "regresses",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "A new binding, protocol, storage schema, batching policy, and dual-read compatibility period are required.",
+              "validationPlan": "Shadow-write fixed events, compare ledger and regional projections, then rehearse removal without touching the Live feed path."
+            }
+          ],
+          "residualRisks": [
+            "The ledger may become a regional evidence bottleneck or single logical failure domain.",
+            "It still cannot prove platform-level logging and physical retention policy."
+          ],
+          "implementationReadiness": {
+            "affectedComponents": [
+              "worker/env.ts",
+              "worker/regionalFeedHub.ts",
+              "worker/index.ts",
+              "wrangler.jsonc"
+            ],
+            "workPackages": [
+              "Design a strict event schema and retention ceiling.",
+              "Add a fail-open regional client and bounded retry policy.",
+              "Implement the ledger, shadow projection, and dual-read comparison.",
+              "Add migration and rollback receipts."
+            ],
+            "acceptanceCriteria": [
+              "Ledger failure cannot interrupt provider polling or viewer delivery.",
+              "Cross-region projections are exact for accepted events and explicit about dropped events."
+            ],
+            "migrationNotes": [
+              "Require a shadow-write and dual-read period before authority moves."
+            ],
+            "rollback": "Remove ledger emission and health reads while regional coordinators retain their existing ownership."
+          }
+        },
+        {
+          "optionId": "cloudflare-native-analytics",
+          "title": "Use Cloudflare-native analytics",
+          "kind": "foundational",
+          "summary": "Use platform metrics and bounded custom aggregate events as the hosted observability supplement after account-policy approval.",
+          "diagramPaths": {
+            "before": "diagrams/operational-evidence-before.mmd",
+            "after": "diagrams/operational-evidence-platform-after.mmd"
+          },
+          "evidenceCoverage": [
+            {
+              "evidenceId": "E17",
+              "effect": "mitigates",
+              "tacticalFixRequired": true,
+              "rationale": "Platform analytics can supplement availability and resource trends, but application-owned exact health semantics and privacy inspection remain necessary."
+            }
+          ],
+          "tradeoffs": [
+            {
+              "dimension": "security",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "analogous",
+              "assessment": "A managed sink reduces custom storage code but expands account policy, role, retention, query, and telemetry trust boundaries.",
+              "validationPlan": "At G1, inspect account roles, logging, datasets, field policy, retention, export, deletion, and query access before enabling any custom event."
+            },
+            {
+              "dimension": "performance",
+              "direction": "neutral",
+              "confidence": "low",
+              "basis": "hypothetical",
+              "assessment": "Managed writes are likely off the viewer path, but exact Worker overhead is unmeasured for this account and workload.",
+              "validationPlan": "Compare poll and request p95 with analytics disabled and enabled using only synthetic aggregate events."
+            },
+            {
+              "dimension": "memory",
+              "direction": "improves",
+              "confidence": "low",
+              "basis": "hypothetical",
+              "assessment": "Custom in-application historical storage may shrink, but local schemas and bounded current state remain necessary.",
+              "validationPlan": "Measure Durable Object storage and heap before deciding whether any local aggregate can be removed."
+            },
+            {
+              "dimension": "reliability",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "analogous",
+              "assessment": "Hosted availability metrics add an independent view, while sampling and platform dependency prevent exact event accounting.",
+              "validationPlan": "Compare application counters with platform queries across fault injection and confirm gaps are represented, not hidden."
+            },
+            {
+              "dimension": "operability",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "analogous",
+              "assessment": "Dashboards and account metrics help operations but introduce cloud configuration, budget, role, query, and retention ownership.",
+              "validationPlan": "Document account configuration, alert routes, query receipts, cost ceilings, and disablement before G1 exit."
+            },
+            {
+              "dimension": "migration",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "The option requires account approval, bindings or configuration, schema governance, and parallel comparison before reliance.",
+              "validationPlan": "Treat the platform path as a supplement until synthetic parity and rollback drills pass."
+            }
+          ],
+          "residualRisks": [
+            "Adaptive sampling prevents exact event accounting.",
+            "Platform retention and request metadata are outside local repository proof.",
+            "Availability and cost depend on the selected account plan."
+          ],
+          "implementationReadiness": {
+            "affectedComponents": [
+              "wrangler.jsonc",
+              "worker/env.ts",
+              "worker/regionalFeedHub.ts",
+              "docs"
+            ],
+            "workPackages": [
+              "Approve the account, telemetry, retention, role, and budget policy at G1.",
+              "Define an aggregate-only event schema.",
+              "Run synthetic parallel comparison and disablement drills."
+            ],
+            "acceptanceCriteria": [
+              "No aircraft or request identity field can enter platform custom events.",
+              "Cost, sampling, retention, role, and rollback behavior are verified in the authorized account."
+            ],
+            "migrationNotes": [
+              "Do not replace application-owned health semantics with sampled analytics."
+            ],
+            "rollback": "Disable the analytics binding or emission path and continue with application-owned health."
+          }
+        }
+      ],
+      "recommendedOptionId": "regional-operations-contract",
+      "recommendation": "Use the existing regional ownership model under current constraints; add a ledger only for a measured exact-correlation need and add platform analytics only after G1 approval."
+    },
+    {
+      "opportunityId": "runtime-policy",
+      "title": "Centralize runtime and release policy",
+      "summary": "Make runtime modes, provider egress, origin rules, headers, kill-switch behavior, quotas, artifact privacy, performance budgets, and release receipts derive from one typed contract.",
+      "diagnosis": "Strong controls exist, but their ownership is distributed across Worker construction, routes, provider configuration, Vite configuration, retained artifacts, and workflow tests; generated deployment metadata currently contains absolute local paths.",
+      "evidence": [
+        {
+          "claimType": "observed",
+          "sourceKind": "source",
+          "evidenceId": "E18",
+          "path": "worker/providerConfig.ts",
+          "claim": "Provider origin and regional paths are fixed and fail closed."
+        },
+        {
+          "claimType": "observed",
+          "sourceKind": "source",
+          "evidenceId": "E19",
+          "path": "worker/regionalFeedHub.ts",
+          "claim": "Live enablement is read into object state, so a deploy-time change is not itself a demonstrated immediate shutdown mechanism for an existing object."
+        },
+        {
+          "claimType": "observed",
+          "sourceKind": "source",
+          "evidenceId": "E24",
+          "path": "tools/live/retainCandidate.ts",
+          "claim": "Candidate retention copies generated text artifacts without a general absolute-path privacy filter."
+        },
+        {
+          "claimType": "observed",
+          "sourceKind": "document",
+          "evidenceId": "G01",
+          "path": "dist-live/airspace_worker/wrangler.json",
+          "claim": "Generated configPath and userConfigPath values contain the local Windows workspace path."
+        },
+        {
+          "claimType": "inferred",
+          "sourceKind": "source",
+          "evidenceId": "E25",
+          "path": "vite.live.config.ts",
+          "claim": "Development and eventual hosted connection policy need separate release-owned contracts so loopback origins cannot drift into an approved production candidate."
+        }
+      ],
+      "desiredInvariants": [
+        "Every build and runtime mode has one typed, reviewable, fail-closed policy.",
+        "Server-owned disablement stops new admission, provider polling, and established Live sessions without breaking non-Live workspaces.",
+        "Retained and published artifacts contain no absolute local paths, usernames, credentials, temporary roots, or unapproved origins.",
+        "Static and Worker responses carry target-specific checked security headers.",
+        "Admission, provider, delivery, map, bundle, paint, and operating-cost budgets are explicit and mechanically gated.",
+        "Runbooks and release receipts use the same stable policy and reason-code vocabulary."
+      ],
+      "proposalPath": "proposals/runtime-policy.md",
+      "options": [
+        {
+          "optionId": "patch-dispersed-runtime-controls",
+          "title": "Patch and document the current controls",
+          "kind": "baseline",
+          "summary": "Sanitize retained artifacts, add checked response headers, remove hosted-target development origins, and document redeploy-based disablement without centralizing ownership.",
+          "diagramPaths": {
+            "before": "diagrams/runtime-policy-before.mmd",
+            "after": "diagrams/runtime-policy-baseline-after.mmd"
+          },
+          "evidenceCoverage": [
+            {
+              "evidenceId": "G01",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Canonical allowlisted metadata or an audited sanitizer must remove local path fields before retention."
+            },
+            {
+              "evidenceId": "E25",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Target-specific headers and connection policy directly close the known build-policy gap."
+            },
+            {
+              "evidenceId": "E19",
+              "effect": "mitigates",
+              "tacticalFixRequired": false,
+              "rationale": "A documented controlled redeploy can serve as a slower kill mechanism, but ownership remains distributed."
+            }
+          ],
+          "tradeoffs": [
+            {
+              "dimension": "security",
+              "direction": "improves",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "Direct sanitation, header, and origin fixes close known release defects, but future callers and artifacts can still drift across separate controls.",
+              "validationPlan": "Inject sentinel paths and origins, scan every retained byte, and verify headers across root, assets, maps, API, and WebSocket admission."
+            },
+            {
+              "dimension": "performance",
+              "direction": "neutral",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "Build-time scanning and response headers add negligible runtime work; no new request hop is introduced.",
+              "validationPlan": "Compare build duration, artifact size, and static response latency before and after."
+            },
+            {
+              "dimension": "memory",
+              "direction": "neutral",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "The approach adds bounded build metadata and no persistent runtime component.",
+              "validationPlan": "Confirm runtime heap and Durable Object storage remain within existing variance."
+            },
+            {
+              "dimension": "reliability",
+              "direction": "improves",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Failing builds on privacy or header drift improves release reliability, but redeploy-based disablement is slower and depends on deployment success.",
+              "validationPlan": "Rehearse privacy failure, bad header, bad origin, disable redeploy, failed redeploy, and rollback cases."
+            },
+            {
+              "dimension": "operability",
+              "direction": "improves",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "A runbook and explicit scanners improve operator clarity while duplicated policy still raises review burden.",
+              "validationPlan": "Have a clean-room operator execute disable, inspect, retain, and rollback procedures using only the runbook."
+            },
+            {
+              "dimension": "migration",
+              "direction": "neutral",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "Focused build and documentation changes preserve runtime APIs and can land incrementally.",
+              "validationPlan": "Run the complete build, candidate-retention, workflow-policy, and current regression gates after each patch."
+            }
+          ],
+          "residualRisks": [
+            "Policy can drift between Worker, client, build, test, and runbook owners.",
+            "Redeploy-based disablement may not meet a future sub-minute shutdown requirement.",
+            "Isolate-local admission remains non-global."
+          ],
+          "implementationReadiness": {
+            "affectedComponents": [
+              "tools/live/retainCandidate.ts",
+              "vite.live.config.ts",
+              "public/_headers",
+              "docs"
+            ],
+            "workPackages": [
+              "Replace or sanitize generated deployment metadata and add an artifact privacy scanner.",
+              "Add target-specific checked headers and origins.",
+              "Add performance budgets and versioned operator runbooks."
+            ],
+            "acceptanceCriteria": [
+              "Sentinel local paths and unapproved origins fail candidate retention.",
+              "All response classes carry the approved target-specific headers."
+            ],
+            "migrationNotes": [
+              "This can be the first tactical package inside the recommended typed-policy option."
+            ],
+            "rollback": "Revert each focused build control independently; do not retain or release an artifact that fails privacy scanning."
+          }
+        },
+        {
+          "optionId": "central-runtime-policy-contract",
+          "title": "Create one typed runtime and release policy contract",
+          "kind": "structural",
+          "summary": "Compile every supported target into one typed policy consumed by Worker, client, build, artifact scanner, tests, receipts, and runbooks.",
+          "diagramPaths": {
+            "before": "diagrams/runtime-policy-before.mmd",
+            "after": "diagrams/runtime-policy-central-contract-after.mmd"
+          },
+          "evidenceCoverage": [
+            {
+              "evidenceId": "G01",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Artifact allowlists and privacy scanning become required release-policy outputs, while the immediate path fields still need direct removal."
+            },
+            {
+              "evidenceId": "E19",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "The policy defines object-start, admission, pre-fetch, and established-session disablement semantics."
+            },
+            {
+              "evidenceId": "E25",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Build targets derive exact connected origins, headers, mode, and release assertions from one source."
+            },
+            {
+              "evidenceId": "E12",
+              "effect": "mitigates",
+              "tacticalFixRequired": false,
+              "rationale": "The policy makes isolate admission limits and scope explicit, while account-wide protection still requires G1 platform controls."
+            }
+          ],
+          "tradeoffs": [
+            {
+              "dimension": "security",
+              "direction": "improves",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "One fail-closed policy narrows drift across mode, provider, origin, headers, artifact, quota, and shutdown decisions without adding remote authority.",
+              "validationPlan": "Generate a target matrix, mutation-test every deny rule, scan retained bytes, and prove every consumer rejects an unknown mode or field."
+            },
+            {
+              "dimension": "performance",
+              "direction": "neutral",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Most decisions compile at build or object start; a small fixed pre-fetch and session policy check should not add a network hop.",
+              "validationPlan": "Compare admission, pre-fetch, publication, and validated-snapshot-to-paint p95 against explicit budgets."
+            },
+            {
+              "dimension": "memory",
+              "direction": "neutral",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "A frozen policy object and bounded counters add small constant state with no new queue or per-aircraft retention.",
+              "validationPlan": "Measure Worker heap, browser heap, bundle bytes, and Durable Object storage at ordinary and maximum fixtures."
+            },
+            {
+              "dimension": "reliability",
+              "direction": "improves",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "Shared reason codes, deterministic shutdown, generated target checks, and rollback receipts reduce inconsistent behavior during disablement and release.",
+              "validationPlan": "Fault policy reads, disable during active sessions and polling, exhaust each quota, and verify Replay, Lab, Evidence, offline, and rollback remain available."
+            },
+            {
+              "dimension": "operability",
+              "direction": "improves",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "Runbooks and release receipts can name the same policy epoch, target, reason code, budget, and artifact hashes, reducing operator interpretation.",
+              "validationPlan": "Execute every runbook branch and require machine-readable receipts that cross-check policy identity and retained bytes."
+            },
+            {
+              "dimension": "migration",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Existing controls must be compiled in parallel, equivalence-tested, and migrated one consumer at a time before old definitions are removed.",
+              "validationPlan": "Run a dual-policy decision matrix until every current allow and deny result is equivalent, then migrate with per-consumer rollback."
+            }
+          ],
+          "residualRisks": [
+            "A defect in the central policy can affect several consumers, so schema validation and mutation coverage are release-critical.",
+            "Account-wide rate limiting, hosted headers, billing, and platform retention remain G1 evidence.",
+            "Sub-minute remote disablement is not provided without a separately authorized control channel."
+          ],
+          "implementationReadiness": {
+            "affectedComponents": [
+              "worker/providerConfig.ts",
+              "worker/regionalFeedHub.ts",
+              "worker/index.ts",
+              "worker/admission.ts",
+              "vite.live.config.ts",
+              "tools/live/retainCandidate.ts",
+              "public/_headers",
+              "tests/live",
+              "tests/worker",
+              "docs"
+            ],
+            "workPackages": [
+              "Close artifact privacy and response-header defects first.",
+              "Define typed modes, fixed reasons, limits, origins, headers, artifact fields, and policy identity.",
+              "Compile policy beside current controls and prove decision equivalence.",
+              "Migrate Worker, client, build, scanner, receipts, and runbooks one consumer at a time.",
+              "Add shutdown, quota, bundle, paint, maximum-record, incident, and rollback gates."
+            ],
+            "acceptanceCriteria": [
+              "No retained or release artifact contains a forbidden path, username, credential, temporary root, or unapproved origin.",
+              "Disablement prevents new admission and provider requests, closes established Live sessions, and leaves non-Live workspaces available.",
+              "Every supported target passes a generated policy matrix, response-header checks, gzip budgets, 500-aircraft p95 paint, and 2,000-record safety gates.",
+              "Release receipts bind policy identity, source identity, artifact hashes, and rollback bytes."
+            ],
+            "migrationNotes": [
+              "Land the direct artifact and header fixes before central migration.",
+              "Keep current controls authoritative until equivalence evidence passes."
+            ],
+            "rollback": "Restore the previous consumer one boundary at a time using retained equivalence fixtures; a failed privacy scan remains non-overridable."
+          }
+        },
+        {
+          "optionId": "mutable-operations-control-plane",
+          "title": "Add a mutable operations control plane",
+          "kind": "foundational",
+          "summary": "Add authenticated, server-owned policy state for sub-minute disablement and global operating controls, built on the typed policy vocabulary.",
+          "diagramPaths": {
+            "before": "diagrams/runtime-policy-before.mmd",
+            "after": "diagrams/runtime-policy-mutable-control-after.mmd"
+          },
+          "evidenceCoverage": [
+            {
+              "evidenceId": "E19",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "Mutable server-owned state can immediately change admission, polling, and session behavior, but deterministic local shutdown logic is still required."
+            },
+            {
+              "evidenceId": "E12",
+              "effect": "mitigates",
+              "tacticalFixRequired": false,
+              "rationale": "A control plane can distribute global operating state, but exact account-wide abuse protection should still use authorized platform controls."
+            },
+            {
+              "evidenceId": "G01",
+              "effect": "addresses",
+              "tacticalFixRequired": true,
+              "rationale": "The mutable design still requires direct artifact sanitation and release privacy scanning."
+            }
+          ],
+          "tradeoffs": [
+            {
+              "dimension": "security",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Immediate server-owned disablement narrows incident exposure, but an authenticated mutation API becomes a high-authority attack target with replay and privilege risks.",
+              "validationPlan": "Threat-model operator identity, least privilege, replay protection, audit privacy, failed authentication, stale policy, lockout, and break-glass behavior before implementation."
+            },
+            {
+              "dimension": "performance",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Runtime decisions gain a policy read, cache, invalidation, or broadcast path on admission and pre-fetch boundaries.",
+              "validationPlan": "Measure cached and cold policy lookup latency, invalidation time, pre-fetch p95, and shutdown propagation against a sub-minute objective."
+            },
+            {
+              "dimension": "memory",
+              "direction": "regresses",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "The design adds versioned policy state, caches, operator audit metadata, and possibly bounded propagation queues.",
+              "validationPlan": "Set and test explicit policy, cache, audit, and queue ceilings under update bursts and outages."
+            },
+            {
+              "dimension": "reliability",
+              "direction": "unknown",
+              "confidence": "medium",
+              "basis": "source-derived",
+              "assessment": "Remote control improves incident response, while control-plane outage, stale caches, or bad policy can disable healthy service or fail open.",
+              "validationPlan": "Exercise outage, stale read, conflicting update, bad policy, regional partition, rollback, and fail-closed behavior with active sessions."
+            },
+            {
+              "dimension": "operability",
+              "direction": "unknown",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "Operators gain immediate control but must own identity, authorization, audit, secret rotation, availability, monitoring, and emergency recovery.",
+              "validationPlan": "Require named ownership, access review, key rotation, two-person high-risk changes, drills, and evidence retention before G1 exit."
+            },
+            {
+              "dimension": "migration",
+              "direction": "regresses",
+              "confidence": "high",
+              "basis": "source-derived",
+              "assessment": "The project needs the typed policy first, then identity, state storage, propagation, cache compatibility, audit, staged rollout, and rollback.",
+              "validationPlan": "Introduce read-only shadow policy, compare decisions, enable mutations for synthetic environments, and promote only after emergency rollback drills."
+            }
+          ],
+          "residualRisks": [
+            "Operator credential compromise can gain service-wide control.",
+            "Control-plane availability and consistency become service dependencies.",
+            "Account-wide abuse and billing protection still require platform controls and alerts."
+          ],
+          "implementationReadiness": {
+            "affectedComponents": [
+              "worker",
+              "wrangler.jsonc",
+              "deployment configuration",
+              "operator runbooks",
+              "security policy"
+            ],
+            "workPackages": [
+              "Approve the operator identity and authorization model.",
+              "Implement the typed policy contract first.",
+              "Design versioned mutable state, cache, invalidation, audit, and recovery.",
+              "Run synthetic shadow, staged mutation, and emergency rollback drills."
+            ],
+            "acceptanceCriteria": [
+              "Only approved operators can make authenticated, replay-resistant, least-privilege changes.",
+              "Disablement reaches all regions and active sessions within the approved objective without provider calls after enforcement.",
+              "Control-plane failure is deterministic, observable, privacy-safe, and recoverable."
+            ],
+            "migrationNotes": [
+              "Do not create a mutation API until an operator identity model and G1 authority are approved."
+            ],
+            "rollback": "Freeze mutations, restore the last signed or otherwise integrity-bound policy, and fall back to controlled redeploy-based disablement."
+          }
+        }
+      ],
+      "recommendedOptionId": "central-runtime-policy-contract",
+      "recommendation": "Use a typed local policy contract and direct tactical release fixes now; defer mutable authority until sub-minute shutdown and operator identity are explicitly approved."
+    }
+  ],
+  "recommendedOptionIds": ["regional-operations-contract", "central-runtime-policy-contract"],
+  "openQuestions": [
+    "When should the locally verified R3 source be frozen for an independently authorized commit and hosted preflight?",
+    "Is controlled redeploy sufficient for the first hosted release, or is sub-minute remote disablement a G1 requirement?",
+    "Which Cloudflare plan, account roles, logging policy, retention policy, rate controls, and budget ceiling are authorized for G1 inspection?",
+    "Which provider terms and attribution requirements must be satisfied before G2 real-source validation?"
+  ]
+}

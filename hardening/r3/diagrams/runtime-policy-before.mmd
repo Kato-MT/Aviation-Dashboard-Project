@@ -1,0 +1,12 @@
+flowchart LR
+  Env[Raw environment strings] --> Routes[Worker route checks]
+  Env --> Provider[Provider configuration]
+  Env --> Origins[Inline origin parsing]
+  Request[Internet request] --> Admission[Isolate-local admission]
+  Admission --> Routes
+  Routes --> API[API and WebSocket]
+  Routes --> Map[Map assets]
+  Provider --> Upstream[Fixed provider paths]
+  HTML[CSP meta in HTML] --> Browser[Browser]
+  Static[Static asset responses] --> Browser
+  Runbooks[Scattered roadmap procedures] -. operator interpretation .-> Env

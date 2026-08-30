@@ -20,7 +20,7 @@ function aircraft(overrides: Record<string, unknown> = {}): Record<string, unkno
     alt_baro: 12_000,
     alt_geom: 12_275,
     gs: 320.5,
-    track: 371,
+    track: 11,
     baro_rate: 1_200,
     seen: 2,
     seen_pos: 3,
@@ -61,9 +61,10 @@ describe('ADSB.lol provider normalization', () => {
       groundSpeedKnots: 320.5,
       trackDegrees: 11,
       verticalRateFeetPerMinute: 1_200,
-      onGround: false,
-      contactAgeSeconds: 2,
-      positionAgeSeconds: 3,
+      verticalRateBasis: 'barometric',
+      onGround: null,
+      contactAgeSeconds: 4,
+      positionAgeSeconds: 5,
       qualityFlags: [],
     });
   });
@@ -161,7 +162,7 @@ describe('ADSB.lol provider normalization', () => {
 
   it('requires a numeric provider timestamp and aircraft array', () => {
     expect(() => normalizeAdsbLolPayload({ now: 'later', ac: {} }, region, receivedAtMs)).toThrow(
-      'numeric now value and an aircraft array',
+      'provider timestamp and an aircraft array',
     );
   });
 });

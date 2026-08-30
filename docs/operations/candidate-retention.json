@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "operator-procedure.v1",
+  "procedureId": "candidate-retention",
+  "title": "Candidate retention",
+  "purpose": "Define bounded local selection, retention, and verification for one source-built synthetic candidate without rebuilding or external actions.",
+  "documentationBoundary": {
+    "mode": "local-documentation-only",
+    "executionClaim": "none",
+    "runtimeControlPlane": "forbidden"
+  },
+  "reasonVocabulary": {
+    "runtimePolicy": ["source-disabled"],
+    "operations": ["APPLICATION_AVAILABLE"]
+  },
+  "entryEvidence": [
+    {
+      "evidenceId": "compiled-retention-policy",
+      "source": "runtime-policy",
+      "reasonCode": "source-disabled",
+      "required": true,
+      "observation": "The compiled synthetic policy identifies one disabled source, policy epoch, release identity, and bounded operating envelope."
+    },
+    {
+      "evidenceId": "available-retention-state",
+      "source": "operations-v1",
+      "reasonCode": "APPLICATION_AVAILABLE",
+      "required": true,
+      "observation": "The aggregate operations projection classifies the selected synthetic application available before local retention."
+    },
+    {
+      "evidenceId": "selected-source-build",
+      "source": "source-build",
+      "reasonCode": "source-disabled",
+      "required": true,
+      "observation": "One source-built synthetic artifact has exact file, byte, digest, policy, and release identities."
+    }
+  ],
+  "boundedActions": [
+    {
+      "sequence": 1,
+      "actionId": "capture-retention-evidence",
+      "actionType": "capture-evidence",
+      "authority": "read-only-local",
+      "instruction": "Record the source, policy, release, artifact, map, and approved rollback identities once.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    },
+    {
+      "sequence": 2,
+      "actionId": "verify-source-built-artifact",
+      "actionType": "verify-read-only",
+      "authority": "read-only-local",
+      "instruction": "Verify the selected source-built artifact, checksums, bounded policy limits, and synthetic-only classification once.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 30
+    },
+    {
+      "sequence": 3,
+      "actionId": "request-retention-approval",
+      "actionType": "request-approval",
+      "authority": "separate-explicit-approval",
+      "instruction": "Request separate approval for the exact local candidate path and selected identities before retention begins.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 30
+    },
+    {
+      "sequence": 4,
+      "actionId": "verify-retention-receipt",
+      "actionType": "verify-read-only",
+      "authority": "read-only-local",
+      "instruction": "Verify one aggregate synthetic retention receipt against the selected candidate identity without rebuilding.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 30
+    }
+  ],
+  "stopConditions": [
+    {
+      "conditionId": "stop-on-retention-identity-mismatch",
+      "outcome": "halt",
+      "reasonCode": "source-disabled",
+      "observation": "Stop if any source, policy, release, artifact, map, rollback, checksum, or receipt identity is absent or inconsistent."
+    },
+    {
+      "conditionId": "receipt-on-retained-candidate",
+      "outcome": "ready-for-receipt",
+      "reasonCode": "APPLICATION_AVAILABLE",
+      "observation": "Stop as ready for a receipt only when the unchanged synthetic candidate and aggregate operations state both verify."
+    }
+  ],
+  "rollbackActions": [
+    {
+      "sequence": 1,
+      "actionId": "preserve-source-build-and-release",
+      "actionType": "preserve-current-release",
+      "authority": "read-only-local",
+      "instruction": "Keep the selected source-built bytes and last approved release unchanged if local retention verification fails.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    }
+  ],
+  "verificationReceipt": {
+    "schemaVersion": "operator-verification-receipt.v1",
+    "status": "template-only-not-executed",
+    "privacy": "aggregate-only-no-aircraft-request-client-or-event-data",
+    "requiredFields": [
+      "procedureId",
+      "procedureSha256",
+      "policyId",
+      "policyEpoch",
+      "applicationVersion",
+      "releaseSha",
+      "checkedAt",
+      "runtimePolicyReasonCodes",
+      "operationsReasonCodes",
+      "entryEvidenceIds",
+      "rehearsedActionIds",
+      "stopConditionIds",
+      "result"
+    ],
+    "resultValues": ["verified", "stopped", "rolled-back", "recovered"]
+  }
+}

@@ -1,0 +1,1148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A synthetic telemetry integration, diagnostics, and verification workbench."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; worker-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' ws://127.0.0.1:*; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+    <meta name="theme-color" content="#0b1015" />
+    <title>Flight Diagnostics Workbench</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Skip to workbench</a>
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span>FDW</span>
+        </div>
+        <div>
+          <p class="eyebrow">Synthetic telemetry verification suite</p>
+          <h1>Flight Diagnostics <span>Workbench</span></h1>
+        </div>
+      </div>
+
+      <div class="header-health" aria-label="Application status">
+        <div class="status-pill" id="run-status" data-status="empty">
+          <span class="status-symbol" aria-hidden="true">o</span>
+          <span id="run-status-text">Ready for data</span>
+        </div>
+        <div class="version-stack">
+          <span>APP <strong id="app-version">v2.2.0</strong></span>
+          <span id="clock" aria-label="Local time">--:--:--</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="disclaimer" role="note">
+      <span aria-hidden="true">i</span>
+      All data, limits, profiles, and fault scenarios in this demonstration are synthetic and
+      unclassified. This project is not affiliated with or certified by any aircraft manufacturer,
+      operator, or government organization.
+    </div>
+
+    <nav class="view-tabs" aria-label="Workbench views">
+      <div role="tablist" aria-label="Workbench views">
+        <button
+          id="tab-monitor"
+          class="view-tab active"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="view-monitor"
+          data-view="monitor"
+        >
+          <span aria-hidden="true">01</span> Monitor
+        </button>
+        <button
+          id="tab-diagnostics"
+          class="view-tab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-diagnostics"
+          data-view="diagnostics"
+          tabindex="-1"
+        >
+          <span aria-hidden="true">02</span> Diagnostics
+          <strong class="tab-count" id="diagnostics-tab-count">0</strong>
+        </button>
+        <button
+          id="tab-verification"
+          class="view-tab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-verification"
+          data-view="verification"
+          tabindex="-1"
+        >
+          <span aria-hidden="true">03</span> Verification
+        </button>
+        <button
+          id="tab-investigation"
+          class="view-tab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-investigation"
+          data-view="investigation"
+          tabindex="-1"
+        >
+          <span aria-hidden="true">04</span> Investigation
+        </button>
+        <button
+          id="tab-configuration"
+          class="view-tab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-configuration"
+          data-view="configuration"
+          tabindex="-1"
+        >
+          <span aria-hidden="true">05</span> Configuration
+        </button>
+      </div>
+    </nav>
+
+    <main id="workspace" class="workspace" tabindex="-1">
+      <section
+        id="view-monitor"
+        class="view active"
+        role="tabpanel"
+        aria-labelledby="tab-monitor"
+        data-view-panel="monitor"
+      >
+        <div class="source-toolbar panel">
+          <div class="source-copy">
+            <p class="eyebrow">Active run</p>
+            <h2 id="active-run-name">No telemetry loaded</h2>
+            <p id="active-run-detail">
+              Load the included baseline or select a synthetic CSV/JSON file.
+            </p>
+          </div>
+          <div class="source-actions">
+            <button id="load-baseline" class="button primary" type="button">
+              Load included baseline
+            </button>
+            <button id="load-demo" class="button secondary" type="button">Generate demo run</button>
+            <label class="button secondary file-button" for="telemetry-file">
+              Import CSV or JSON
+            </label>
+            <input
+              id="telemetry-file"
+              class="visually-hidden"
+              type="file"
+              accept=".csv,.json,text/csv,application/json"
+            />
+          </div>
+        </div>
+
+        <div id="message-banner" class="message-banner" data-state="info" hidden tabindex="-1">
+          <span class="message-icon" aria-hidden="true">i</span>
+          <div>
+            <strong id="message-title">Status</strong>
+            <p id="message-detail"></p>
+          </div>
+          <button
+            id="dismiss-message"
+            class="icon-button"
+            type="button"
+            aria-label="Dismiss message"
+          >
+            x
+          </button>
+        </div>
+
+        <div class="metric-grid" aria-label="Run summary">
+          <article class="metric-card">
+            <span class="metric-label">Accepted samples</span>
+            <strong id="metric-accepted">0</strong>
+            <span id="metric-total">of 0 received</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Quarantined rows</span>
+            <strong id="metric-quarantined">0</strong>
+            <span>retained for review</span>
+          </article>
+          <article class="metric-card" data-tone="warning">
+            <span class="metric-label">Diagnostic findings</span>
+            <strong id="metric-findings">0</strong>
+            <span id="metric-severity">no active findings</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Dataset identity</span>
+            <strong id="metric-hash">--------</strong>
+            <span>SHA-256 prefix</span>
+          </article>
+        </div>
+
+        <div class="monitor-layout">
+          <aside class="monitor-sidebar" aria-label="Replay and live readings">
+            <section class="panel compact-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Sample position</p>
+                  <h2>Replay controls</h2>
+                </div>
+                <output id="replay-position" for="replay-slider">0 / 0</output>
+              </div>
+              <div class="replay-buttons" role="group" aria-label="Replay controls">
+                <button
+                  id="replay-start"
+                  class="icon-button"
+                  type="button"
+                  disabled
+                  aria-label="Start replay"
+                >
+                  &#9654;
+                </button>
+                <button
+                  id="replay-pause"
+                  class="icon-button"
+                  type="button"
+                  disabled
+                  aria-label="Pause replay"
+                >
+                  &#10074;&#10074;
+                </button>
+                <button
+                  id="replay-reset"
+                  class="icon-button"
+                  type="button"
+                  disabled
+                  aria-label="Reset replay"
+                >
+                  &#8634;
+                </button>
+                <label for="replay-speed">Speed</label>
+                <select id="replay-speed" disabled>
+                  <option value="600">1x</option>
+                  <option value="300">2x</option>
+                  <option value="150">4x</option>
+                </select>
+              </div>
+              <label class="visually-hidden" for="replay-slider">Replay sample</label>
+              <input id="replay-slider" type="range" min="0" max="0" value="0" disabled />
+            </section>
+
+            <section class="panel compact-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Current sample</p>
+                  <h2 id="sample-time">No reading</h2>
+                </div>
+                <span id="sample-quality" class="quality-badge" data-quality="unknown"
+                  >Unknown</span
+                >
+              </div>
+              <dl class="reading-list">
+                <div>
+                  <dt>Altitude</dt>
+                  <dd><strong id="reading-altitude">---</strong> <span>ft</span></dd>
+                  <dd class="reading-meter">
+                    <meter id="meter-altitude" min="0" max="50000" value="0">0</meter>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Airspeed</dt>
+                  <dd><strong id="reading-speed">---</strong> <span>kt</span></dd>
+                  <dd class="reading-meter">
+                    <meter id="meter-speed" min="0" max="700" value="0">0</meter>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Fuel</dt>
+                  <dd><strong id="reading-fuel">---</strong> <span>%</span></dd>
+                  <dd class="reading-meter">
+                    <meter id="meter-fuel" min="0" max="100" value="0">0</meter>
+                  </dd>
+                </div>
+              </dl>
+            </section>
+
+            <section class="panel compact-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Recent evidence</p>
+                  <h2>Finding timeline</h2>
+                </div>
+                <button class="text-button" type="button" data-open-view="diagnostics">
+                  View all
+                </button>
+              </div>
+              <ol id="finding-timeline" class="finding-timeline">
+                <li class="empty-state">No findings to display.</li>
+              </ol>
+            </section>
+          </aside>
+
+          <div class="chart-stack">
+            <section class="panel chart-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Channel ALTITUDE_FT</p>
+                  <h2>Altitude</h2>
+                </div>
+                <strong id="chart-altitude-value">---</strong>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-altitude" aria-label="Altitude over time" role="img"></canvas>
+              </div>
+            </section>
+            <section class="panel chart-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Channel AIRSPEED_KTS</p>
+                  <h2>Airspeed</h2>
+                </div>
+                <strong id="chart-speed-value">---</strong>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-speed" aria-label="Airspeed over time" role="img"></canvas>
+              </div>
+            </section>
+            <section class="panel chart-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Channel FUEL_PCT</p>
+                  <h2>Fuel level</h2>
+                </div>
+                <strong id="chart-fuel-value">---</strong>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-fuel" aria-label="Fuel level over time" role="img"></canvas>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="view-diagnostics"
+        class="view"
+        role="tabpanel"
+        aria-labelledby="tab-diagnostics"
+        data-view-panel="diagnostics"
+        hidden
+      >
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">Evidence-backed fault isolation</p>
+            <h2>Diagnostics</h2>
+            <p>Inspect every finding and validation issue without losing invalid source rows.</p>
+          </div>
+          <div class="heading-actions">
+            <button id="export-findings" class="button secondary" type="button" disabled>
+              Export findings CSV
+            </button>
+          </div>
+        </div>
+
+        <section class="panel filter-panel" aria-label="Finding filters">
+          <label>
+            Severity
+            <select id="filter-severity">
+              <option value="all">All severities</option>
+              <option value="critical">Critical</option>
+              <option value="error">Error</option>
+              <option value="warning">Warning</option>
+              <option value="info">Info</option>
+            </select>
+          </label>
+          <label>
+            Rule
+            <select id="filter-rule">
+              <option value="all">All rules</option>
+            </select>
+          </label>
+          <label>
+            Source
+            <select id="filter-source">
+              <option value="all">All sources</option>
+            </select>
+          </label>
+          <label class="search-label">
+            Search evidence
+            <input id="filter-search" type="search" placeholder="Timestamp, value, or evidence" />
+          </label>
+          <button id="clear-filters" class="button quiet" type="button">Clear filters</button>
+        </section>
+
+        <section class="panel table-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Rule-engine output</p>
+              <h2>Findings <span id="filtered-count">0</span></h2>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <caption class="visually-hidden">
+                Filterable diagnostic findings
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Severity</th>
+                  <th scope="col">Rule ID</th>
+                  <th scope="col">Source and time</th>
+                  <th scope="col">Observed</th>
+                  <th scope="col">Expected</th>
+                  <th scope="col">Evidence</th>
+                </tr>
+              </thead>
+              <tbody id="findings-body">
+                <tr>
+                  <td colspan="6" class="empty-table">Load telemetry to run diagnostics.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="diagnostic-grid">
+          <section class="panel compact-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Validation containment</p>
+                <h2>Quarantined rows <span id="quarantine-count">0</span></h2>
+              </div>
+            </div>
+            <div id="quarantine-list" class="stack-list">
+              <p class="empty-state">No quarantined rows.</p>
+            </div>
+          </section>
+
+          <section class="panel compact-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Deterministic test stimulus</p>
+                <h2>Fault injection</h2>
+              </div>
+            </div>
+            <p class="section-help">
+              Create a reproducible candidate from the current run. The original source remains
+              unchanged.
+            </p>
+            <label>
+              Declared scenario
+              <select id="fault-scenario"></select>
+            </label>
+            <label>
+              Seed
+              <input id="fault-seed" type="number" min="1" max="2147483647" value="1337" />
+            </label>
+            <button id="inject-fault" class="button primary" type="button" disabled>
+              Create candidate run
+            </button>
+            <p id="fault-description" class="section-help"></p>
+          </section>
+        </div>
+      </section>
+
+      <section
+        id="view-verification"
+        class="view"
+        role="tabpanel"
+        aria-labelledby="tab-verification"
+        data-view-panel="verification"
+        hidden
+      >
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">Before-and-after regression analysis</p>
+            <h2>Verification</h2>
+            <p>
+              Compare stable finding identities and expose resolved, persisting, and new behavior.
+            </p>
+          </div>
+          <div class="heading-actions">
+            <button id="export-verification" class="button primary" type="button" disabled>
+              Export verification JSON
+            </button>
+          </div>
+        </div>
+
+        <div class="verification-pair">
+          <article class="panel run-card">
+            <p class="eyebrow">Baseline</p>
+            <h3 id="baseline-name">Not captured</h3>
+            <dl>
+              <div>
+                <dt>Hash</dt>
+                <dd id="baseline-hash">--------</dd>
+              </div>
+              <div>
+                <dt>Samples</dt>
+                <dd id="baseline-samples">0</dd>
+              </div>
+              <div>
+                <dt>Findings</dt>
+                <dd id="baseline-findings">0</dd>
+              </div>
+            </dl>
+            <button id="capture-baseline" class="button secondary" type="button" disabled>
+              Capture current as baseline
+            </button>
+          </article>
+
+          <div class="comparison-arrow" aria-hidden="true">-&gt;</div>
+
+          <article class="panel run-card">
+            <p class="eyebrow">Candidate</p>
+            <h3 id="candidate-name">Not selected</h3>
+            <dl>
+              <div>
+                <dt>Hash</dt>
+                <dd id="candidate-hash">--------</dd>
+              </div>
+              <div>
+                <dt>Samples</dt>
+                <dd id="candidate-samples">0</dd>
+              </div>
+              <div>
+                <dt>Findings</dt>
+                <dd id="candidate-findings">0</dd>
+              </div>
+            </dl>
+            <button id="use-candidate" class="button secondary" type="button" disabled>
+              Use current as candidate
+            </button>
+          </article>
+
+          <article id="verification-status" class="verification-status" data-status="empty">
+            <span class="verification-symbol" aria-hidden="true">o</span>
+            <div>
+              <p class="eyebrow">Outcome</p>
+              <h3 id="verification-status-title">Comparison pending</h3>
+              <p id="verification-status-detail">Capture a baseline and candidate to compare.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="classification-grid">
+          <section class="panel classification-card resolved">
+            <div class="panel-heading">
+              <h2>Resolved</h2>
+              <strong id="resolved-count">0</strong>
+            </div>
+            <ol id="resolved-list" class="stack-list">
+              <li class="empty-state">None</li>
+            </ol>
+          </section>
+          <section class="panel classification-card persisting">
+            <div class="panel-heading">
+              <h2>Persisting</h2>
+              <strong id="persisting-count">0</strong>
+            </div>
+            <ol id="persisting-list" class="stack-list">
+              <li class="empty-state">None</li>
+            </ol>
+          </section>
+          <section class="panel classification-card introduced">
+            <div class="panel-heading">
+              <h2>Newly introduced</h2>
+              <strong id="introduced-count">0</strong>
+            </div>
+            <ol id="introduced-list" class="stack-list">
+              <li class="empty-state">None</li>
+            </ol>
+          </section>
+        </div>
+
+        <section class="panel table-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Release evidence</p>
+              <h2>Requirement results</h2>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <caption class="visually-hidden">
+                Verification requirement results
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Requirement</th>
+                  <th scope="col">Result</th>
+                  <th scope="col">Evidence</th>
+                </tr>
+              </thead>
+              <tbody id="requirements-body">
+                <tr>
+                  <td>REQ-VER-001</td>
+                  <td><span class="result-badge pending">Pending</span></td>
+                  <td>Comparison has not run.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section
+        id="view-investigation"
+        class="view"
+        role="tabpanel"
+        aria-labelledby="tab-investigation"
+        data-view-panel="investigation"
+        hidden
+      >
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">Temporal fault intelligence</p>
+            <h2>Investigation</h2>
+            <p>
+              Reproduce a labeled synthetic mission, fuse redundant sensors, inspect temporal
+              evidence, and compare authoritative rules with experimental model hypotheses.
+            </p>
+          </div>
+          <div class="heading-actions">
+            <label class="checkbox-row compact-checkbox">
+              <input id="include-investigation-source-export" type="checkbox" />
+              Include generated source windows
+            </label>
+            <button id="investigation-export" class="button secondary" type="button" disabled>
+              Export investigation JSON
+            </button>
+          </div>
+        </div>
+
+        <section class="panel investigation-toolbar" aria-label="Temporal scenario controls">
+          <label>
+            Synthetic scenario
+            <select id="temporal-scenario"></select>
+          </label>
+          <label>
+            Seed
+            <input id="temporal-seed" type="number" min="1" max="2147483647" value="3101" />
+          </label>
+          <label>
+            Samples
+            <input id="temporal-samples" type="number" min="60" max="2000" value="180" />
+          </label>
+          <button id="run-investigation" class="button primary" type="button">
+            Run investigation
+          </button>
+          <span
+            id="investigation-status"
+            class="quality-badge"
+            data-quality="unknown"
+            role="status"
+            aria-live="polite"
+            >Not run</span
+          >
+        </section>
+
+        <div class="metric-grid investigation-metrics" aria-label="Investigation summary">
+          <article class="metric-card">
+            <span class="metric-label">Detected phase</span>
+            <strong id="investigation-phase">---</strong>
+            <span id="investigation-phase-detail">No temporal sample selected</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Four-way agreement</span>
+            <strong id="investigation-agreement">---</strong>
+            <span id="investigation-agreement-detail">deterministic rules are authoritative</span>
+          </article>
+          <article class="metric-card" data-tone="warning">
+            <span class="metric-label">Rule indications</span>
+            <strong id="investigation-rule-count">0</strong>
+            <span id="investigation-rule-detail">observed evidence only</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Relative model similarity</span>
+            <strong id="investigation-model-confidence">N/A</strong>
+            <span id="investigation-model-label">model disabled</span>
+          </article>
+        </div>
+
+        <section class="panel investigation-replay" aria-label="Investigation replay">
+          <div class="replay-row">
+            <strong>Linked sample</strong>
+            <span id="investigation-replay-position">0 / 0</span>
+          </div>
+          <label for="investigation-replay-slider">Investigation sample</label>
+          <input id="investigation-replay-slider" type="range" min="0" max="0" value="0" disabled />
+          <div class="investigation-comparison-controls">
+            <button
+              id="capture-investigation-baseline"
+              class="button secondary"
+              type="button"
+              aria-describedby="investigation-comparison-status investigation-comparison-authority"
+              disabled
+            >
+              Capture comparison baseline
+            </button>
+            <span
+              id="investigation-comparison-status"
+              class="quality-badge investigation-comparison-status"
+              data-quality="unknown"
+              role="status"
+              aria-live="polite"
+              >No comparison baseline captured.</span
+            >
+            <p id="investigation-comparison-authority" class="comparison-authority-note">
+              Waveform comparison is visual evidence only. Deterministic rules remain authoritative.
+            </p>
+          </div>
+          <fieldset class="overlay-controls">
+            <legend>Visible evidence overlays</legend>
+            <label
+              ><input type="checkbox" data-investigation-overlay="prediction" checked />
+              Prediction</label
+            >
+            <label
+              ><input type="checkbox" data-investigation-overlay="uncertainty" checked /> 95%
+              uncertainty</label
+            >
+            <label
+              ><input type="checkbox" data-investigation-overlay="phases" checked /> Mission
+              phases</label
+            >
+            <label
+              ><input type="checkbox" data-investigation-overlay="faults" checked /> Fault
+              lifecycle</label
+            >
+            <label
+              ><input
+                id="investigation-comparison-overlay"
+                type="checkbox"
+                data-investigation-overlay="comparison"
+                checked
+                disabled
+              />
+              Comparison baseline waveforms</label
+            >
+          </fieldset>
+        </section>
+
+        <div class="investigation-chart-grid">
+          <section class="panel chart-panel investigation-chart-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Current and captured baseline waveforms</p>
+                <h2>Observed and predicted state</h2>
+              </div>
+            </div>
+            <div class="chart-wrapper investigation-chart-wrapper">
+              <canvas
+                id="investigation-state-chart"
+                aria-label="Current and comparison baseline observed and predicted temporal state with uncertainty and fault markers"
+                role="img"
+                tabindex="0"
+              ></canvas>
+            </div>
+          </section>
+          <section class="panel chart-panel investigation-chart-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Innovation evidence</p>
+                <h2>Normalized sensor residual</h2>
+              </div>
+            </div>
+            <div class="chart-wrapper investigation-chart-wrapper">
+              <canvas
+                id="investigation-residual-chart"
+                aria-label="Normalized fusion residuals over the synthetic mission"
+                role="img"
+                tabindex="0"
+              ></canvas>
+            </div>
+          </section>
+        </div>
+
+        <div class="investigation-evidence-grid">
+          <section class="panel compact-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Declared lifecycle</p>
+                <h2>Fault timeline</h2>
+              </div>
+            </div>
+            <div id="investigation-timeline" class="stack-list">
+              <p class="empty-state">Run a synthetic scenario to inspect onset and recovery.</p>
+            </div>
+          </section>
+          <section class="panel compact-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Advisory only</p>
+                <h2>Ranked hypotheses</h2>
+              </div>
+            </div>
+            <ol id="investigation-hypotheses" class="stack-list">
+              <li class="empty-state">The temporal model is disabled.</li>
+            </ol>
+          </section>
+          <section class="panel compact-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Authoritative diagnostics</p>
+                <h2>Rule evidence</h2>
+              </div>
+            </div>
+            <ol id="investigation-indications" class="stack-list">
+              <li class="empty-state">No investigation has run.</li>
+            </ol>
+          </section>
+          <section class="panel compact-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Hysteresis state machine</p>
+                <h2>Phase transitions</h2>
+              </div>
+            </div>
+            <ol id="investigation-phase-log" class="stack-list">
+              <li class="empty-state">No phase evidence is available.</li>
+            </ol>
+          </section>
+          <section class="panel compact-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Authoritative and advisory signals</p>
+                <h2>Detector agreement</h2>
+              </div>
+            </div>
+            <ol id="investigation-detector-agreement" class="stack-list">
+              <li class="empty-state">No detector evidence is available.</li>
+            </ol>
+          </section>
+        </div>
+
+        <section class="panel campaign-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Reproducible evaluation campaign</p>
+              <h2>Scenario lab</h2>
+              <p>Run declared scenarios across disjoint seeds without blocking the interface.</p>
+            </div>
+            <div class="heading-actions">
+              <button id="campaign-export" class="button secondary" type="button" disabled>
+                Export campaign JSON
+              </button>
+            </div>
+          </div>
+          <div class="campaign-controls">
+            <label>
+              Seeds, comma separated
+              <input id="campaign-seeds" type="text" value="3101, 3102, 3103" />
+            </label>
+            <button id="campaign-run" class="button primary" type="button">Run campaign</button>
+            <button id="campaign-cancel" class="button quiet" type="button" disabled>Cancel</button>
+          </div>
+          <label for="campaign-progress">Campaign progress</label>
+          <progress id="campaign-progress" max="1" value="0">0%</progress>
+          <p id="campaign-progress-label" class="section-help" role="status" aria-live="polite">
+            Not started.
+          </p>
+          <div class="campaign-metrics" aria-label="Campaign metrics">
+            <dl class="definition-grid">
+              <div>
+                <dt>Status</dt>
+                <dd><span id="campaign-status" role="status" aria-live="polite">Not run</span></dd>
+              </div>
+              <div>
+                <dt>Cases</dt>
+                <dd id="campaign-cases">0</dd>
+              </div>
+              <div>
+                <dt>Episode F1</dt>
+                <dd id="campaign-f1">N/A</dd>
+              </div>
+              <div>
+                <dt>False alarms / run</dt>
+                <dd id="campaign-far-run">N/A</dd>
+              </div>
+              <div>
+                <dt>Median detection delay</dt>
+                <dd id="campaign-delay">N/A</dd>
+              </div>
+              <div>
+                <dt>Abstention rate</dt>
+                <dd id="campaign-abstention">N/A</dd>
+              </div>
+            </dl>
+          </div>
+          <div id="campaign-summary" class="stack-list" aria-live="polite">
+            <p class="empty-state">
+              Campaign results will show expected, missing, and unexpected detections.
+            </p>
+          </div>
+        </section>
+      </section>
+
+      <section
+        id="view-configuration"
+        class="view"
+        role="tabpanel"
+        aria-labelledby="tab-configuration"
+        data-view-panel="configuration"
+        hidden
+      >
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">Versions, provenance, and experiment controls</p>
+            <h2>Configuration</h2>
+            <p>
+              Every analysis is tied to explicit schemas, adapters, profiles, rules, and hashes.
+            </p>
+          </div>
+          <div class="heading-actions">
+            <button id="export-run" class="button primary" type="button" disabled>
+              Export run evidence
+            </button>
+          </div>
+        </div>
+
+        <div class="configuration-grid">
+          <section class="panel compact-panel">
+            <div class="panel-heading"><h2>Active analysis</h2></div>
+            <dl class="definition-grid">
+              <div>
+                <dt>Application</dt>
+                <dd id="config-app-version">2.2.0</dd>
+              </div>
+              <div>
+                <dt>Schema</dt>
+                <dd id="config-schema">telemetry-run/2.0.0</dd>
+              </div>
+              <div>
+                <dt>Adapter</dt>
+                <dd id="config-adapter">None</dd>
+              </div>
+              <div>
+                <dt>Profile</dt>
+                <dd id="config-profile">None</dd>
+              </div>
+              <div>
+                <dt>Profile version</dt>
+                <dd id="config-profile-version">None</dd>
+              </div>
+              <div>
+                <dt>Dataset hash</dt>
+                <dd id="config-hash">Not loaded</dd>
+              </div>
+            </dl>
+            <label>
+              Synthetic profile
+              <select id="profile-select"></select>
+            </label>
+            <label class="checkbox-row">
+              <input id="include-source-export" type="checkbox" />
+              Include uploaded source data in JSON export
+            </label>
+            <p class="section-help">
+              Source data is excluded by default and only included by this explicit choice.
+            </p>
+          </section>
+
+          <section class="panel compact-panel v21-feature">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Version 1 protocol</p>
+                <h2>Streaming simulator</h2>
+              </div>
+              <span id="stream-state" class="quality-badge" data-quality="unknown"
+                >Disconnected</span
+              >
+            </div>
+            <label>
+              WebSocket endpoint
+              <input id="stream-url" type="url" value="ws://127.0.0.1:8080" />
+            </label>
+            <div class="button-row">
+              <button id="stream-connect" class="button secondary" type="button">
+                Connect local simulator
+              </button>
+              <button id="stream-demo" class="button secondary" type="button">
+                Run in-browser demo
+              </button>
+              <button id="stream-disconnect" class="button quiet" type="button" disabled>
+                Disconnect
+              </button>
+            </div>
+            <dl class="health-grid">
+              <div>
+                <dt>Sources</dt>
+                <dd id="health-sources">0</dd>
+              </div>
+              <div>
+                <dt>Messages</dt>
+                <dd id="health-messages">0</dd>
+              </div>
+              <div>
+                <dt>Dropped</dt>
+                <dd id="health-dropped">0</dd>
+              </div>
+              <div>
+                <dt>Heartbeat age</dt>
+                <dd id="health-heartbeat">N/A</dd>
+              </div>
+              <div>
+                <dt>Queue depth</dt>
+                <dd id="health-queue">0</dd>
+              </div>
+              <div>
+                <dt>Reconnects</dt>
+                <dd id="health-reconnects">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="panel compact-panel v21-feature">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Experimental comparison only</p>
+                <h2>Learned baseline</h2>
+              </div>
+              <span id="model-state" class="quality-badge" data-quality="unknown">Disabled</span>
+            </div>
+            <p class="section-help">
+              Deterministic rules remain authoritative. The model is enabled only when its stored
+              held-out evaluation meets both release gates.
+            </p>
+            <dl class="definition-grid">
+              <div>
+                <dt>Model version</dt>
+                <dd id="model-version">Not loaded</dd>
+              </div>
+              <div>
+                <dt>Held-out F1</dt>
+                <dd id="model-f1">Not measured</dd>
+              </div>
+              <div>
+                <dt>False-positive rate</dt>
+                <dd id="model-fpr">Not measured</dd>
+              </div>
+              <div>
+                <dt>Current anomaly score</dt>
+                <dd id="model-score">N/A</dd>
+              </div>
+            </dl>
+            <label class="checkbox-row">
+              <input id="learned-model-enabled" type="checkbox" />
+              Enable experimental pointwise comparison
+            </label>
+            <div
+              id="model-contributions"
+              class="contribution-list"
+              role="list"
+              aria-label="Per-channel residual contributions"
+            ></div>
+          </section>
+
+          <section class="panel compact-panel v22-feature">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Profile-specific model registry</p>
+                <h2>Temporal model</h2>
+              </div>
+              <span id="temporal-model-state" class="quality-badge" data-quality="unknown"
+                >Disabled</span
+              >
+            </div>
+            <p class="section-help">
+              Eligibility requires exact schema, profile, channel, unit, cadence, window, artifact,
+              and configuration identities. The rule engine remains authoritative.
+            </p>
+            <label class="checkbox-row">
+              <input id="temporal-model-enabled" type="checkbox" />
+              Enable experimental temporal hypotheses
+            </label>
+            <dl class="definition-grid">
+              <div>
+                <dt>Registry entry</dt>
+                <dd id="temporal-registry-entry">Not loaded</dd>
+              </div>
+              <div>
+                <dt>Compatibility</dt>
+                <dd id="temporal-compatibility">Not evaluated</dd>
+              </div>
+              <div>
+                <dt>Artifact SHA-256</dt>
+                <dd id="temporal-artifact-hash">Not loaded</dd>
+              </div>
+              <div>
+                <dt>Configuration SHA-256</dt>
+                <dd id="temporal-config-hash">Not loaded</dd>
+              </div>
+              <div>
+                <dt>Window</dt>
+                <dd id="temporal-window">Not loaded</dd>
+              </div>
+              <div>
+                <dt>Training evidence</dt>
+                <dd id="temporal-training-evidence">Not loaded</dd>
+              </div>
+              <div>
+                <dt>Calibration evidence</dt>
+                <dd id="temporal-calibration-evidence">Not loaded</dd>
+              </div>
+              <div>
+                <dt>Held-out evidence</dt>
+                <dd id="temporal-evaluation-evidence">Not loaded</dd>
+              </div>
+              <div>
+                <dt>Authority</dt>
+                <dd>Deterministic rules</dd>
+              </div>
+            </dl>
+            <div id="temporal-compatibility-reasons" class="stack-list">
+              <p class="empty-state">Run compatibility evaluation to see evidence.</p>
+            </div>
+          </section>
+
+          <section class="panel compact-panel rules-card">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Profile-driven logic</p>
+                <h2>Enabled rules</h2>
+              </div>
+              <strong id="rule-count">0</strong>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <caption class="visually-hidden">
+                  Rules enabled by the selected synthetic profile
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Rule ID</th>
+                    <th scope="col">Severity</th>
+                    <th scope="col">Condition</th>
+                  </tr>
+                </thead>
+                <tbody id="rules-body">
+                  <tr>
+                    <td colspan="3" class="empty-table">Select a profile.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span>Flight Diagnostics Workbench</span>
+      <span>Version 2.2.0</span>
+      <a href="https://github.com/Kato-MT/Aviation-Dashboard-Project">Source and documentation</a>
+      <span>Kato Thompkins</span>
+    </footer>
+
+    <div id="live-region" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+    <noscript>This application requires JavaScript to analyze local synthetic telemetry.</noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

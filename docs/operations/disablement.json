@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "operator-procedure.v1",
+  "procedureId": "disablement",
+  "title": "Disablement",
+  "purpose": "Prepare and verify deterministic Live source disablement while preserving every declared non-Live capability.",
+  "documentationBoundary": {
+    "mode": "local-documentation-only",
+    "executionClaim": "none",
+    "runtimeControlPlane": "forbidden"
+  },
+  "reasonVocabulary": {
+    "runtimePolicy": ["source-disabled"],
+    "operations": ["PROVIDER_DISABLED"]
+  },
+  "entryEvidence": [
+    {
+      "evidenceId": "compiled-disablement-policy",
+      "source": "runtime-policy",
+      "reasonCode": "source-disabled",
+      "required": true,
+      "observation": "The selected compiled policy identifies source-disabled and one exact policy epoch."
+    },
+    {
+      "evidenceId": "disabled-operations-provider",
+      "source": "operations-v1",
+      "reasonCode": "PROVIDER_DISABLED",
+      "required": true,
+      "observation": "The bounded operations projection classifies the provider as disabled."
+    }
+  ],
+  "boundedActions": [
+    {
+      "sequence": 1,
+      "actionId": "capture-disablement-identity",
+      "actionType": "capture-evidence",
+      "authority": "read-only-local",
+      "instruction": "Record the policy ID, policy epoch, release identity, source descriptor, and disabled operations reason once.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    },
+    {
+      "sequence": 2,
+      "actionId": "prepare-disablement-candidate",
+      "actionType": "prepare-policy-change",
+      "authority": "separate-explicit-approval",
+      "instruction": "Prepare one exact disabled-source candidate that leaves Replay, Lab, Evidence, offline, maps, and approved rollback available.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 60
+    },
+    {
+      "sequence": 3,
+      "actionId": "inspect-disablement-receipt",
+      "actionType": "verify-read-only",
+      "authority": "read-only-local",
+      "instruction": "Inspect one bounded synthetic acceptance receipt for rejected new Live work, closed sessions, and no later provider poll.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 30
+    },
+    {
+      "sequence": 4,
+      "actionId": "request-disablement-approval",
+      "actionType": "request-approval",
+      "authority": "separate-explicit-approval",
+      "instruction": "Request separate approval for the exact disabled candidate before any release workflow begins.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 30
+    }
+  ],
+  "stopConditions": [
+    {
+      "conditionId": "stop-on-disablement-identity-mismatch",
+      "outcome": "halt",
+      "reasonCode": "source-disabled",
+      "observation": "Stop if the reason, policy ID, policy epoch, source descriptor, or release identity does not match the selected candidate."
+    },
+    {
+      "conditionId": "receipt-on-disabled-state",
+      "outcome": "ready-for-receipt",
+      "reasonCode": "PROVIDER_DISABLED",
+      "observation": "Stop as ready for a receipt only when the selected candidate and operations projection both preserve the disabled state."
+    }
+  ],
+  "rollbackActions": [
+    {
+      "sequence": 1,
+      "actionId": "restore-prior-approved-disabled-policy",
+      "actionType": "restore-approved-policy",
+      "authority": "separate-explicit-approval",
+      "instruction": "Restore the prior approved disabled policy through a separately approved release workflow if candidate verification fails.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 60
+    }
+  ],
+  "verificationReceipt": {
+    "schemaVersion": "operator-verification-receipt.v1",
+    "status": "template-only-not-executed",
+    "privacy": "aggregate-only-no-aircraft-request-client-or-event-data",
+    "requiredFields": [
+      "procedureId",
+      "procedureSha256",
+      "policyId",
+      "policyEpoch",
+      "applicationVersion",
+      "releaseSha",
+      "checkedAt",
+      "runtimePolicyReasonCodes",
+      "operationsReasonCodes",
+      "entryEvidenceIds",
+      "rehearsedActionIds",
+      "stopConditionIds",
+      "result"
+    ],
+    "resultValues": ["verified", "stopped", "rolled-back", "recovered"]
+  }
+}

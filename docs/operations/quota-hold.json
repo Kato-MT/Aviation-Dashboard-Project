@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "operator-procedure.v1",
+  "procedureId": "quota-hold",
+  "title": "Quota hold",
+  "purpose": "Hold Live source work when the documented provider request ceiling is reached without expanding cost or traffic scope.",
+  "documentationBoundary": {
+    "mode": "local-documentation-only",
+    "executionClaim": "none",
+    "runtimeControlPlane": "forbidden"
+  },
+  "reasonVocabulary": {
+    "runtimePolicy": ["quota-hold"],
+    "operations": ["PROVIDER_RATE_LIMITED"]
+  },
+  "entryEvidence": [
+    {
+      "evidenceId": "dated-quota-record",
+      "source": "provider-written-record",
+      "reasonCode": "quota-hold",
+      "required": true,
+      "observation": "A dated provider record defines the applicable request ceiling and shows the quota hold."
+    },
+    {
+      "evidenceId": "compiled-quota-gate",
+      "source": "runtime-policy",
+      "reasonCode": "quota-hold",
+      "required": true,
+      "observation": "The selected compiled policy identifies quota-hold for its exact policy epoch."
+    },
+    {
+      "evidenceId": "rate-limit-state",
+      "source": "operations-v1",
+      "reasonCode": "PROVIDER_RATE_LIMITED",
+      "required": true,
+      "observation": "The bounded operations projection classifies the provider as rate-limited."
+    }
+  ],
+  "boundedActions": [
+    {
+      "sequence": 1,
+      "actionId": "capture-quota-evidence",
+      "actionType": "capture-evidence",
+      "authority": "read-only-local",
+      "instruction": "Record the policy identity, dated quota record, and current-hour and trailing-window aggregate counters once.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    },
+    {
+      "sequence": 2,
+      "actionId": "prepare-quota-hold-candidate",
+      "actionType": "prepare-policy-change",
+      "authority": "separate-explicit-approval",
+      "instruction": "Prepare one disabled-source candidate carrying quota-hold and preserving all non-Live workspaces and approved rollback bytes.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 60
+    },
+    {
+      "sequence": 3,
+      "actionId": "request-bounded-recovery-check",
+      "actionType": "request-approval",
+      "authority": "separate-explicit-approval",
+      "instruction": "Request separate approval for the exact candidate and one bounded recovery check defined by the dated provider record.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 30
+    }
+  ],
+  "stopConditions": [
+    {
+      "conditionId": "stop-on-unknown-quota",
+      "outcome": "halt",
+      "reasonCode": "quota-hold",
+      "observation": "Stop if the dated request ceiling, selected policy identity, or bounded recovery envelope is absent or inconsistent."
+    },
+    {
+      "conditionId": "receipt-on-rate-limit-agreement",
+      "outcome": "ready-for-receipt",
+      "reasonCode": "PROVIDER_RATE_LIMITED",
+      "observation": "Stop as ready for a hold receipt when the exact policy and aggregate operations reasons agree."
+    }
+  ],
+  "rollbackActions": [
+    {
+      "sequence": 1,
+      "actionId": "preserve-quota-hold-release",
+      "actionType": "preserve-current-release",
+      "authority": "read-only-local",
+      "instruction": "Keep the last approved disabled release unchanged if candidate verification or the bounded recovery check fails.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    }
+  ],
+  "verificationReceipt": {
+    "schemaVersion": "operator-verification-receipt.v1",
+    "status": "template-only-not-executed",
+    "privacy": "aggregate-only-no-aircraft-request-client-or-event-data",
+    "requiredFields": [
+      "procedureId",
+      "procedureSha256",
+      "policyId",
+      "policyEpoch",
+      "applicationVersion",
+      "releaseSha",
+      "checkedAt",
+      "runtimePolicyReasonCodes",
+      "operationsReasonCodes",
+      "entryEvidenceIds",
+      "rehearsedActionIds",
+      "stopConditionIds",
+      "result"
+    ],
+    "resultValues": ["verified", "stopped", "rolled-back", "recovered"]
+  }
+}

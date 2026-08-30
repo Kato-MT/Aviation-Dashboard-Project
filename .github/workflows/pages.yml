@@ -1,75 +1,42 @@
-name: Pages
+name: Pages publication firebreak
 
 on:
-  workflow_run:
-    workflows:
-      - CI
-    types:
-      - completed
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      candidate_run_id:
+        description: Successful CI run that retained the proposed production candidate
+        required: true
+        type: string
+      source_sha:
+        description: Exact 40-character source commit expected in that candidate
+        required: true
+        type: string
+      confirm_cutover:
+        description: I understand public v3 cutover still requires G3 approval
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
-
-env:
-  PNPM_VERSION: 11.9.0
-  NODE_VERSION: 22
+  group: pages-publication-firebreak
+  cancel-in-progress: false
 
 jobs:
-  build:
-    name: Verify and build Pages
-    if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main'
+  publication-paused:
+    name: Public cutover remains paused
     runs-on: ubuntu-latest
     steps:
-      - name: Check out exact commit
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-          persist-credentials: false
-
-      - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install pinned pnpm
-        run: npm install --global pnpm@${{ env.PNPM_VERSION }}
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Validate exact commit
-        run: pnpm validate
-
-      - name: Build with repository base path
-        run: pnpm build
-
-      - name: Configure Pages
-        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        with:
-          path: dist
-
-  deploy:
-    name: Deploy verified commit
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+      - name: Refuse publication until the production-candidate and G3 gates exist
+        shell: bash
+        run: |
+          if [[ "${{ inputs.confirm_cutover }}" != "true" ]]; then
+            echo "Public cutover was not explicitly confirmed."
+            exit 1
+          fi
+          echo "Pages publication is paused. M3.4 retains mock-staging evidence only."
+          echo "A later G3 workflow must download the named CI artifact, verify source SHA ${{ inputs.source_sha }}, and deploy without rebuilding."
+          echo "Requested CI run: ${{ inputs.candidate_run_id }}"
+          exit 1

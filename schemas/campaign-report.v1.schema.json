@@ -1,0 +1,579 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kato-mt.github.io/Aviation-Dashboard-Project/schemas/campaign-report.v1.schema.json",
+  "title": "Privacy-minimized Campaign Report",
+  "type": "object",
+  "required": [
+    "reportSchemaVersion",
+    "generatedAt",
+    "buildIdentities",
+    "dataBoundary",
+    "campaignIdentity",
+    "reproduction",
+    "terminal",
+    "metrics",
+    "failedCaseSummaries",
+    "decisionPolicy",
+    "exportPolicy"
+  ],
+  "properties": {
+    "reportSchemaVersion": { "const": "campaign-report.v1" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "buildIdentities": { "$ref": "#/$defs/buildIdentities" },
+    "dataBoundary": { "$ref": "#/$defs/dataBoundary" },
+    "campaignIdentity": { "$ref": "#/$defs/campaignIdentity" },
+    "reproduction": { "$ref": "#/$defs/reproduction" },
+    "terminal": { "$ref": "#/$defs/terminal" },
+    "metrics": { "$ref": "#/$defs/metrics" },
+    "failedCaseSummaries": {
+      "type": "array",
+      "maxItems": 372,
+      "items": { "$ref": "#/$defs/failedCaseSummary" }
+    },
+    "decisionPolicy": { "$ref": "#/$defs/decisionPolicy" },
+    "exportPolicy": { "$ref": "#/$defs/exportPolicy" }
+  },
+  "$defs": {
+    "count372": { "type": "integer", "minimum": 0, "maximum": 372 },
+    "opportunityCount": { "type": "integer", "minimum": 0, "maximum": 47616 },
+    "calibrationCount": { "type": "integer", "minimum": 0, "maximum": 761856 },
+    "ratioOrNull": {
+      "oneOf": [{ "type": "number", "minimum": 0, "maximum": 1 }, { "type": "null" }]
+    },
+    "nonnegativeOrNull": {
+      "oneOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }]
+    },
+    "buildIdentities": {
+      "type": "object",
+      "required": ["reactShell", "deterministicEngine"],
+      "properties": {
+        "reactShell": {
+          "type": "object",
+          "required": ["applicationVersion", "releaseSha", "releaseStatus", "buildTarget"],
+          "properties": {
+            "applicationVersion": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "releaseSha": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "releaseStatus": { "enum": ["unreleased", "exact-release"] },
+            "buildTarget": { "type": "string", "minLength": 1, "maxLength": 128 }
+          },
+          "additionalProperties": false
+        },
+        "deterministicEngine": {
+          "type": "object",
+          "required": ["applicationVersion", "authority"],
+          "properties": {
+            "applicationVersion": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "authority": { "const": "deterministic-rules" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "dataBoundary": {
+      "type": "object",
+      "required": [
+        "synthetic",
+        "dataClassification",
+        "campaignSchemaVersion",
+        "workerProtocolVersion",
+        "generatorKind"
+      ],
+      "properties": {
+        "synthetic": { "const": true },
+        "dataClassification": { "const": "SYNTHETIC_UNCLASSIFIED" },
+        "campaignSchemaVersion": { "const": "campaign.v1" },
+        "workerProtocolVersion": { "const": "campaign-worker.v1" },
+        "generatorKind": { "const": "bundled-fixed-wing-temporal-campaign" }
+      },
+      "additionalProperties": false
+    },
+    "campaignIdentity": {
+      "type": "object",
+      "required": ["campaignId", "runId", "createdAt", "settledAt", "specSha256"],
+      "properties": {
+        "campaignId": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "runId": { "type": "string", "minLength": 1, "maxLength": 320 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "settledAt": { "type": "string", "format": "date-time" },
+        "specSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      },
+      "additionalProperties": false
+    },
+    "reproduction": {
+      "type": "object",
+      "required": ["profile", "seeds", "matrix", "generator", "variations", "bootstrap"],
+      "properties": {
+        "profile": {
+          "type": "object",
+          "required": ["profileId", "profileVersion"],
+          "properties": {
+            "profileId": { "const": "generic-fixed-wing" },
+            "profileVersion": { "const": "1.0.0" }
+          },
+          "additionalProperties": false
+        },
+        "seeds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "matrix": { "$ref": "#/$defs/matrix" },
+        "generator": { "$ref": "#/$defs/generator" },
+        "variations": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/lowShortClimbVariation"
+            },
+            {
+              "$ref": "#/$defs/standardCruiseVariation"
+            },
+            {
+              "$ref": "#/$defs/highLongDescentVariation"
+            }
+          ],
+          "items": false
+        },
+        "bootstrap": { "$ref": "#/$defs/bootstrap" }
+      },
+      "additionalProperties": false
+    },
+    "matrix": {
+      "type": "object",
+      "required": [
+        "profileCount",
+        "scenarioCount",
+        "nominalScenarioCount",
+        "faultFamilyCount",
+        "variationsPerFault",
+        "seedCount",
+        "plannedCases"
+      ],
+      "properties": {
+        "profileCount": { "const": 1 },
+        "scenarioCount": { "const": 31 },
+        "nominalScenarioCount": { "const": 1 },
+        "faultFamilyCount": { "const": 10 },
+        "variationsPerFault": { "const": 3 },
+        "seedCount": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "plannedCases": {
+          "type": "integer",
+          "minimum": 31,
+          "maximum": 372,
+          "multipleOf": 31
+        }
+      },
+      "additionalProperties": false
+    },
+    "generator": {
+      "type": "object",
+      "required": ["sampleCount", "cadenceMs", "syntheticDurationMs"],
+      "properties": {
+        "sampleCount": { "const": 180 },
+        "cadenceMs": { "const": 1000 },
+        "syntheticDurationMs": { "const": 179000 }
+      },
+      "additionalProperties": false
+    },
+    "lowShortClimbVariation": {
+      "type": "object",
+      "required": ["variationId", "severityScale", "durationScale", "onsetPhase"],
+      "properties": {
+        "variationId": { "const": "low-short-climb" },
+        "severityScale": { "const": 0.65 },
+        "durationScale": { "const": 0.75 },
+        "onsetPhase": { "const": "climb" }
+      },
+      "additionalProperties": false
+    },
+    "standardCruiseVariation": {
+      "type": "object",
+      "required": ["variationId", "severityScale", "durationScale", "onsetPhase"],
+      "properties": {
+        "variationId": { "const": "standard-cruise" },
+        "severityScale": { "const": 1 },
+        "durationScale": { "const": 1 },
+        "onsetPhase": { "const": "cruise" }
+      },
+      "additionalProperties": false
+    },
+    "highLongDescentVariation": {
+      "type": "object",
+      "required": ["variationId", "severityScale", "durationScale", "onsetPhase"],
+      "properties": {
+        "variationId": { "const": "high-long-descent" },
+        "severityScale": { "const": 1.35 },
+        "durationScale": { "const": 1.25 },
+        "onsetPhase": { "const": "descent" }
+      },
+      "additionalProperties": false
+    },
+    "bootstrap": {
+      "type": "object",
+      "required": ["iterations", "confidenceLevel", "seed"],
+      "properties": {
+        "iterations": { "const": 300 },
+        "confidenceLevel": { "const": 0.95 },
+        "seed": { "const": 22072 }
+      },
+      "additionalProperties": false
+    },
+    "terminal": {
+      "oneOf": [
+        { "$ref": "#/$defs/completedTerminal" },
+        { "$ref": "#/$defs/completedWithErrorsTerminal" },
+        { "$ref": "#/$defs/cancelledTerminal" }
+      ]
+    },
+    "completedTerminal": {
+      "type": "object",
+      "required": ["status", "summary"],
+      "properties": {
+        "status": { "const": "completed" },
+        "summary": { "$ref": "#/$defs/completedSummary" }
+      },
+      "additionalProperties": false
+    },
+    "completedWithErrorsTerminal": {
+      "type": "object",
+      "required": ["status", "summary"],
+      "properties": {
+        "status": { "const": "completed-with-errors" },
+        "summary": { "$ref": "#/$defs/completedWithErrorsSummary" }
+      },
+      "additionalProperties": false
+    },
+    "cancelledTerminal": {
+      "type": "object",
+      "required": ["status", "summary"],
+      "properties": {
+        "status": { "const": "cancelled" },
+        "summary": { "$ref": "#/$defs/cancelledSummary" }
+      },
+      "additionalProperties": false
+    },
+    "completedSummary": {
+      "type": "object",
+      "required": [
+        "plannedCases",
+        "attemptedCases",
+        "completedCases",
+        "failedCases",
+        "remainingCases"
+      ],
+      "properties": {
+        "plannedCases": {
+          "type": "integer",
+          "minimum": 31,
+          "maximum": 372,
+          "multipleOf": 31
+        },
+        "attemptedCases": { "$ref": "#/$defs/count372" },
+        "completedCases": { "$ref": "#/$defs/count372" },
+        "failedCases": { "const": 0 },
+        "remainingCases": { "const": 0 }
+      },
+      "additionalProperties": false
+    },
+    "completedWithErrorsSummary": {
+      "type": "object",
+      "required": [
+        "plannedCases",
+        "attemptedCases",
+        "completedCases",
+        "failedCases",
+        "remainingCases"
+      ],
+      "properties": {
+        "plannedCases": {
+          "type": "integer",
+          "minimum": 31,
+          "maximum": 372,
+          "multipleOf": 31
+        },
+        "attemptedCases": { "$ref": "#/$defs/count372" },
+        "completedCases": { "$ref": "#/$defs/count372" },
+        "failedCases": { "type": "integer", "minimum": 1, "maximum": 372 },
+        "remainingCases": { "const": 0 }
+      },
+      "additionalProperties": false
+    },
+    "cancelledSummary": {
+      "type": "object",
+      "required": [
+        "plannedCases",
+        "attemptedCases",
+        "completedCases",
+        "failedCases",
+        "remainingCases"
+      ],
+      "properties": {
+        "plannedCases": {
+          "type": "integer",
+          "minimum": 31,
+          "maximum": 372,
+          "multipleOf": 31
+        },
+        "attemptedCases": { "$ref": "#/$defs/count372" },
+        "completedCases": { "$ref": "#/$defs/count372" },
+        "failedCases": { "$ref": "#/$defs/count372" },
+        "remainingCases": { "type": "integer", "minimum": 1, "maximum": 372 }
+      },
+      "additionalProperties": false
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "confusion",
+        "episodes",
+        "confusionByProfile",
+        "confusionByPhase",
+        "confusionByFault",
+        "scenarioCoverage",
+        "falseAlarmsPerRun",
+        "falseAlarmsPerSyntheticHour",
+        "syntheticHours",
+        "timeToDetection",
+        "calibration",
+        "bootstrap"
+      ],
+      "properties": {
+        "confusion": { "$ref": "#/$defs/confusion" },
+        "episodes": { "$ref": "#/$defs/episodes" },
+        "confusionByProfile": {
+          "type": "array",
+          "maxItems": 1,
+          "items": { "$ref": "#/$defs/groupMetrics" }
+        },
+        "confusionByPhase": {
+          "type": "array",
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/groupMetrics" }
+        },
+        "confusionByFault": {
+          "type": "array",
+          "maxItems": 31,
+          "items": { "$ref": "#/$defs/groupMetrics" }
+        },
+        "scenarioCoverage": {
+          "type": "array",
+          "minItems": 31,
+          "maxItems": 31,
+          "items": { "$ref": "#/$defs/scenarioCoverage" }
+        },
+        "falseAlarmsPerRun": { "$ref": "#/$defs/nonnegativeOrNull" },
+        "falseAlarmsPerSyntheticHour": { "$ref": "#/$defs/nonnegativeOrNull" },
+        "syntheticHours": { "type": "number", "minimum": 0, "maximum": 18.5 },
+        "timeToDetection": { "$ref": "#/$defs/distribution" },
+        "calibration": { "$ref": "#/$defs/calibration" },
+        "bootstrap": { "$ref": "#/$defs/bootstrapIntervals" }
+      },
+      "additionalProperties": false
+    },
+    "confusion": {
+      "type": "object",
+      "required": ["truePositives", "falsePositives", "trueNegatives", "falseNegatives"],
+      "properties": {
+        "truePositives": { "$ref": "#/$defs/opportunityCount" },
+        "falsePositives": { "$ref": "#/$defs/opportunityCount" },
+        "trueNegatives": { "$ref": "#/$defs/opportunityCount" },
+        "falseNegatives": { "$ref": "#/$defs/opportunityCount" }
+      },
+      "additionalProperties": false
+    },
+    "episodes": {
+      "type": "object",
+      "required": ["precision", "recall", "f1"],
+      "properties": {
+        "precision": { "$ref": "#/$defs/ratioOrNull" },
+        "recall": { "$ref": "#/$defs/ratioOrNull" },
+        "f1": { "$ref": "#/$defs/ratioOrNull" }
+      },
+      "additionalProperties": false
+    },
+    "groupMetrics": {
+      "type": "object",
+      "required": ["groupId", "completedCases", "confusion", "episodes"],
+      "properties": {
+        "groupId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "completedCases": { "$ref": "#/$defs/count372" },
+        "confusion": { "$ref": "#/$defs/confusion" },
+        "episodes": { "$ref": "#/$defs/episodes" }
+      },
+      "additionalProperties": false
+    },
+    "scenarioCoverage": {
+      "type": "object",
+      "required": [
+        "scenarioId",
+        "plannedCases",
+        "completedCases",
+        "casesWithAllExpected",
+        "expectedEpisodes",
+        "detectedExpectedEpisodes",
+        "coverage"
+      ],
+      "properties": {
+        "scenarioId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "plannedCases": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "completedCases": { "type": "integer", "minimum": 0, "maximum": 12 },
+        "casesWithAllExpected": { "type": "integer", "minimum": 0, "maximum": 12 },
+        "expectedEpisodes": { "type": "integer", "minimum": 0, "maximum": 48 },
+        "detectedExpectedEpisodes": { "type": "integer", "minimum": 0, "maximum": 48 },
+        "coverage": { "$ref": "#/$defs/ratioOrNull" }
+      },
+      "additionalProperties": false
+    },
+    "distribution": {
+      "type": "object",
+      "required": ["count", "minimum", "maximum", "mean", "median", "p95"],
+      "properties": {
+        "count": { "$ref": "#/$defs/opportunityCount" },
+        "minimum": { "$ref": "#/$defs/nonnegativeOrNull" },
+        "maximum": { "$ref": "#/$defs/nonnegativeOrNull" },
+        "mean": { "$ref": "#/$defs/nonnegativeOrNull" },
+        "median": { "$ref": "#/$defs/nonnegativeOrNull" },
+        "p95": { "$ref": "#/$defs/nonnegativeOrNull" }
+      },
+      "additionalProperties": false
+    },
+    "calibration": {
+      "type": "object",
+      "required": [
+        "observations",
+        "answered",
+        "abstained",
+        "abstentionRate",
+        "meanConfidence",
+        "meanConfidenceCorrect",
+        "meanConfidenceIncorrect",
+        "brierScore",
+        "expectedCalibrationError"
+      ],
+      "properties": {
+        "observations": { "$ref": "#/$defs/calibrationCount" },
+        "answered": { "$ref": "#/$defs/calibrationCount" },
+        "abstained": { "$ref": "#/$defs/calibrationCount" },
+        "abstentionRate": { "$ref": "#/$defs/ratioOrNull" },
+        "meanConfidence": { "$ref": "#/$defs/ratioOrNull" },
+        "meanConfidenceCorrect": { "$ref": "#/$defs/ratioOrNull" },
+        "meanConfidenceIncorrect": { "$ref": "#/$defs/ratioOrNull" },
+        "brierScore": { "$ref": "#/$defs/ratioOrNull" },
+        "expectedCalibrationError": { "$ref": "#/$defs/ratioOrNull" }
+      },
+      "additionalProperties": false
+    },
+    "bootstrapIntervals": {
+      "type": "object",
+      "required": ["precision", "recall", "f1"],
+      "properties": {
+        "precision": { "$ref": "#/$defs/confidenceInterval" },
+        "recall": { "$ref": "#/$defs/confidenceInterval" },
+        "f1": { "$ref": "#/$defs/confidenceInterval" }
+      },
+      "additionalProperties": false
+    },
+    "confidenceInterval": {
+      "type": "object",
+      "required": ["estimate", "lower", "upper", "confidenceLevel", "iterations"],
+      "properties": {
+        "estimate": { "$ref": "#/$defs/ratioOrNull" },
+        "lower": { "$ref": "#/$defs/ratioOrNull" },
+        "upper": { "$ref": "#/$defs/ratioOrNull" },
+        "confidenceLevel": { "const": 0.95 },
+        "iterations": { "const": 300 }
+      },
+      "additionalProperties": false
+    },
+    "failedCaseSummary": {
+      "type": "object",
+      "required": ["caseId", "scenarioId", "phase", "seed", "error"],
+      "properties": {
+        "caseId": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "scenarioId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "phase": { "enum": ["all", "climb", "cruise", "descent"] },
+        "seed": { "type": "integer", "minimum": 1, "maximum": 2147483647 },
+        "error": {
+          "type": "object",
+          "required": ["name", "message"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "message": { "type": "string", "minLength": 1, "maxLength": 512 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "decisionPolicy": {
+      "type": "object",
+      "required": [
+        "authority",
+        "temporalCalibrationRole",
+        "temporalArtifactIdentityBound",
+        "verificationLabelsAuthoritativeInputs"
+      ],
+      "properties": {
+        "authority": { "const": "deterministic-rules" },
+        "temporalCalibrationRole": { "const": "advisory-only" },
+        "temporalArtifactIdentityBound": { "const": false },
+        "verificationLabelsAuthoritativeInputs": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "exportPolicy": {
+      "type": "object",
+      "required": [
+        "sourceDataIncluded",
+        "samplesIncluded",
+        "pointsIncluded",
+        "seriesIncluded",
+        "measurementsIncluded",
+        "successfulCaseRowsIncluded",
+        "detectionsIncluded",
+        "detectionDetailsIncluded",
+        "sensorIdsIncluded",
+        "sampleIndicesIncluded",
+        "calibrationObservationsIncluded",
+        "replayManifestCasesIncluded",
+        "failedCaseRawErrorTextIncluded",
+        "truthIncluded",
+        "lifecycleRowsIncluded",
+        "browserStateIncluded",
+        "storageIncluded",
+        "endpointsIncluded"
+      ],
+      "properties": {
+        "sourceDataIncluded": { "const": false },
+        "samplesIncluded": { "const": false },
+        "pointsIncluded": { "const": false },
+        "seriesIncluded": { "const": false },
+        "measurementsIncluded": { "const": false },
+        "successfulCaseRowsIncluded": { "const": false },
+        "detectionsIncluded": { "const": false },
+        "detectionDetailsIncluded": { "const": false },
+        "sensorIdsIncluded": { "const": false },
+        "sampleIndicesIncluded": { "const": false },
+        "calibrationObservationsIncluded": { "const": false },
+        "replayManifestCasesIncluded": { "const": false },
+        "failedCaseRawErrorTextIncluded": { "const": false },
+        "truthIncluded": { "const": false },
+        "lifecycleRowsIncluded": { "const": false },
+        "browserStateIncluded": { "const": false },
+        "storageIncluded": { "const": false },
+        "endpointsIncluded": { "const": false }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

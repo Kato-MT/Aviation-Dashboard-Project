@@ -1,0 +1,33 @@
+name: V3 release publication firebreak
+
+on:
+  push:
+    tags:
+      - 'v3.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publication-blocked:
+    name: V3 publication remains blocked until M5 and G3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the requested source without credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Enforce the unreleased v3 boundary
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_TYPE" != "tag" || "$GITHUB_REF_NAME" != v3.* ]]; then
+            echo "A v3 preflight requires an exact v3 tag."
+            exit 1
+          fi
+          test "$(node -p 'require("./package.json").version.split(".")[0]')" = "3"
+          grep --fixed-strings 'id="live-root"' index.html
+          echo "V3 release publication is intentionally blocked until M4.2, M5, and explicit G3 approval."
+          echo "The final workflow must consume a verified retained production candidate and must not rebuild it."
+          exit 1

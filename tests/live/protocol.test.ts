@@ -7,6 +7,7 @@ import {
   type LiveStreamMessage,
 } from '../../src/live/protocol';
 import { AIRSPACE_SCHEMA_VERSION } from '../../src/live/types';
+import { LIVE_FIXTURE_EPOCH } from './fixtures';
 
 const generatedAt = '2026-08-27T12:00:00.000Z';
 
@@ -18,6 +19,7 @@ function messageFixtures(): LiveStreamMessage[] {
       schemaVersion: AIRSPACE_SCHEMA_VERSION,
       regionId: 'atlanta',
       providerId: 'adsb-lol',
+      feedEpoch: LIVE_FIXTURE_EPOCH,
       pollIntervalMs: 10_000,
       generatedAt,
     },
@@ -27,6 +29,7 @@ function messageFixtures(): LiveStreamMessage[] {
       snapshot: {
         schemaVersion: AIRSPACE_SCHEMA_VERSION,
         providerId: 'adsb-lol',
+        feedEpoch: LIVE_FIXTURE_EPOCH,
         regionId: 'atlanta',
         sequence: 1,
         generatedAt,
@@ -39,7 +42,9 @@ function messageFixtures(): LiveStreamMessage[] {
             onGround: false,
             observedAt: generatedAt,
             lastContactAt: generatedAt,
+            lastPositionAt: generatedAt,
             contactAgeSeconds: 0,
+            positionAgeSeconds: 0,
             qualityFlags: [],
           },
         ],
@@ -59,6 +64,7 @@ function messageFixtures(): LiveStreamMessage[] {
         schemaVersion: AIRSPACE_SCHEMA_VERSION,
         regionId: 'atlanta',
         providerId: 'adsb-lol',
+        feedEpoch: LIVE_FIXTURE_EPOCH,
         status: 'live',
         checkedAt: generatedAt,
         lastSuccessAt: generatedAt,
@@ -99,7 +105,7 @@ describe('live stream protocol', () => {
     expect(result.ok).toBe(false);
     expect(result.errors).toContain(`protocolVersion must be ${LIVE_STREAM_PROTOCOL_VERSION}.`);
     expect(result.errors).toContain(
-      'type must be hello, airspace.snapshot, feed.health, or error.',
+      'type must be hello, airspace.snapshot, feed.health, error, or pong.',
     );
   });
 
@@ -121,6 +127,37 @@ describe('live stream protocol', () => {
     expect(result.errors.length).toBeGreaterThanOrEqual(4);
   });
 
+  it('keeps the replay-only synthetic identity branch invalid on the Live wire', () => {
+    const message = messageFixtures()[1] as Extract<
+      LiveStreamMessage,
+      { type: 'airspace.snapshot' }
+    >;
+    const result = parseLiveStreamMessage({
+      ...message,
+      snapshot: {
+        ...message.snapshot,
+        providerId: 'synthetic-replay',
+        aircraft: [
+          {
+            ...message.snapshot.aircraft[0],
+            aircraftId: 'demo:nominal-regional:1',
+            identifierKind: 'synthetic',
+            synthetic: true,
+          },
+        ],
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        'snapshot.aircraft[0] contains unsupported properties.',
+        'snapshot.aircraft[0].aircraftId must be a normalized surveillance identifier.',
+        'snapshot.aircraft[0].identifierKind must match the surveillance identifier.',
+      ]),
+    );
+  });
+
   it('will not serialize invalid messages', () => {
     expect(() =>
       serializeLiveStreamMessage({
@@ -129,6 +166,7 @@ describe('live stream protocol', () => {
         schemaVersion: AIRSPACE_SCHEMA_VERSION,
         regionId: '',
         providerId: '',
+        feedEpoch: '',
         pollIntervalMs: -1,
         generatedAt: 'later',
       }),
@@ -163,6 +201,7 @@ describe('live stream protocol', () => {
       ...envelope,
       snapshot: {
         schemaVersion: 'wrong',
+        feedEpoch: LIVE_FIXTURE_EPOCH,
         providerId: 1,
         regionId: null,
         sequence: 1.5,
@@ -176,9 +215,9 @@ describe('live stream protocol', () => {
     expect(result.errors).toEqual(
       expect.arrayContaining([
         `snapshot.schemaVersion must be ${AIRSPACE_SCHEMA_VERSION}.`,
-        'snapshot providerId and regionId must be strings.',
+        'snapshot providerId and regionId must be valid identifiers.',
         'snapshot.sequence must be a non-negative safe integer.',
-        'snapshot timestamps must be valid ISO-8601 values.',
+        'snapshot timestamps must be valid canonical UTC values.',
         'snapshot.aircraft must be an array.',
         'snapshot.validation must be an object.',
       ]),
@@ -209,6 +248,7 @@ describe('live stream protocol', () => {
       ...envelope,
       health: {
         schemaVersion: 'wrong',
+        feedEpoch: LIVE_FIXTURE_EPOCH,
         providerId: 1,
         regionId: false,
         checkedAt: 'later',

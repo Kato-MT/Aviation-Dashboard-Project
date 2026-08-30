@@ -15,7 +15,7 @@ Flight Diagnostics Workbench is a browser-based telemetry integration, diagnosti
 - Stable rule IDs for value, rate, timing, sequence, freshness, schema, and profile checks
 - Seeded fault injection with reproducible evidence
 - Baseline-versus-candidate verification with resolved, persisting, and new finding classifications
-- Five views in a restrained, minimalist interface with labeled controls, keyboard paths, visible statuses, and responsive styling: Monitor, Diagnostics, Verification, Investigation, and Configuration
+- A preserved five-view v2 interface plus the v3 four-workspace shell: Live Airspace, Synthetic Replay, Diagnostics Lab, and Evidence. The React Lab has six workflows: Monitor, Diagnostics, Verification, Investigation, Campaign, and Configuration
 - Versioned JSON verification reports and CSV finding exports without source data by default
 - Reproducibility evidence, including versions, adapter, SHA-256 input hash, counts, validation results, and findings
 - Optional v2.1 streaming, history analytics, and experimental learned-baseline analysis

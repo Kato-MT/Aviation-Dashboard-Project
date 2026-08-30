@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - 'agent/**'
+      - feat/live-airspace-v3
   pull_request:
     branches:
       - main
@@ -111,8 +112,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check requirements traceability
-        run: pnpm requirements:check
+      - name: Check requirements traceability and evidence paths
+        run: |
+          pnpm requirements:check
+          node scripts/release/verify-traceability.mjs --require-evidence-paths
 
       - name: Build Pages artifact
         run: pnpm build
@@ -170,6 +173,184 @@ jobs:
           path: |
             playwright-report
             test-results
+          if-no-files-found: warn
+          retention-days: 14
+
+  live-assurance:
+    name: Live airspace assurance
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    env:
+      M34_CANDIDATE_DIRECTORY: .tmp-tests/retained-m34
+      M34_SELECTION_RECORD_PATH: .tmp-tests/retained-m34.selection.json
+      M34_EXPECTED_SOURCE_HEAD: ${{ github.sha }}
+      M34_JUNIT_PATH: test-results/m34-entry-artifact/results.xml
+      M34_RUNBOOK_RECEIPT_PATH: test-results/m34-entry-artifact/runbook-rehearsal.json
+      M34_RECEIPT_PATH: test-results/m34-entry-artifact/acceptance.json
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pinned pnpm
+        run: npm install --global pnpm@${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore integrity-keyed regional map inputs
+        id: live-map-cache
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            .map-data/georgia-20260828-z12
+            .tmp-tests/map-preparation
+          key: live-map-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('maps/recipe.json', 'maps/manifest.json', 'maps/style.json', 'tools/maps/prepare.ts', 'tools/maps/manifest.ts', 'tools/maps/seed.ts', 'tools/maps/wrangler.seed.json', 'pnpm-lock.yaml') }}
+
+      - name: Prepare pinned regional map inputs on cache miss
+        if: steps.live-map-cache.outputs.cache-hit != 'true'
+        run: |
+          pnpm maps:prepare
+          pnpm maps:manifest
+          git diff --exit-code -- maps/manifest.json maps/style.json
+
+      - name: Seed fresh local-only map storage
+        run: pnpm maps:seed
+
+      - name: Install Chromium
+        run: pnpm exec playwright install chromium
+
+      - name: Build isolated Live artifacts once and inspect them
+        run: |
+          pnpm build:live
+          pnpm build:mock-staging
+          pnpm verify:live-builds
+
+      - name: Enforce local R3 privacy and browser quality gates
+        run: |
+          pnpm privacy:verify
+          pnpm runbooks:verify
+          pnpm browser:budgets
+          pnpm test:visual-regression
+          pnpm test:browser-performance
+
+      - name: Dry-run the built production Worker
+        run: pnpm worker:dry-run
+
+      - name: Generate the candidate SBOM without rebuilding
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          pnpm sbom:generate
+
+      - name: Retain the exact mock-staging candidate
+        id: retain-candidate
+        shell: pwsh
+        run: |
+          $retentionOutput = @(pnpm candidate:retain --output "$env:M34_CANDIDATE_DIRECTORY" --selection-record "$env:M34_SELECTION_RECORD_PATH")
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $retentionOutput | ForEach-Object { Write-Output $_ }
+          # Trust boundary: the runner and GitHub step-output channel are assumed uncompromised.
+          $selectionLines = @($retentionOutput | Where-Object { $_ -like 'M34_CANDIDATE_SELECTION *' })
+          if ($selectionLines.Count -ne 1) { throw 'Retention did not emit one trusted selection identity.' }
+          $selection = $selectionLines[0].Substring('M34_CANDIDATE_SELECTION '.Length) | ConvertFrom-Json
+          if ($selection.selectionRecordSha256 -notmatch '^[a-f0-9]{64}$') { throw 'Retention emitted an invalid selection SHA-256.' }
+          "selection_sha256=$($selection.selectionRecordSha256)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Verify the retained candidate before execution
+        shell: pwsh
+        env:
+          M34_EXPECTED_SELECTION_SHA256: ${{ steps.retain-candidate.outputs.selection_sha256 }}
+        run: pnpm candidate:verify "$env:M34_CANDIDATE_DIRECTORY" --selection-record "$env:M34_SELECTION_RECORD_PATH" --expected-selection-sha256 "$env:M34_EXPECTED_SELECTION_SHA256" --expected-source-head "$env:GITHUB_SHA" --expected-target mock-staging
+
+      - name: Run candidate-bound local workerd load smoke gate
+        timeout-minutes: 15
+        shell: pwsh
+        env:
+          M34_EXPECTED_SELECTION_SHA256: ${{ steps.retain-candidate.outputs.selection_sha256 }}
+        run: pnpm live:load:candidate:smoke --candidate-directory "$env:M34_CANDIDATE_DIRECTORY"
+
+      - name: Reverify the unchanged candidate after load execution
+        if: always()
+        shell: pwsh
+        env:
+          M34_EXPECTED_SELECTION_SHA256: ${{ steps.retain-candidate.outputs.selection_sha256 }}
+        run: pnpm candidate:verify "$env:M34_CANDIDATE_DIRECTORY" --selection-record "$env:M34_SELECTION_RECORD_PATH" --expected-selection-sha256 "$env:M34_EXPECTED_SELECTION_SHA256" --expected-source-head "$env:GITHUB_SHA" --expected-target mock-staging
+
+      - name: Browser-test the retained full-stack candidate with zero retries
+        env:
+          M34_EXPECTED_SELECTION_SHA256: ${{ steps.retain-candidate.outputs.selection_sha256 }}
+        run: pnpm test:m34-artifact
+
+      - name: Reverify the unchanged candidate after browser execution
+        shell: pwsh
+        env:
+          M34_EXPECTED_SELECTION_SHA256: ${{ steps.retain-candidate.outputs.selection_sha256 }}
+        run: pnpm candidate:verify "$env:M34_CANDIDATE_DIRECTORY" --selection-record "$env:M34_SELECTION_RECORD_PATH" --expected-selection-sha256 "$env:M34_EXPECTED_SELECTION_SHA256" --expected-source-head "$env:GITHUB_SHA" --expected-target mock-staging
+
+      - name: Rehearse all candidate-bound operator runbooks locally
+        shell: pwsh
+        env:
+          M34_EXPECTED_SELECTION_SHA256: ${{ steps.retain-candidate.outputs.selection_sha256 }}
+        run: pnpm runbooks:rehearse:candidate "$env:M34_CANDIDATE_DIRECTORY" --output "$env:M34_RUNBOOK_RECEIPT_PATH" --selection-record "$env:M34_SELECTION_RECORD_PATH" --expected-selection-sha256 "$env:M34_EXPECTED_SELECTION_SHA256" --expected-source-head "$env:GITHUB_SHA"
+
+      - name: Record the candidate-bound acceptance receipt
+        shell: pwsh
+        env:
+          M34_EXPECTED_SELECTION_SHA256: ${{ steps.retain-candidate.outputs.selection_sha256 }}
+        run: pnpm candidate:acceptance "$env:M34_CANDIDATE_DIRECTORY" "$env:M34_JUNIT_PATH" "$env:M34_RUNBOOK_RECEIPT_PATH" --output "$env:M34_RECEIPT_PATH" --selection-record "$env:M34_SELECTION_RECORD_PATH" --expected-selection-sha256 "$env:M34_EXPECTED_SELECTION_SHA256" --expected-source-head "$env:GITHUB_SHA"
+
+      - name: Reverify that receipt creation did not mutate the candidate
+        shell: pwsh
+        env:
+          M34_EXPECTED_SELECTION_SHA256: ${{ steps.retain-candidate.outputs.selection_sha256 }}
+        run: pnpm candidate:verify "$env:M34_CANDIDATE_DIRECTORY" --selection-record "$env:M34_SELECTION_RECORD_PATH" --expected-selection-sha256 "$env:M34_EXPECTED_SELECTION_SHA256" --expected-source-head "$env:GITHUB_SHA" --expected-target mock-staging
+
+      - name: Upload exact M3.4 candidate and acceptance evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: retained-m34-${{ github.sha }}
+          path: |
+            .tmp-tests/retained-m34
+            .tmp-tests/retained-m34.selection.json
+            test-results/m34-entry-artifact
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 30
+
+      - name: Run actual Live browser assurance
+        run: |
+          pnpm test:live-browser
+          pnpm test:live-flow
+          pnpm test:m3-walkthrough
+
+      - name: Evaluate the bounded capacity model
+        run: pnpm live:capacity
+
+      - name: Upload Live assurance evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: live-assurance-${{ github.sha }}
+          path: |
+            test-results/live
+            test-results/live-flow
+            test-results/live-performance
+            test-results/visual-regression
+            test-results/live-load
+            build/test-results/m3-walkthrough
+            .tmp-tests/worker-dry-run
+            !.tmp-tests/worker-dry-run/**/*.map
+            dist-live/airspace_worker/wrangler.json
+            dist-mock-staging/airspace_worker/wrangler.json
+            dist-mock-staging/mock_provider/wrangler.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -296,6 +477,7 @@ jobs:
       - core-coverage
       - build-artifacts
       - browser-assurance
+      - live-assurance
       - temporal-evidence
       - dependency-audit
       - development-container
@@ -303,11 +485,20 @@ jobs:
     steps:
       - name: Confirm all required jobs succeeded
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          GIT_REF: ${{ github.ref }}
+          LIVE_ASSURANCE_RESULT: ${{ needs.live-assurance.result }}
         run: |
           test "${{ needs.native-validation.result }}" = "success"
           test "${{ needs.core-coverage.result }}" = "success"
           test "${{ needs.build-artifacts.result }}" = "success"
           test "${{ needs.browser-assurance.result }}" = "success"
+          if [[ "$EVENT_NAME" == "push" && "$GIT_REF" != "refs/heads/main" ]]; then
+            test "$LIVE_ASSURANCE_RESULT" = "skipped"
+          else
+            test "$LIVE_ASSURANCE_RESULT" = "success"
+          fi
           test "${{ needs.temporal-evidence.result }}" = "success"
           test "${{ needs.dependency-audit.result }}" = "success"
           test "${{ needs.development-container.result }}" = "success"

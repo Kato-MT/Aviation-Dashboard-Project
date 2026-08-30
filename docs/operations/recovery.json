@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "operator-procedure.v1",
+  "procedureId": "recovery",
+  "title": "Recovery",
+  "purpose": "Verify one bounded synthetic recovery from an internal fault while preserving policy, release, candidate, and rollback identities.",
+  "documentationBoundary": {
+    "mode": "local-documentation-only",
+    "executionClaim": "none",
+    "runtimeControlPlane": "forbidden"
+  },
+  "reasonVocabulary": {
+    "runtimePolicy": ["internal-fault"],
+    "operations": ["APPLICATION_UNAVAILABLE", "APPLICATION_AVAILABLE"]
+  },
+  "entryEvidence": [
+    {
+      "evidenceId": "recovery-incident-classification",
+      "source": "incident-record",
+      "reasonCode": "internal-fault",
+      "required": true,
+      "observation": "A bounded synthetic incident record identifies an internal fault for one exact policy and release identity."
+    },
+    {
+      "evidenceId": "unavailable-recovery-state",
+      "source": "operations-v1",
+      "reasonCode": "APPLICATION_UNAVAILABLE",
+      "required": true,
+      "observation": "The aggregate operations projection classifies the selected synthetic application unavailable before recovery."
+    },
+    {
+      "evidenceId": "approved-recovery-candidate",
+      "source": "retained-candidate",
+      "reasonCode": "internal-fault",
+      "required": true,
+      "observation": "One retained synthetic candidate provides exact source, artifact, policy, release, checksum, and rollback identities."
+    }
+  ],
+  "boundedActions": [
+    {
+      "sequence": 1,
+      "actionId": "capture-recovery-evidence",
+      "actionType": "capture-evidence",
+      "authority": "read-only-local",
+      "instruction": "Record the incident, policy, release, candidate, rollback, and aggregate unavailable-state identities once.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    },
+    {
+      "sequence": 2,
+      "actionId": "verify-recovery-candidate",
+      "actionType": "verify-read-only",
+      "authority": "read-only-local",
+      "instruction": "Verify the approved synthetic recovery candidate and bounded policy limits without changing retained bytes.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 30
+    },
+    {
+      "sequence": 3,
+      "actionId": "prepare-recovery-policy",
+      "actionType": "prepare-policy-change",
+      "authority": "separate-explicit-approval",
+      "instruction": "Prepare one exact recovery policy that preserves the selected source, release, candidate, and approved rollback identities.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 60
+    },
+    {
+      "sequence": 4,
+      "actionId": "request-recovery-approval",
+      "actionType": "request-approval",
+      "authority": "separate-explicit-approval",
+      "instruction": "Request separate approval for the exact recovery policy, candidate, and aggregate verification plan.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 30
+    }
+  ],
+  "stopConditions": [
+    {
+      "conditionId": "stop-on-recovery-identity-mismatch",
+      "outcome": "halt",
+      "reasonCode": "internal-fault",
+      "observation": "Stop if any policy, release, candidate, rollback, checksum, incident, or receipt identity is absent or inconsistent."
+    },
+    {
+      "conditionId": "stop-on-unavailable-recovery",
+      "outcome": "halt",
+      "reasonCode": "APPLICATION_UNAVAILABLE",
+      "observation": "Stop if the bounded aggregate recovery projection remains unavailable after the selected synthetic check."
+    },
+    {
+      "conditionId": "receipt-on-available-recovery",
+      "outcome": "ready-for-receipt",
+      "reasonCode": "APPLICATION_AVAILABLE",
+      "observation": "Stop as ready for a recovered receipt only when the same selected policy and candidate classify the synthetic application available."
+    }
+  ],
+  "rollbackActions": [
+    {
+      "sequence": 1,
+      "actionId": "preserve-pre-recovery-release",
+      "actionType": "preserve-current-release",
+      "authority": "read-only-local",
+      "instruction": "Keep the last independently verified release unchanged if recovery selection or aggregate verification fails.",
+      "maximumAttempts": 1,
+      "maximumDurationMinutes": 15
+    }
+  ],
+  "verificationReceipt": {
+    "schemaVersion": "operator-verification-receipt.v1",
+    "status": "template-only-not-executed",
+    "privacy": "aggregate-only-no-aircraft-request-client-or-event-data",
+    "requiredFields": [
+      "procedureId",
+      "procedureSha256",
+      "policyId",
+      "policyEpoch",
+      "applicationVersion",
+      "releaseSha",
+      "checkedAt",
+      "runtimePolicyReasonCodes",
+      "operationsReasonCodes",
+      "entryEvidenceIds",
+      "rehearsedActionIds",
+      "stopConditionIds",
+      "result"
+    ],
+    "resultValues": ["verified", "stopped", "rolled-back", "recovered"]
+  }
+}

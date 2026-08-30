@@ -1,0 +1,12 @@
+flowchart LR
+  Worker[Worker routes] --> Ledger[OperationsLedger Durable Object]
+  HubA[RegionalFeedHub A] --> Ledger
+  HubB[RegionalFeedHub B] --> Ledger
+  HubC[RegionalFeedHub C] --> Ledger
+  Delivery[Delivery and ACK outcomes] --> Ledger
+  Ledger --> Store[(Central aggregate event buckets)]
+  Viewer[Explicit operator health read] --> Health[GET /api/v1/health]
+  Health --> Ledger
+  Ledger --> Result[Global application and regional SLI contract]
+  Privacy[Schema allowlist and retention job] --> Ledger
+  Result --> Evidence[Evidence route and release receipt]
