@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -142,6 +143,150 @@ describe('selected R3 evidence manifest', () => {
 
     const changedPath = verified.contract.testCases[0]!.evidencePaths[0]!;
     await fixtureFile(repositoryRoot, changedPath, 'changed evidence\n');
+    await expect(verifySelectedR3EvidenceManifest(repositoryRoot)).rejects.toThrow(
+      /manifest is stale|does not match/u,
+    );
+  }, 30_000);
+
+  it('accepts only the exact clean child commit of a fully staged manifest source', async () => {
+    const repositoryRoot = await repositoryFixture();
+    await fixtureFile(repositoryRoot, 'src/staged-feature.ts', 'export const staged = true;\n');
+    git(repositoryRoot, ['add', '--', 'src/staged-feature.ts']);
+
+    const written = await writeSelectedR3EvidenceManifest(repositoryRoot);
+    expect(written.source).toMatchObject({
+      dirty: true,
+      content: {
+        indexDiffersFromHead: true,
+        missingTrackedFileCount: 0,
+        trackedWorktreeMismatchCount: 0,
+        untrackedFileCount: 0,
+      },
+    });
+    git(repositoryRoot, ['add', '--', 'hardening/r3/selected-evidence.manifest.json']);
+    git(repositoryRoot, ['commit', '--quiet', '-m', 'commit selected R3 evidence']);
+
+    const verified = await verifySelectedR3EvidenceManifest(repositoryRoot);
+    expect(verified).toEqual(written);
+
+    git(repositoryRoot, ['commit', '--quiet', '--allow-empty', '-m', 'later unrelated commit']);
+    await expect(verifySelectedR3EvidenceManifest(repositoryRoot)).rejects.toThrow(
+      /manifest is stale|does not match/u,
+    );
+  }, 30_000);
+
+  it('rejects a clean child commit containing source that was not in the staged manifest', async () => {
+    const repositoryRoot = await repositoryFixture();
+    await fixtureFile(repositoryRoot, 'src/staged-feature.ts', 'export const staged = true;\n');
+    git(repositoryRoot, ['add', '--', 'src/staged-feature.ts']);
+    await writeSelectedR3EvidenceManifest(repositoryRoot);
+
+    await fixtureFile(repositoryRoot, 'src/unbound-feature.ts', 'export const unbound = true;\n');
+    git(repositoryRoot, [
+      'add',
+      '--',
+      'hardening/r3/selected-evidence.manifest.json',
+      'src/unbound-feature.ts',
+    ]);
+    git(repositoryRoot, ['commit', '--quiet', '-m', 'commit drifted selected R3 evidence']);
+
+    await expect(verifySelectedR3EvidenceManifest(repositoryRoot)).rejects.toThrow(
+      /manifest is stale|does not match/u,
+    );
+  }, 30_000);
+
+  it('rejects a manifest left untracked when only its staged source is committed', async () => {
+    const repositoryRoot = await repositoryFixture();
+    await fixtureFile(repositoryRoot, 'src/staged-feature.ts', 'export const staged = true;\n');
+    git(repositoryRoot, ['add', '--', 'src/staged-feature.ts']);
+    await writeSelectedR3EvidenceManifest(repositoryRoot);
+
+    git(repositoryRoot, ['commit', '--quiet', '-m', 'commit source without manifest']);
+    expect(git(repositoryRoot, ['ls-files', '--others', '--exclude-standard'])).toContain(
+      'hardening/r3/selected-evidence.manifest.json',
+    );
+    await expect(verifySelectedR3EvidenceManifest(repositoryRoot)).rejects.toThrow(
+      /manifest is stale|does not match/u,
+    );
+  }, 30_000);
+
+  it('rejects a canonical worktree manifest that is not the blob sealed in HEAD', async () => {
+    const repositoryRoot = await repositoryFixture();
+    await fixtureFile(repositoryRoot, 'src/staged-feature.ts', 'export const staged = true;\n');
+    git(repositoryRoot, ['add', '--', 'src/staged-feature.ts']);
+    await writeSelectedR3EvidenceManifest(repositoryRoot);
+    const manifestPath = join(repositoryRoot, 'hardening', 'r3', 'selected-evidence.manifest.json');
+    const canonicalManifest = await readFile(manifestPath, 'utf8');
+
+    await writeFile(manifestPath, '{}\n', 'utf8');
+    git(repositoryRoot, ['add', '--', 'hardening/r3/selected-evidence.manifest.json']);
+    git(repositoryRoot, ['commit', '--quiet', '-m', 'seal different manifest bytes']);
+    await writeFile(manifestPath, canonicalManifest, 'utf8');
+
+    await expect(verifySelectedR3EvidenceManifest(repositoryRoot)).rejects.toThrow(
+      /manifest is stale|does not match/u,
+    );
+  }, 30_000);
+
+  it('accepts the sealed transition from a depth-two shallow checkout', async () => {
+    const repositoryRoot = await repositoryFixture();
+    git(repositoryRoot, ['commit', '--quiet', '--allow-empty', '-m', 'prior history']);
+    await fixtureFile(repositoryRoot, 'src/staged-feature.ts', 'export const staged = true;\n');
+    git(repositoryRoot, ['add', '--', 'src/staged-feature.ts']);
+    await writeSelectedR3EvidenceManifest(repositoryRoot);
+    git(repositoryRoot, ['add', '--', 'hardening/r3/selected-evidence.manifest.json']);
+    git(repositoryRoot, ['commit', '--quiet', '-m', 'seal selected R3 evidence']);
+
+    const cloneParent = await mkdtemp(join(tmpdir(), 'selected-r3-shallow-'));
+    roots.push(cloneParent);
+    const cloneRoot = join(cloneParent, 'repository');
+    execFileSync(
+      'git',
+      [
+        'clone',
+        '--quiet',
+        '--depth',
+        '2',
+        '-c',
+        'core.autocrlf=false',
+        pathToFileURL(repositoryRoot).href,
+        cloneRoot,
+      ],
+      { encoding: 'utf8', windowsHide: true },
+    );
+
+    expect(git(cloneRoot, ['rev-parse', '--is-shallow-repository']).trim()).toBe('true');
+    await expect(verifySelectedR3EvidenceManifest(cloneRoot)).resolves.toBeDefined();
+  }, 30_000);
+
+  it('rejects a two-parent merge even when its tree matches the staged manifest source', async () => {
+    const repositoryRoot = await repositoryFixture();
+    const baseHead = git(repositoryRoot, ['rev-parse', 'HEAD']).trim();
+    const baseTree = git(repositoryRoot, ['rev-parse', 'HEAD^{tree}']).trim();
+    const sideHead = execFileSync('git', ['commit-tree', baseTree, '-p', baseHead], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+      input: 'side parent\n',
+      windowsHide: true,
+    }).trim();
+
+    await fixtureFile(repositoryRoot, 'src/staged-feature.ts', 'export const staged = true;\n');
+    git(repositoryRoot, ['add', '--', 'src/staged-feature.ts']);
+    await writeSelectedR3EvidenceManifest(repositoryRoot);
+    git(repositoryRoot, ['add', '--', 'hardening/r3/selected-evidence.manifest.json']);
+    const mergeTree = git(repositoryRoot, ['write-tree']).trim();
+    const mergeHead = execFileSync(
+      'git',
+      ['commit-tree', mergeTree, '-p', baseHead, '-p', sideHead],
+      {
+        cwd: repositoryRoot,
+        encoding: 'utf8',
+        input: 'synthetic merge\n',
+        windowsHide: true,
+      },
+    ).trim();
+    git(repositoryRoot, ['reset', '--quiet', '--hard', mergeHead]);
+
     await expect(verifySelectedR3EvidenceManifest(repositoryRoot)).rejects.toThrow(
       /manifest is stale|does not match/u,
     );

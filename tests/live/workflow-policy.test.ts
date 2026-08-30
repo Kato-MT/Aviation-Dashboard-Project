@@ -31,6 +31,25 @@ function expectOrdered(source: string, markers: readonly string[]): void {
 }
 
 describe('v3 publication firebreaks', () => {
+  it('checks manifest-gated pull-request jobs at the immutable branch head', async () => {
+    const source = await workflow('ci.yml');
+    const checkoutRef =
+      "ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}";
+    const manifestGatedJobs = [
+      section(source, '  native-validation:', '  core-coverage:'),
+      section(source, '  build-artifacts:', '  browser-assurance:'),
+      section(source, '  development-container:', '  ci-required:'),
+    ];
+
+    expect(
+      source.match(new RegExp(checkoutRef.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&'), 'gu')),
+    ).toHaveLength(manifestGatedJobs.length);
+    for (const job of manifestGatedJobs) {
+      expect(job).toContain(checkoutRef);
+      expect(job).toContain('fetch-depth: 2');
+    }
+  });
+
   it('builds once, retains, tests with zero retries, reverifies, receipts, and uploads', async () => {
     const source = await workflow('ci.yml');
     const liveJob = section(source, '  live-assurance:', '  temporal-evidence:');

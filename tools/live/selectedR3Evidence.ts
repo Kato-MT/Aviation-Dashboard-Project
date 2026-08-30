@@ -777,6 +777,199 @@ function sameSource(
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
+function exactObjectKeys(value: Record<string, unknown>, expected: readonly string[]): boolean {
+  return (
+    JSON.stringify(Object.keys(value).sort(compareNames)) ===
+    JSON.stringify([...expected].sort(compareNames))
+  );
+}
+
+function storedManifestSource(text: string): SelectedR3EvidenceManifest['source'] | null {
+  let document: unknown;
+  try {
+    document = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (typeof document !== 'object' || document === null || Array.isArray(document)) return null;
+  const source = (document as Record<string, unknown>).source;
+  if (
+    typeof source !== 'object' ||
+    source === null ||
+    Array.isArray(source) ||
+    !exactObjectKeys(source as Record<string, unknown>, ['baseHead', 'content', 'dirty'])
+  ) {
+    return null;
+  }
+  const sourceRecord = source as Record<string, unknown>;
+  const content = sourceRecord.content;
+  if (
+    typeof sourceRecord.baseHead !== 'string' ||
+    !GIT_OBJECT_PATTERN.test(sourceRecord.baseHead) ||
+    typeof sourceRecord.dirty !== 'boolean' ||
+    typeof content !== 'object' ||
+    content === null ||
+    Array.isArray(content) ||
+    !exactObjectKeys(content as Record<string, unknown>, [
+      'excludedPaths',
+      'fileCount',
+      'indexDiffersFromHead',
+      'missingTrackedFileCount',
+      'schemaVersion',
+      'sha256',
+      'totalBytes',
+      'trackedWorktreeMismatchCount',
+      'untrackedFileCount',
+    ])
+  ) {
+    return null;
+  }
+  const contentRecord = content as Record<string, unknown>;
+  const excludedPaths = contentRecord.excludedPaths;
+  const integerFields = [
+    'fileCount',
+    'totalBytes',
+    'missingTrackedFileCount',
+    'trackedWorktreeMismatchCount',
+    'untrackedFileCount',
+  ] as const;
+  if (
+    contentRecord.schemaVersion !== SOURCE_SCHEMA_VERSION ||
+    !Array.isArray(excludedPaths) ||
+    excludedPaths.some((path) => typeof path !== 'string') ||
+    integerFields.some(
+      (field) => !Number.isSafeInteger(contentRecord[field]) || Number(contentRecord[field]) < 0,
+    ) ||
+    typeof contentRecord.indexDiffersFromHead !== 'boolean' ||
+    typeof contentRecord.sha256 !== 'string' ||
+    !SHA256_PATTERN.test(contentRecord.sha256)
+  ) {
+    return null;
+  }
+  return {
+    baseHead: sourceRecord.baseHead,
+    dirty: sourceRecord.dirty,
+    content: {
+      schemaVersion: SOURCE_SCHEMA_VERSION,
+      excludedPaths: [...excludedPaths] as string[],
+      fileCount: Number(contentRecord.fileCount),
+      totalBytes: Number(contentRecord.totalBytes),
+      missingTrackedFileCount: Number(contentRecord.missingTrackedFileCount),
+      trackedWorktreeMismatchCount: Number(contentRecord.trackedWorktreeMismatchCount),
+      untrackedFileCount: Number(contentRecord.untrackedFileCount),
+      indexDiffersFromHead: contentRecord.indexDiffersFromHead,
+      sha256: contentRecord.sha256,
+    },
+  };
+}
+
+function sameCommittedContent(
+  staged: SourceContentIdentity,
+  committed: SourceContentIdentity,
+): boolean {
+  return (
+    staged.schemaVersion === committed.schemaVersion &&
+    JSON.stringify(staged.excludedPaths) === JSON.stringify(committed.excludedPaths) &&
+    staged.fileCount === committed.fileCount &&
+    staged.totalBytes === committed.totalBytes &&
+    staged.missingTrackedFileCount === committed.missingTrackedFileCount &&
+    staged.trackedWorktreeMismatchCount === committed.trackedWorktreeMismatchCount &&
+    staged.untrackedFileCount === committed.untrackedFileCount &&
+    staged.sha256 === committed.sha256
+  );
+}
+
+interface TreeBlobEntry {
+  readonly mode: '100644' | '100755';
+  readonly objectId: string;
+}
+
+function treeBlobEntry(
+  repositoryRoot: string,
+  revision: string,
+  path: string,
+): TreeBlobEntry | null {
+  const normalizedPath = normalizeRepositoryPath(path, 'Manifest tree path');
+  const result = git(repositoryRoot, ['ls-tree', '-z', revision, '--', normalizedPath]);
+  if (result.byteLength === 0) return null;
+  if (result.at(-1) !== 0 || result.subarray(0, -1).includes(0)) return null;
+  const entry = result.subarray(0, -1).toString('utf8');
+  const separator = entry.indexOf('\t');
+  if (separator <= 0 || entry.slice(separator + 1) !== normalizedPath) return null;
+  const [mode, type, objectId, ...extra] = entry.slice(0, separator).split(' ');
+  if (
+    (mode !== '100644' && mode !== '100755') ||
+    type !== 'blob' ||
+    objectId === undefined ||
+    !GIT_OBJECT_PATTERN.test(objectId) ||
+    extra.length > 0
+  ) {
+    return null;
+  }
+  return { mode, objectId };
+}
+
+function commitParents(repositoryRoot: string, revision: string): string[] {
+  const headers = git(repositoryRoot, ['cat-file', '-p', revision])
+    .toString('utf8')
+    .split(/\r?\n\r?\n/u, 1)[0]
+    ?.split(/\r?\n/u);
+  if (headers === undefined) return [];
+  const parents: string[] = [];
+  for (const header of headers) {
+    if (!header.startsWith('parent ')) continue;
+    const parent = header.slice('parent '.length);
+    if (!GIT_OBJECT_PATTERN.test(parent)) return [];
+    parents.push(parent);
+  }
+  return parents;
+}
+
+function manifestSealedByChild(
+  repositoryRoot: string,
+  manifestPath: string,
+  actualText: string,
+  stagedBaseHead: string,
+  committedHead: string,
+): boolean {
+  const childEntry = treeBlobEntry(repositoryRoot, committedHead, manifestPath);
+  if (childEntry === null) return false;
+  const parentEntry = treeBlobEntry(repositoryRoot, stagedBaseHead, manifestPath);
+  if (
+    parentEntry !== null &&
+    parentEntry.mode === childEntry.mode &&
+    parentEntry.objectId === childEntry.objectId
+  ) {
+    return false;
+  }
+  const committedContents = git(repositoryRoot, ['show', `${committedHead}:${manifestPath}`]);
+  return committedContents.equals(Buffer.from(actualText, 'utf8'));
+}
+
+function isExactCleanChildTransition(
+  repositoryRoot: string,
+  staged: SelectedR3EvidenceManifest['source'],
+  committed: SelectedR3EvidenceManifest['source'],
+): boolean {
+  if (
+    !staged.dirty ||
+    !staged.content.indexDiffersFromHead ||
+    staged.content.missingTrackedFileCount !== 0 ||
+    staged.content.trackedWorktreeMismatchCount !== 0 ||
+    staged.content.untrackedFileCount !== 0 ||
+    committed.dirty ||
+    committed.content.indexDiffersFromHead ||
+    committed.content.missingTrackedFileCount !== 0 ||
+    committed.content.trackedWorktreeMismatchCount !== 0 ||
+    committed.content.untrackedFileCount !== 0 ||
+    !sameCommittedContent(staged.content, committed.content)
+  ) {
+    return false;
+  }
+  const parents = commitParents(repositoryRoot, committed.baseHead);
+  return parents.length === 1 && parents[0] === staged.baseHead;
+}
+
 export function createSelectedR3EvidenceManifest(
   repositoryRoot: string,
   manifestPath = DEFAULT_MANIFEST_PATH,
@@ -872,15 +1065,37 @@ export async function verifySelectedR3EvidenceManifest(
   );
   const expected = createSelectedR3EvidenceManifest(repositoryRoot, normalizedPath);
   const actualText = readFileSync(absolutePath, 'utf8');
-  if (actualText !== (await serializedManifest(expected))) {
-    throw new Error(
-      'Selected R3 evidence manifest is stale or does not match the pinned contract. Run pnpm r3:evidence:refresh after all source changes are complete.',
-    );
+  const expectedText = await serializedManifest(expected);
+  let verified = expected;
+  if (actualText !== expectedText) {
+    const stagedSource = storedManifestSource(actualText);
+    if (stagedSource === null) {
+      throw new Error(
+        'Selected R3 evidence manifest is stale or does not match the pinned contract. Run pnpm r3:evidence:refresh after all source changes are complete.',
+      );
+    }
+    const committedCandidate = { ...expected, source: stagedSource };
+    if (
+      actualText !== (await serializedManifest(committedCandidate)) ||
+      !isExactCleanChildTransition(repositoryRoot, stagedSource, expected.source) ||
+      !manifestSealedByChild(
+        repositoryRoot,
+        normalizedPath,
+        actualText,
+        stagedSource.baseHead,
+        expected.source.baseHead,
+      )
+    ) {
+      throw new Error(
+        'Selected R3 evidence manifest is stale or does not match the pinned contract. Run pnpm r3:evidence:refresh after all source changes are complete.',
+      );
+    }
+    verified = committedCandidate;
   }
-  if (!SHA256_PATTERN.test(expected.evidence.collectionSha256)) {
+  if (!SHA256_PATTERN.test(verified.evidence.collectionSha256)) {
     throw new Error('Selected R3 evidence collection digest is invalid.');
   }
-  return expected;
+  return verified;
 }
 
 export { DEFAULT_MANIFEST_PATH };
