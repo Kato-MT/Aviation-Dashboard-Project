@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { cp, lstat, mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises';
+import { cp, lstat, mkdtemp, mkdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -264,6 +264,7 @@ describe('load-harness artifact input', () => {
     const identity = await captureArtifactTreeIdentity(rawArtifact);
     const provenance = retainedProvenance(cleanSource, identity.sha256);
     const verifyCandidate = vi.fn(async () => provenance);
+    const canonicalCandidate = await realpath(candidate);
 
     const resolved = await resolveLoadArtifactInput(
       { mode: 'retained-candidate', path: 'candidate' },
@@ -278,7 +279,7 @@ describe('load-harness artifact input', () => {
 
     expect(verifyCandidate).toHaveBeenCalledTimes(2);
     expect(verifyCandidate).toHaveBeenCalledWith({
-      candidateDirectory: candidate,
+      candidateDirectory: canonicalCandidate,
       expectedSourceHead: HEAD,
       expectedSourceIdentity: cleanSource,
       expectedTarget: 'mock-staging',
@@ -298,6 +299,40 @@ describe('load-harness artifact input', () => {
     expect(completed).toMatchObject({
       unchanged: true,
       gate: { id: 'immutable-artifact-input', passed: true },
+    });
+  });
+
+  it('reports a retained artifact relative to the canonical repository root', async () => {
+    const repository = await temporaryRepository();
+    const rawArtifact = await writeArtifact(repository);
+    const candidate = join(repository, 'candidate');
+    await mkdir(candidate);
+    await cp(rawArtifact, join(candidate, 'artifact'), { recursive: true });
+    const aliasParent = await mkdtemp(join(tmpdir(), 'load-artifact-alias-'));
+    roots.push(aliasParent);
+    const repositoryAlias = join(aliasParent, 'repository');
+    await symlink(repository, repositoryAlias, process.platform === 'win32' ? 'junction' : 'dir');
+    const cleanSource = sourceIdentity({
+      dirty: false,
+      gitStatus: { format: 'porcelain-v1-z', bytes: 0, sha256: SHA_A },
+    });
+    const identity = await captureArtifactTreeIdentity(rawArtifact);
+    const provenance = retainedProvenance(cleanSource, identity.sha256);
+    const canonicalArtifact = await realpath(join(candidate, 'artifact'));
+
+    await expect(
+      resolveLoadArtifactInput(
+        { mode: 'retained-candidate', path: 'candidate' },
+        repositoryAlias,
+        cleanSource,
+        {
+          verifyCandidate: async () => provenance,
+          selectionExpectation: { expectedSelectionRecordSha256: SHA_A },
+        },
+      ),
+    ).resolves.toMatchObject({
+      artifactPath: 'candidate/artifact',
+      artifactRoot: canonicalArtifact,
     });
   });
 

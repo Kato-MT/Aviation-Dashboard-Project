@@ -392,18 +392,18 @@
     ]
   },
   "source": {
-    "baseHead": "e450109f79c419f3aefccd34e27f376c77ca0e3c",
+    "baseHead": "cf34022a45aa5a05795edf2f59fe51bea8871720",
     "dirty": true,
     "content": {
       "schemaVersion": "selected-r3-source-content.v1",
       "excludedPaths": ["hardening/r3/selected-evidence.manifest.json"],
       "fileCount": 559,
-      "totalBytes": 9189964,
+      "totalBytes": 9191529,
       "missingTrackedFileCount": 0,
       "trackedWorktreeMismatchCount": 0,
       "untrackedFileCount": 0,
       "indexDiffersFromHead": true,
-      "sha256": "c5cee5de03b4a99a30a7cb46a9f9e1d9e85aa8f5cc26cbdb2544a482b61b957b"
+      "sha256": "1e530af8eca326cf24c636dc480911d7ffbaf53a6a8ba06dba5d898667460e7b"
     }
   },
   "evidence": {
@@ -422,8 +422,8 @@
       "Commit, push, hosted CI, retained-candidate, release, deployment, and publication proof."
     ],
     "fileCount": 94,
-    "totalBytes": 2765428,
-    "collectionSha256": "9b3b27d31a59ca5dd0393c6305c790e44f117be4fe11b376ff474b03acc2f4f2",
+    "totalBytes": 2766928,
+    "collectionSha256": "6b7c2ae510786a2528f964c63824c58296c200c380b65e83b8ea62271df0a267",
     "files": [
       {
         "path": ".github/workflows/ci.yml",
@@ -682,8 +682,8 @@
       },
       {
         "path": "tests/live/load-harness-artifact.test.ts",
-        "bytes": 19142,
-        "sha256": "9fc2a77e8e836458a536f198c27ce2db42d1862d9cbe36c0ed88ca3eaedca186"
+        "bytes": 20642,
+        "sha256": "cc1e0e8aac34fd7434816d812b0a9e2d7bf65cf348db06e875541c86402e9695"
       },
       {
         "path": "tests/live/operations-classifier.test.ts",

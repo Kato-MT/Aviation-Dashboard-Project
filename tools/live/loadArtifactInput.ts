@@ -203,7 +203,7 @@ async function resolveContainedDirectory(
   repositoryRoot: string,
   requestedPath: string,
   label: string,
-): Promise<{ absolutePath: string; reportPath: string }> {
+): Promise<{ absolutePath: string; reportPath: string; repositoryRoot: string }> {
   const canonicalRepository = await realpath(resolve(repositoryRoot));
   const requested = resolve(canonicalRepository, normalizedRequestPath(requestedPath, label));
   if (!containsPath(canonicalRepository, requested) || requested === canonicalRepository) {
@@ -218,6 +218,7 @@ async function resolveContainedDirectory(
   return {
     absolutePath: canonicalRequested,
     reportPath: repositoryRelativePath(canonicalRepository, canonicalRequested, label),
+    repositoryRoot: canonicalRepository,
   };
 }
 
@@ -496,7 +497,7 @@ export async function resolveLoadArtifactInput(
     candidateBefore = candidateIdentity(provenance, currentSource);
     artifactRoot = join(candidateRoot, provenance.retainedArtifact.path);
     await requiredDirectory(artifactRoot, 'Retained candidate artifact root');
-    artifactPath = repositoryRelativePath(resolve(repositoryRoot), artifactRoot, 'Artifact root');
+    artifactPath = repositoryRelativePath(selected.repositoryRoot, artifactRoot, 'Artifact root');
   } else if (await isRetainedArtifactBypass(artifactRoot)) {
     throw new Error(
       'A retained candidate artifact must be selected by candidate directory so provenance and checksums are verified.',
