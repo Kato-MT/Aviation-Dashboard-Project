@@ -392,18 +392,18 @@
     ]
   },
   "source": {
-    "baseHead": "3ef6b6a7a875c40ba00333c195427947b1661e0c",
+    "baseHead": "e450109f79c419f3aefccd34e27f376c77ca0e3c",
     "dirty": true,
     "content": {
       "schemaVersion": "selected-r3-source-content.v1",
       "excludedPaths": ["hardening/r3/selected-evidence.manifest.json"],
       "fileCount": 559,
-      "totalBytes": 9187441,
+      "totalBytes": 9189964,
       "missingTrackedFileCount": 0,
       "trackedWorktreeMismatchCount": 0,
       "untrackedFileCount": 0,
       "indexDiffersFromHead": true,
-      "sha256": "099d2ba73d2130aef3ffa154f06c978bc26a6573dadd89238788da3a2e08e095"
+      "sha256": "c5cee5de03b4a99a30a7cb46a9f9e1d9e85aa8f5cc26cbdb2544a482b61b957b"
     }
   },
   "evidence": {
@@ -422,8 +422,8 @@
       "Commit, push, hosted CI, retained-candidate, release, deployment, and publication proof."
     ],
     "fileCount": 94,
-    "totalBytes": 2762928,
-    "collectionSha256": "3b0cb2fe5f76cfc54aac2dde02c8b40def9c49ab6ea5032c408db5b7185e6d39",
+    "totalBytes": 2765428,
+    "collectionSha256": "9b3b27d31a59ca5dd0393c6305c790e44f117be4fe11b376ff474b03acc2f4f2",
     "files": [
       {
         "path": ".github/workflows/ci.yml",
@@ -697,8 +697,8 @@
       },
       {
         "path": "tests/live/operations-privacy.test.ts",
-        "bytes": 30193,
-        "sha256": "10546a0437feb3ad1a8834c05ab932b93b49b57c3b3c334189ec1bcc3746260d"
+        "bytes": 31580,
+        "sha256": "99e9698ac313a89ce231eb5de0737b90dd33cb673e5680257941193e18e89916"
       },
       {
         "path": "tests/live/provider-config.test.ts",
@@ -787,8 +787,8 @@
       },
       {
         "path": "tools/live/operationsPrivacyAudit.ts",
-        "bytes": 75186,
-        "sha256": "c96dd0508131d20e9b24593b25338b5575743be24219f0ed2be151ca95a25f04"
+        "bytes": 76299,
+        "sha256": "3fa9c20058a9fbbe79554d22585bbe5128440da7b302c3b905575a7615b19b84"
       },
       {
         "path": "tools/live/performanceReporter.ts",

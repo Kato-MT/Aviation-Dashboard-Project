@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { lstat, readFile, readdir, realpath } from 'node:fs/promises';
-import { extname, resolve } from 'node:path';
+import { extname, join, parse, resolve, sep } from 'node:path';
 import { TextDecoder } from 'node:util';
 
 import Ajv2020 from 'ajv/dist/2020.js';
@@ -1623,22 +1623,48 @@ function assertStaticArtifactJsonPrivacy(value: unknown, label: string): void {
   }
 }
 
-async function inventoryTree(root: string, allowedDirectories: Set<string>): Promise<string[]> {
-  const rootStatus = await lstat(root).catch(() => undefined);
-  if (!rootStatus?.isDirectory() || rootStatus.isSymbolicLink()) {
-    failure('UNSAFE_NODE', 'Privacy tree root must be a real directory.');
+async function assertSafeDirectoryComponents(absoluteRoot: string): Promise<void> {
+  const pathRoot = parse(absoluteRoot).root;
+  if (process.platform === 'win32' && !/^[A-Z]:\\$/iu.test(pathRoot)) {
+    failure('UNSAFE_NODE', 'Privacy tree root must use a local Windows drive.');
   }
-  const canonicalRoot = await realpath(root);
-  const comparable = (value: string): string => {
-    const normalized = normalizedPath(resolve(value)).normalize('NFC');
-    return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
-  };
-  if (comparable(canonicalRoot) !== comparable(root)) {
-    failure('UNSAFE_NODE', 'Privacy tree root cannot traverse a symlink or junction.');
+  let current = pathRoot;
+  const components = absoluteRoot.slice(pathRoot.length).split(sep).filter(Boolean);
+  for (const component of ['', ...components]) {
+    if (component !== '') current = join(current, component);
+    const status = await lstat(current).catch(() => undefined);
+    if (!status?.isDirectory() || status.isSymbolicLink()) {
+      failure('UNSAFE_NODE', 'Privacy tree root contains an unsafe path component.');
+    }
+  }
+}
+
+async function resolveSafePrivacyTreeRoot(root: string): Promise<string> {
+  const lexicalRoot = resolve(root);
+  await assertSafeDirectoryComponents(lexicalRoot);
+  const canonicalRoot = await realpath(lexicalRoot);
+  await assertSafeDirectoryComponents(lexicalRoot);
+  await assertSafeDirectoryComponents(canonicalRoot);
+  return canonicalRoot;
+}
+
+interface PrivacyTreeInventory {
+  readonly canonicalRoot: string;
+  readonly files: readonly string[];
+}
+
+async function inventoryTree(
+  root: string,
+  allowedDirectories: Set<string>,
+  expectedCanonicalRoot?: string,
+): Promise<PrivacyTreeInventory> {
+  const canonicalRoot = await resolveSafePrivacyTreeRoot(root);
+  if (expectedCanonicalRoot !== undefined && canonicalRoot !== expectedCanonicalRoot) {
+    failure('UNSAFE_NODE', 'Privacy tree root changed during inspection.');
   }
   const files: string[] = [];
   const pending: Array<{ absolute: string; relative: string; depth: number }> = [
-    { absolute: root, relative: '', depth: 0 },
+    { absolute: canonicalRoot, relative: '', depth: 0 },
   ];
   while (pending.length > 0) {
     const directory = pending.pop()!;
@@ -1666,7 +1692,7 @@ async function inventoryTree(root: string, allowedDirectories: Set<string>): Pro
       if (files.length > MAX_TREE_FILES) failure('UNSAFE_NODE', 'Privacy tree has too many files.');
     }
   }
-  return files.sort();
+  return { canonicalRoot, files: files.sort() };
 }
 
 function decodeStrictText(bytes: Buffer, label: string): string {
@@ -1749,8 +1775,9 @@ export async function auditG2EvidenceDirectory(
       'Aggregate evidence directory declaration or external expected identity is malformed.',
     );
   }
-  const root = resolve(declaration.root);
-  const files = await inventoryTree(root, new Set());
+  const initialInventory = await inventoryTree(declaration.root, new Set());
+  const root = initialInventory.canonicalRoot;
+  const files = initialInventory.files;
   if (declaration.mode === 'empty') {
     if (files.length !== 0) {
       failure('UNDECLARED_FILE', 'No-capture evidence directory must remain empty.');
@@ -1783,7 +1810,8 @@ export async function auditG2EvidenceDirectory(
     artifacts.push({ path, value: JSON.parse(text) as unknown });
   }
   assertG2AggregateArtifacts({ artifacts }, expectedIdentity);
-  const after = await inventoryTree(root, new Set());
+  const afterInventory = await inventoryTree(root, new Set(), root);
+  const after = afterInventory.files;
   if (JSON.stringify(after) !== JSON.stringify(files)) {
     failure('UNDECLARED_FILE', 'G2 evidence directory changed during privacy inspection.');
   }
@@ -1845,7 +1873,9 @@ export async function auditPrivacyTree(
   ) {
     failure('HASH_MISMATCH', 'Privacy tree does not match the externally selected identity.');
   }
-  const files = await inventoryTree(resolve(declaration.root), allowedDirectories);
+  const initialInventory = await inventoryTree(declaration.root, allowedDirectories);
+  const root = initialInventory.canonicalRoot;
+  const files = initialInventory.files;
   if (
     files.length !== rules.size ||
     files.some((path) => !rules.has(path)) ||
@@ -1853,10 +1883,10 @@ export async function auditPrivacyTree(
   ) {
     failure('UNDECLARED_FILE', 'Privacy tree does not match its exact file allowlist.');
   }
-  const selectedMapAssets = await bindSelectedMapAssets(resolve(declaration.root), rules);
+  const selectedMapAssets = await bindSelectedMapAssets(root, rules);
   for (const path of files) {
     const rule = rules.get(path)!;
-    const bytes = await readFile(resolve(declaration.root, ...path.split('/')));
+    const bytes = await readFile(resolve(root, ...path.split('/')));
     if (bytes.byteLength !== rule.bytes) {
       failure('HASH_MISMATCH', `${path} changed size after selection.`);
     }
@@ -1909,12 +1939,13 @@ export async function auditPrivacyTree(
       assertForbiddenScalarString(text.trimEnd(), path);
     }
   }
-  const after = await inventoryTree(resolve(declaration.root), allowedDirectories);
+  const afterInventory = await inventoryTree(root, allowedDirectories, root);
+  const after = afterInventory.files;
   if (JSON.stringify(after) !== JSON.stringify(files)) {
     failure('UNDECLARED_FILE', 'Privacy tree changed during inspection.');
   }
   for (const path of after) {
-    const bytes = await readFile(resolve(declaration.root, ...path.split('/')));
+    const bytes = await readFile(resolve(root, ...path.split('/')));
     if (sha256(bytes) !== rules.get(path)!.sha256) {
       failure('HASH_MISMATCH', `${path} changed during privacy inspection.`);
     }

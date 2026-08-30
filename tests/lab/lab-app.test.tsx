@@ -87,6 +87,7 @@ function button(label: string) {
 }
 async function click(label: string) {
   await act(async () => button(label).click());
+  await settleInput();
 }
 async function importFile(file: Pick<File, 'name' | 'size' | 'text'> | undefined) {
   const input = container.querySelector<HTMLInputElement>('input[type="file"]')!;

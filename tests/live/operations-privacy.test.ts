@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import mapManifest from '../../maps/manifest.json';
@@ -858,5 +858,43 @@ describe('operations privacy auditor', () => {
       return;
     }
     await expect(auditTree(declaration)).rejects.toMatchObject({ code: 'UNSAFE_NODE' });
+  });
+
+  it('rejects a privacy tree root that is itself a symlink or junction', async () => {
+    const declaration = await tree('linked-root', 'evidence/aggregate.json', {
+      schemaVersion: 'aggregate.v1',
+    });
+    const aliasParent = await mkdtemp(join(tmpdir(), 'fdw-linked-root-alias-'));
+    roots.push(aliasParent);
+    const alias = join(aliasParent, 'tree');
+    try {
+      await symlink(declaration.root, alias, process.platform === 'win32' ? 'junction' : 'dir');
+    } catch {
+      return;
+    }
+    await expect(auditTree({ ...declaration, root: alias })).rejects.toMatchObject({
+      code: 'UNSAFE_NODE',
+    });
+  });
+
+  it('rejects a real privacy tree reached through a symlinked or junction ancestor', async () => {
+    const declaration = await tree('linked-ancestor', 'evidence/aggregate.json', {
+      schemaVersion: 'aggregate.v1',
+    });
+    const aliasParent = await mkdtemp(join(tmpdir(), 'fdw-linked-ancestor-alias-'));
+    roots.push(aliasParent);
+    const alias = join(aliasParent, 'parent');
+    try {
+      await symlink(
+        dirname(declaration.root),
+        alias,
+        process.platform === 'win32' ? 'junction' : 'dir',
+      );
+    } catch {
+      return;
+    }
+    await expect(
+      auditTree({ ...declaration, root: join(alias, basename(declaration.root)) }),
+    ).rejects.toMatchObject({ code: 'UNSAFE_NODE' });
   });
 });
