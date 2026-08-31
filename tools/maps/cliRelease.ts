@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+
 export const PMTILES_CLI_VERSION = '1.31.2' as const;
 
 interface PmtilesCliReleaseBase {
@@ -67,4 +69,20 @@ export function selectPmtilesCliRelease(platform: string, architecture: string):
   throw new Error(
     `Unsupported PMTiles CLI host ${platform}/${architecture}. Expected win32/x64 or linux/x64.`,
   );
+}
+
+export interface MapPreparationLayout {
+  readonly cacheRoot: string;
+  readonly assetsRoot: string;
+}
+
+/** Keeps every map-preparation consumer on the same host-qualified cache layout. */
+export function resolveMapPreparationLayout(
+  root: string,
+  platform: string,
+  architecture: string,
+): Readonly<MapPreparationLayout> {
+  const release = selectPmtilesCliRelease(platform, architecture);
+  const cacheRoot = join(root, '.tmp-tests', 'map-preparation', release.cacheQualifier);
+  return Object.freeze({ cacheRoot, assetsRoot: join(cacheRoot, 'assets') });
 }

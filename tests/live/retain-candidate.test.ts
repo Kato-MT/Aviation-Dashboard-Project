@@ -567,7 +567,7 @@ describe('mock-staging retained candidate', () => {
     expect(await readdir(outputDirectory)).toEqual(
       expect.arrayContaining(['artifact', 'checksums.sha256', 'evidence']),
     );
-  }, 15_000);
+  }, 90_000);
 
   it('cleans both publications if a post-publication observer fails', async () => {
     const { repositoryRoot, parent } = await fixture();

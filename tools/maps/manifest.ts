@@ -7,6 +7,7 @@ import { layers, namedFlavor } from '@protomaps/basemaps';
 import { PMTiles } from 'pmtiles';
 import { format, resolveConfig } from 'prettier';
 import recipe from '../../maps/recipe.json';
+import { resolveMapPreparationLayout } from './cliRelease';
 
 const root = resolve('.');
 const output = join(root, '.map-data', recipe.id);
@@ -21,11 +22,8 @@ async function writeJson(relativePath: string, value: unknown): Promise<void> {
     }),
   );
 }
-const sources = join(
-  root,
-  '.tmp-tests/map-preparation/assets',
-  `basemaps-assets-${recipe.assetsCommit}`,
-);
+const { assetsRoot } = resolveMapPreparationLayout(root, process.platform, process.arch);
+const sources = join(assetsRoot, `basemaps-assets-${recipe.assetsCommit}`);
 const archivePath = join(output, 'basemap.pmtiles');
 const archiveFile = await open(archivePath, 'r');
 const archive = new PMTiles({

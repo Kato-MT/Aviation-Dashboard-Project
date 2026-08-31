@@ -5,11 +5,15 @@ import { chmod, mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/pro
 import { dirname, join, resolve, sep } from 'node:path';
 import { unzipSync } from 'fflate';
 import recipe from '../../maps/recipe.json';
-import { selectPmtilesCliRelease } from './cliRelease';
+import { resolveMapPreparationLayout, selectPmtilesCliRelease } from './cliRelease';
 
 const root = resolve('.');
 const cliRelease = selectPmtilesCliRelease(process.platform, process.arch);
-const cache = join(root, '.tmp-tests/map-preparation', cliRelease.cacheQualifier);
+const { cacheRoot: cache, assetsRoot } = resolveMapPreparationLayout(
+  root,
+  process.platform,
+  process.arch,
+);
 const output = join(root, '.map-data', recipe.id);
 const ceiling = 256 * 1024 * 1024;
 await mkdir(cache, { recursive: true });
@@ -269,5 +273,5 @@ const assetsZip = await download(
   join(cache, `basemaps-assets-${recipe.assetsCommit}.zip`),
   32 * 1024 * 1024,
 );
-await extractZip(assetsZip, join(cache, 'assets'));
+await extractZip(assetsZip, assetsRoot);
 console.log('Regional archive and pinned font/sprite sources ready. Nothing was uploaded.');

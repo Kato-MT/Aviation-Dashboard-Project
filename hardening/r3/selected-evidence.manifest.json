@@ -392,18 +392,18 @@
     ]
   },
   "source": {
-    "baseHead": "57c7409dd2f13894cf0ff7d821fd3749f5536cf8",
+    "baseHead": "49fa6f9dd119bead64b69a4f5a5aa52467170f20",
     "dirty": true,
     "content": {
       "schemaVersion": "selected-r3-source-content.v1",
       "excludedPaths": ["hardening/r3/selected-evidence.manifest.json"],
       "fileCount": 567,
-      "totalBytes": 9231256,
+      "totalBytes": 9233308,
       "missingTrackedFileCount": 0,
       "trackedWorktreeMismatchCount": 0,
       "untrackedFileCount": 0,
       "indexDiffersFromHead": true,
-      "sha256": "eb07e850b50d7476837991085103b6da87b49d4ce361bf2f1eb5b46813ca2c44"
+      "sha256": "b00f72420a426bb773b9e398c9b998f98513dc3b444228b05556c638c09b9fc7"
     }
   },
   "evidence": {
@@ -423,7 +423,7 @@
     ],
     "fileCount": 94,
     "totalBytes": 2778421,
-    "collectionSha256": "34496a40cfcdbfd7669ff8d30fa1359f46983bc708c392a2781ef5ad423fdb6d",
+    "collectionSha256": "767a0fffc9bb57406b67431515f0cceb5e303f01af3d598226e29823fb339746",
     "files": [
       {
         "path": ".github/workflows/ci.yml",
@@ -718,7 +718,7 @@
       {
         "path": "tests/live/retain-candidate.test.ts",
         "bytes": 41247,
-        "sha256": "dfee2ac6579ceafd4903e8bcbbd375a8bda33dc53963ccd9cda932e4d4869648"
+        "sha256": "72d8580c060c43459f4e8e34b8e0b9f4b793b78cae995ee70b1ea6d619509adf"
       },
       {
         "path": "tests/live/runbook-policy.test.ts",

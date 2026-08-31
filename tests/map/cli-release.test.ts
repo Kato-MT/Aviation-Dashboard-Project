@@ -1,5 +1,11 @@
+import { readFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { PMTILES_CLI_VERSION, selectPmtilesCliRelease } from '../../tools/maps/cliRelease';
+import {
+  PMTILES_CLI_VERSION,
+  resolveMapPreparationLayout,
+  selectPmtilesCliRelease,
+} from '../../tools/maps/cliRelease';
 
 describe('pinned PMTiles CLI release selection', () => {
   it('preserves the published Windows x64 ZIP release', () => {
@@ -45,5 +51,32 @@ describe('pinned PMTiles CLI release selection', () => {
     expect(() => selectPmtilesCliRelease(platform, architecture)).toThrow(
       `Unsupported PMTiles CLI host ${platform}/${architecture}. Expected win32/x64 or linux/x64.`,
     );
+  });
+
+  it.each([
+    ['win32', 'x64', 'win32-x64'],
+    ['linux', 'x64', 'linux-x64'],
+  ])(
+    'resolves one shared host-qualified preparation layout for %s/%s',
+    (platform, architecture, cacheQualifier) => {
+      const root = resolve('fixture-map-root');
+      const cacheRoot = join(root, '.tmp-tests', 'map-preparation', cacheQualifier);
+      expect(resolveMapPreparationLayout(root, platform, architecture)).toEqual({
+        cacheRoot,
+        assetsRoot: join(cacheRoot, 'assets'),
+      });
+    },
+  );
+
+  it('binds both preparation and manifest generation to the shared layout helper', async () => {
+    const [prepare, manifest] = await Promise.all([
+      readFile(resolve('tools/maps/prepare.ts'), 'utf8'),
+      readFile(resolve('tools/maps/manifest.ts'), 'utf8'),
+    ]);
+    expect(prepare).toContain('resolveMapPreparationLayout(');
+    expect(prepare).toContain('await extractZip(assetsZip, assetsRoot)');
+    expect(manifest).toContain('resolveMapPreparationLayout(');
+    expect(manifest).toContain('join(assetsRoot, `basemaps-assets-${recipe.assetsCommit}`)');
+    expect(manifest).not.toContain("'.tmp-tests/map-preparation/assets'");
   });
 });
