@@ -1158,6 +1158,10 @@ describe('edge API', () => {
     try {
       await Promise.all([hello, delivered, initialHealth]);
       const stub = workerEnv.REGION_FEEDS.getByName('atlanta');
+      // The reader acknowledges the initial delivery asynchronously. Settle it
+      // before corrupting the binding so that this case is triggered only by
+      // the declared ping or broadcast, not by a racing valid acknowledgment.
+      await deliveriesSettled(stub);
       await runInDurableObject(stub, (_instance, state) => {
         const server = state.getWebSockets()[0]!;
         const binding = server.deserializeAttachment() as LiveFeedBinding;

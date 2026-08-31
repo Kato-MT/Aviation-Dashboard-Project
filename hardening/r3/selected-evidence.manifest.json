@@ -392,18 +392,18 @@
     ]
   },
   "source": {
-    "baseHead": "a3a53e4e3589982e23e2937fd13edf35ed2243be",
+    "baseHead": "78b70f0f9445270640787672497386f9f6f5e52d",
     "dirty": true,
     "content": {
       "schemaVersion": "selected-r3-source-content.v1",
       "excludedPaths": ["hardening/r3/selected-evidence.manifest.json"],
-      "fileCount": 563,
-      "totalBytes": 9219057,
+      "fileCount": 565,
+      "totalBytes": 9220468,
       "missingTrackedFileCount": 0,
       "trackedWorktreeMismatchCount": 0,
       "untrackedFileCount": 0,
       "indexDiffersFromHead": true,
-      "sha256": "65549ed4a39512147e36cb3385d598097c763f0fec7da670667d5dc632095ee8"
+      "sha256": "1b832e79c5772ce65ecdd036b48d724a1a8cdd31263de9d005e1fd31379c6fae"
     }
   },
   "evidence": {
@@ -422,8 +422,8 @@
       "Commit, push, hosted CI, retained-candidate, release, deployment, and publication proof."
     ],
     "fileCount": 94,
-    "totalBytes": 2775180,
-    "collectionSha256": "e26f63a27270b4b7be1d019025fc2bc1b4569231c874277c1e94d2c4c694bc0d",
+    "totalBytes": 2775554,
+    "collectionSha256": "c6737f5e3367e331cf40712a7721fedc5cbf1673fc9ad5f22d11064c66b1a8ca",
     "files": [
       {
         "path": ".github/workflows/ci.yml",
@@ -567,13 +567,13 @@
       },
       {
         "path": "src/live/runtimePolicy.ts",
-        "bytes": 32222,
-        "sha256": "ff3c39995b20fda3ff9db93c96b7ee4e33e8c7b315bc98eddfd6c4275f3feda3"
+        "bytes": 32228,
+        "sha256": "c2c7725f80627a75a520e390ca7b56b7472ffe5c043b16d29e0f066b004e61b4"
       },
       {
         "path": "src/live/runtimePolicyLimits.ts",
-        "bytes": 3088,
-        "sha256": "104fca07f0dce5753223cb37b61835262fd41f09a7cf0f19346e3becde843cda"
+        "bytes": 3134,
+        "sha256": "326a0386ba21e6b2314cb3651e837bf2978c07ab82c69ec3868284c740a3cb76"
       },
       {
         "path": "src/operations/classifier.ts",
@@ -767,8 +767,8 @@
       },
       {
         "path": "tests/worker/worker.test.ts",
-        "bytes": 54746,
-        "sha256": "0ab8478a3aa67ee0fef06af06f0e4b74928e282695ecd785322be07cab91f6b1"
+        "bytes": 55020,
+        "sha256": "8b280f03cb41388d23d330bdce0c2e8f8b463762637a58f42423e6bc5205f1e8"
       },
       {
         "path": "tools/live/buildConfig.ts",
@@ -867,8 +867,8 @@
       },
       {
         "path": "worker/index.ts",
-        "bytes": 14224,
-        "sha256": "437c543271b0590a98bf846369a2f771725d421055dcae1695ae5a8fa345de2f"
+        "bytes": 14266,
+        "sha256": "3e03a470ea3261cb480783b37426399c2558a6e5a731c5feeb594b068a4bb3b0"
       },
       {
         "path": "worker/mapAssets.ts",
@@ -882,8 +882,8 @@
       },
       {
         "path": "worker/providerConfig.ts",
-        "bytes": 5285,
-        "sha256": "6a69debb439d273ca3f0c522cb58309dbd583a08eac06b6fb10ffcc00df96102"
+        "bytes": 5291,
+        "sha256": "c75bee7741a30ae7f605eef0a6e5cf24306b646dde85fe499edbfa8d862f7dac"
       },
       {
         "path": "worker/regionalFeedHub.ts",

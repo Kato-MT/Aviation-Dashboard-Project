@@ -1,5 +1,3 @@
-import { LIVE_PILOT_POLICY } from './pilotPolicy';
-import type { LiveSourceDescriptor } from './source';
 import type { RegionConfig } from './types';
 
 export const REGION_CONFIGS = [
@@ -33,28 +31,6 @@ export const REGION_CONFIGS = [
 ] as const satisfies readonly RegionConfig[];
 
 export type RegionId = (typeof REGION_CONFIGS)[number]['id'];
-
-export const LIVE_PILOT_REGION_CONFIGS = Object.freeze(
-  REGION_CONFIGS.filter((region) => region.id === LIVE_PILOT_POLICY.regionId),
-);
-
-if (LIVE_PILOT_REGION_CONFIGS.length !== 1) {
-  throw new Error('The public live-pilot region does not match exactly one fixed region.');
-}
-
-/** Synthetic assurance keeps all presets; real-source capability is Atlanta-only. */
-export function regionConfigsForLiveSource(
-  source: Pick<LiveSourceDescriptor, 'mode' | 'synthetic'>,
-): readonly (typeof REGION_CONFIGS)[number][] {
-  return source.mode === 'live' && !source.synthetic ? LIVE_PILOT_REGION_CONFIGS : REGION_CONFIGS;
-}
-
-export function getRegionConfigForLiveSource(
-  source: Pick<LiveSourceDescriptor, 'mode' | 'synthetic'>,
-  regionId: string,
-): RegionConfig | undefined {
-  return regionConfigsForLiveSource(source).find((region) => region.id === regionId);
-}
 
 export function getRegionConfig(regionId: string): RegionConfig | undefined {
   return REGION_CONFIGS.find((region) => region.id === regionId);

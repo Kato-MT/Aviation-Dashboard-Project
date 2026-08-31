@@ -1,6 +1,6 @@
 import type { LiveAircraftProvider } from '../src/live/provider';
 import { ADSB_LOL_USER_AGENT, createAdsbLolProvider } from '../src/live/providers/adsbLol';
-import { regionConfigsForLiveSource } from '../src/live/regions';
+import { regionConfigsForLiveSource } from '../src/live/sourceRegions';
 import type { RuntimePolicyV1 } from '../src/live/runtimePolicy';
 import { RUNTIME_POLICY_LIMITS, type RuntimePolicyLimits } from '../src/live/runtimePolicyLimits';
 import { describeLiveSource, type LiveSourceDescriptor } from '../src/live/source';

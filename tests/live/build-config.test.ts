@@ -143,6 +143,7 @@ describe('isolated live build targets', () => {
     );
     expect(OFFLINE_FORBIDDEN_RUNTIME_TOKENS).toContain('/api/v1/health');
     expect(OFFLINE_FORBIDDEN_RUNTIME_TOKENS).toContain('/api/v1/operations');
+    expect(OFFLINE_FORBIDDEN_RUNTIME_TOKENS).toContain('/v2/point/');
     expect(OFFLINE_FORBIDDEN_RUNTIME_TOKENS).toContain('/map-assets/');
 
     const html = await readFile(resolve(OFFLINE_SOURCE), 'utf8');

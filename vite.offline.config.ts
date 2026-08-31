@@ -14,6 +14,7 @@ export const OFFLINE_FORBIDDEN_RUNTIME_TOKENS = Object.freeze([
   '/api/v1/health',
   '/api/v1/operations',
   '/api/v1/regions',
+  '/v2/point/',
   '/map-assets/',
   'pmtiles://',
   'createMapRenderer',

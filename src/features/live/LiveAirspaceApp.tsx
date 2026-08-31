@@ -8,8 +8,8 @@ import {
 } from '../../live/presentation';
 import { AirspaceView } from './AirspaceView';
 import { useLiveAirspace } from './useLiveAirspace';
-import { regionConfigsForLiveSource } from '../../live/regions';
 import { LIVE_PILOT_POLICY } from '../../live/pilotPolicy';
+import { regionConfigsForLiveSource } from '../../live/sourceRegions';
 
 type RuntimeFactory = (options: LiveAirspaceRuntimeOptions) => LiveAirspaceRuntime;
 const defaultRuntimeFactory: RuntimeFactory = (options) => new LiveAirspaceRuntime(options);

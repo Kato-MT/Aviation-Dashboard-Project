@@ -1,4 +1,4 @@
-import { regionConfigsForLiveSource } from './regions';
+import { regionConfigsForLiveSource } from './sourceRegions';
 import {
   describeLiveSource,
   LIVE_BUILD_TARGETS,

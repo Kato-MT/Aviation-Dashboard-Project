@@ -1,3 +1,9 @@
+import {
+  LIVE_PILOT_MAXIMUM_CONCURRENT_VIEWERS,
+  LIVE_PILOT_POLL_INTERVAL_MS,
+  LIVE_PILOT_REGION_ID,
+} from './pilotEnvelope';
+
 export const LIVE_PILOT_POLICY_SCHEMA_VERSION = 'live-pilot-policy.v1' as const;
 
 /**
@@ -8,10 +14,10 @@ export const LIVE_PILOT_POLICY_SCHEMA_VERSION = 'live-pilot-policy.v1' as const;
 export const LIVE_PILOT_POLICY = Object.freeze({
   schemaVersion: LIVE_PILOT_POLICY_SCHEMA_VERSION,
   providerId: 'adsb-lol',
-  regionId: 'atlanta',
+  regionId: LIVE_PILOT_REGION_ID,
   endpointPath: '/v2/point/33.6407/-84.4277/100',
-  pollIntervalMs: 20_000,
-  maximumConcurrentViewers: 25,
+  pollIntervalMs: LIVE_PILOT_POLL_INTERVAL_MS,
+  maximumConcurrentViewers: LIVE_PILOT_MAXIMUM_CONCURRENT_VIEWERS,
   userAgent: 'GeorgiaFlightOutlook/0.1 (+https://github.com/Kato-MT/Aviation-Dashboard-Project)',
   sourceUrl: 'https://www.adsb.lol/',
   licenseLabel: 'ODbL 1.0',

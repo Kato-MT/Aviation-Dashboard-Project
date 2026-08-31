@@ -1,4 +1,7 @@
-import { LIVE_PILOT_POLICY } from './pilotPolicy';
+import {
+  LIVE_PILOT_MAXIMUM_CONCURRENT_VIEWERS,
+  LIVE_PILOT_POLL_INTERVAL_MS,
+} from './pilotEnvelope';
 
 export const RUNTIME_POLICY_LIMITS_SCHEMA_VERSION = 'runtime-policy-limits.v2' as const;
 
@@ -26,7 +29,7 @@ export const RUNTIME_POLICY_LIMITS = deepFreeze({
     maximumResponseBytes: 2 * 1024 * 1024,
     maximumAircraft: 2_000,
     requestTimeoutMs: 8_000,
-    pollIntervalMs: LIVE_PILOT_POLICY.pollIntervalMs,
+    pollIntervalMs: LIVE_PILOT_POLL_INTERVAL_MS,
     circuitBreakerFailures: 3,
     circuitBreakerMs: 60_000,
   },
@@ -37,7 +40,7 @@ export const RUNTIME_POLICY_LIMITS = deepFreeze({
     maximumQualityEvents: 200,
   },
   delivery: {
-    maximumRegionalViewers: LIVE_PILOT_POLICY.maximumConcurrentViewers,
+    maximumRegionalViewers: LIVE_PILOT_MAXIMUM_CONCURRENT_VIEWERS,
     maximumRegionalBytes: 8 * 1024 * 1024,
     acknowledgmentTimeoutMs: 10_000,
     minimumPingIntervalMs: 1_000,

@@ -1,8 +1,8 @@
+import { REGION_CONFIGS } from '../src/live/regions';
 import {
-  REGION_CONFIGS,
   getRegionConfigForLiveSource,
   regionConfigsForLiveSource,
-} from '../src/live/regions';
+} from '../src/live/sourceRegions';
 import {
   evaluateRuntimePolicyRequest,
   resolveRuntimePolicyRoute,
