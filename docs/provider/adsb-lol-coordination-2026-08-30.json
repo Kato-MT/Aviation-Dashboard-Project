@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "provider-coordination.v1",
+  "providerId": "adsb-lol",
+  "recordDate": "2026-08-30",
+  "sourceEvidence": "owner-controlled-email",
+  "repositoryRetention": "sanitized-summary-only",
+  "requestScope": {
+    "endpointPath": "/v2/point/33.6407/-84.4277/100",
+    "regionId": "atlanta",
+    "minimumPollIntervalSeconds": 20,
+    "maximumConcurrentViewers": 25,
+    "commercial": false
+  },
+  "confirmedGuidance": [
+    "visible-odbl-attribution-required",
+    "identifiable-user-agent-with-contact-required",
+    "respect-http-errors-and-retry-after",
+    "cache-and-deduplicate",
+    "no-rate-limit-circumvention",
+    "api-and-authentication-may-change",
+    "no-sla-or-data-guarantee"
+  ],
+  "unresolved": [
+    "exact-cadence-and-daily-request-ceiling",
+    "exact-user-agent-value",
+    "public-no-key-access",
+    "lower-fixed-or-dynamic-rate-limit",
+    "terms-change-notification-channel",
+    "incident-contact",
+    "preferred-attribution-wording",
+    "transient-normalization-and-odbl-obligations"
+  ],
+  "disposition": "coordination-received-terms-unresolved",
+  "g2GateStatus": "pending"
+}

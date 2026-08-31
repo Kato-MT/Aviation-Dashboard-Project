@@ -114,7 +114,7 @@ function runtimePolicyBinding(): RetainedRuntimePolicyBinding {
     },
     canonicalSha256: '8'.repeat(64),
     limits: {
-      schemaVersion: 'runtime-policy-limits.v1',
+      schemaVersion: 'runtime-policy-limits.v2',
       canonicalSha256: '9'.repeat(64),
     },
     policy: {
@@ -138,7 +138,7 @@ function runtimePolicyBinding(): RetainedRuntimePolicyBinding {
         },
       },
       limits: {
-        schemaVersion: 'runtime-policy-limits.v1',
+        schemaVersion: 'runtime-policy-limits.v2',
         browser: {
           bundle: { initialShellGzipBytes: 200_000, lazyMapGzipBytes: 400_000 },
         },
@@ -173,7 +173,7 @@ function runbookVerification(
           policyEpoch: 'r3-runbook-rehearsal-1',
           canonicalSha256: 'e'.repeat(64),
           sourceDescriptorSha256: 'f'.repeat(64),
-          limitsSchemaVersion: 'runtime-policy-limits.v1',
+          limitsSchemaVersion: 'runtime-policy-limits.v2',
           limitsSha256,
           limits: runtimePolicyBinding().policy.limits,
         },

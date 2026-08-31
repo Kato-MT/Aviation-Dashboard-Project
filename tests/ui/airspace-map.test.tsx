@@ -95,6 +95,17 @@ describe('React map resource ownership', () => {
     const select = vi.fn();
     await render(view({ onSelect: select }));
     expect(container.querySelector('.airspace-map')?.getAttribute('role')).toBe('region');
+    const attributionLinks = [
+      ...container.querySelectorAll<HTMLAnchorElement>('.map-attribution a'),
+    ];
+    expect(attributionLinks.map(({ textContent }) => textContent)).toEqual([
+      'ADSB.lol',
+      'ODbL 1.0',
+      '© OpenStreetMap contributors',
+      'Protomaps',
+      'ESA WorldCover',
+    ]);
+    expect(attributionLinks[1]?.href).toBe('https://opendatacommons.org/licenses/odbl/1-0/');
     expect(status()).toBe('loading');
     await act(async () => callbacks().ready());
     expect(status()).toBe('ready');
@@ -150,6 +161,14 @@ describe('React map resource ownership', () => {
     await render(view({ aircraft: [], onSelect: select }));
     await act(async () => callbacks().select({ mode: 'latest', aircraftId: 'a1b2c3' }));
     expect(select).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not claim ADSB.lol attribution for a synthetic feed', async () => {
+    await render(view({ binding: { ...binding, providerId: 'synthetic-test' } }));
+    expect(container.querySelector('.map-attribution')?.textContent).not.toContain('ADSB.lol');
+    expect(container.querySelector('.map-attribution')?.textContent).toContain(
+      'OpenStreetMap contributors',
+    );
   });
 
   it('does not create a map when a lazy import finishes after unmount', async () => {

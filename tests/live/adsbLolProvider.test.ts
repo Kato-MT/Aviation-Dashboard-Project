@@ -2,7 +2,11 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { LiveProviderError } from '../../src/live/provider';
 import { getRegionConfig, REGION_CONFIGS } from '../../src/live/regions';
-import { createAdsbLolProvider, normalizeAdsbLolPayload } from '../../src/live/providers/adsbLol';
+import {
+  ADSB_LOL_USER_AGENT,
+  createAdsbLolProvider,
+  normalizeAdsbLolPayload,
+} from '../../src/live/providers/adsbLol';
 
 const region = REGION_CONFIGS[0];
 const receivedAtMs = Date.parse('2026-08-27T12:00:10.000Z');
@@ -186,7 +190,10 @@ describe('ADSB.lol HTTP adapter', () => {
 
     expect(fetcher).toHaveBeenCalledWith(
       'https://provider.test/v2/point/33.6407/-84.4277/100',
-      expect.objectContaining({ method: 'GET' }),
+      expect.objectContaining({
+        method: 'GET',
+        headers: { Accept: 'application/json', 'User-Agent': ADSB_LOL_USER_AGENT },
+      }),
     );
     expect(snapshot.aircraft).toHaveLength(1);
   });
@@ -200,6 +207,21 @@ describe('ADSB.lol HTTP adapter', () => {
       code: 'UPSTREAM_RATE_LIMITED',
       status: 429,
       retryAfterSeconds: 30,
+    });
+  });
+
+  it.each([
+    { status: 403, retryBlocked: true },
+    { status: 408, retryBlocked: false },
+  ])('classifies HTTP $status retry behavior conservatively', async ({ status, retryBlocked }) => {
+    const provider = createAdsbLolProvider({
+      fetcher: async () => new Response('', { status }),
+    });
+
+    await expect(provider.fetchRegion(region)).rejects.toMatchObject({
+      code: 'UPSTREAM_HTTP_ERROR',
+      status,
+      retryBlocked,
     });
   });
 

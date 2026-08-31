@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import worker from '../../worker/index';
 import type { WorkerEnv } from '../../worker/env';
 import { REQUEST_ADMISSION_POLICY, resetRequestAdmissionForTests } from '../../worker/admission';
+import { POLL_INTERVAL_MS } from '../../worker/polling';
 import { RUNTIME_POLICY_CHECK_INTERVAL_MS } from '../../worker/regionalFeedHub';
 import {
   MAX_REGIONAL_VIEWERS,
@@ -178,17 +179,20 @@ describe('actual Worker delivery windows', () => {
       });
       const viewer = await stalledViewer();
       expect(writes).toBe(1);
+      expect(await runInDurableObject(stub(), (_instance, state) => state.storage.getAlarm())).toBe(
+        clock + LIVE_DELIVERY_ACK_TIMEOUT_MS,
+      );
       viewer.socket.send(serializeLiveAcknowledgment(viewer.frame));
       await deliveriesSettled(stub());
       const deadline = await runInDurableObject(stub(), (_instance, state) =>
         state.storage.getAlarm(),
       );
       expect(deadline).toBe(clock + RUNTIME_POLICY_CHECK_INTERVAL_MS);
-      expect(writes).toBe(1);
+      expect(writes).toBe(2);
     },
   );
 
-  it('accepts 100 attached sockets and returns a bounded 503 for viewer 101', async () => {
+  it('accepts 25 attached sockets and returns a bounded 503 for viewer 26', async () => {
     const fetcher = successfulProvider();
     await cacheSnapshot();
     for (let index = 0; index < MAX_REGIONAL_VIEWERS; index++) await stalledViewer();
@@ -200,7 +204,7 @@ describe('actual Worker delivery windows', () => {
     expect(body.length).toBeLessThan(512);
     expect(
       await runInDurableObject(stub(), (_instance, state) => state.getWebSockets().length),
-    ).toBe(100);
+    ).toBe(MAX_REGIONAL_VIEWERS);
     expect(fetcher).toHaveBeenCalledOnce();
   }, 20_000);
 
@@ -294,6 +298,9 @@ describe('actual Worker delivery windows', () => {
     viewer.socket.send(serializeLiveAcknowledgment(answer));
     await deliveriesSettled(stub());
     clock += LIVE_DELIVERY_ACK_TIMEOUT_MS;
+    expect(await runDurableObjectAlarm(stub())).toBe(true);
+    expect(fetcher).toHaveBeenCalledOnce();
+    clock += POLL_INTERVAL_MS - LIVE_DELIVERY_ACK_TIMEOUT_MS;
     const resumed = nextWireFrame(viewer.socket, 'delivery');
     expect(await runDurableObjectAlarm(stub())).toBe(true);
     expect((await resumed).messages).toContainEqual(
@@ -358,10 +365,14 @@ describe('actual Worker delivery windows', () => {
     });
 
     const closed = nextClose(second.socket);
-    const resumed = nextWireFrame(first.socket, 'delivery');
     clock += LIVE_DELIVERY_ACK_TIMEOUT_MS;
     expect(await runDurableObjectAlarm(stub())).toBe(true);
     expect((await closed).code).toBe(1008);
+    expect(fetcher).toHaveBeenCalledOnce();
+
+    clock += POLL_INTERVAL_MS - LIVE_DELIVERY_ACK_TIMEOUT_MS;
+    const resumed = nextWireFrame(first.socket, 'delivery');
+    expect(await runDurableObjectAlarm(stub())).toBe(true);
     expect((await resumed).messages).toContainEqual(
       expect.objectContaining({
         type: 'airspace.snapshot',

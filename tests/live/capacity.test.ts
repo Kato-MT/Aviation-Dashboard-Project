@@ -49,11 +49,11 @@ describe('source-counted continuous regional capacity model', () => {
 
   it('counts control-state and alarm writes separately for one continuous region', () => {
     expect(estimateContinuousRegionalUsage(baseline)).toMatchObject({
-      scheduledAttemptCeiling: 8_640,
-      successKvRows: 77_760,
+      scheduledAttemptCeiling: 4_320,
+      successKvRows: 38_880,
       scheduledAlarmRows: 8_640,
-      minimumRowWritesAtSuccessCadence: 86_400,
-      freeWriteHeadroomBeforeOtherWork: 13_600,
+      minimumRowWritesAtSuccessCadence: 47_520,
+      freeWriteHeadroomBeforeOtherWork: 52_480,
       incomingKeepaliveMessages: 2_880,
       keepaliveRequestEquivalent: 144,
       exceedsPublishedFreeWriteAllowance: false,
@@ -62,24 +62,33 @@ describe('source-counted continuous regional capacity model', () => {
 
   it('flags the three-region continuous write budget before any unmodeled work', () => {
     expect(
-      estimateContinuousRegionalUsage({ ...baseline, regions: 3, viewersPerRegion: 100 }),
+      estimateContinuousRegionalUsage({
+        ...baseline,
+        regions: 3,
+        viewersPerRegion: MAX_REGIONAL_VIEWERS,
+      }),
     ).toMatchObject({
-      scheduledAttemptCeiling: 25_920,
-      minimumRowWritesAtSuccessCadence: 259_200,
-      freeWriteHeadroomBeforeOtherWork: -159_200,
-      incomingKeepaliveMessages: 864_000,
-      keepaliveRequestEquivalent: 43_200,
+      scheduledAttemptCeiling: 12_960,
+      minimumRowWritesAtSuccessCadence: 142_560,
+      freeWriteHeadroomBeforeOtherWork: -42_560,
+      incomingKeepaliveMessages: 216_000,
+      keepaliveRequestEquivalent: 10_800,
       exceedsPublishedFreeWriteAllowance: true,
     });
   });
 
   it('does not multiply upstream polling or its base writes when viewer count increases', () => {
     const one = estimateContinuousRegionalUsage(baseline);
-    const hundred = estimateContinuousRegionalUsage({ ...baseline, viewersPerRegion: 100 });
-    expect(hundred.scheduledAttemptCeiling).toBe(one.scheduledAttemptCeiling);
-    expect(hundred.minimumRowWritesAtSuccessCadence).toBe(one.minimumRowWritesAtSuccessCadence);
-    expect(hundred.viewerConnectionHours).toBe(one.viewerConnectionHours * 100);
-    expect(hundred.incomingKeepaliveMessages).toBe(one.incomingKeepaliveMessages * 100);
+    const maximum = estimateContinuousRegionalUsage({
+      ...baseline,
+      viewersPerRegion: MAX_REGIONAL_VIEWERS,
+    });
+    expect(maximum.scheduledAttemptCeiling).toBe(one.scheduledAttemptCeiling);
+    expect(maximum.minimumRowWritesAtSuccessCadence).toBe(one.minimumRowWritesAtSuccessCadence);
+    expect(maximum.viewerConnectionHours).toBe(one.viewerConnectionHours * MAX_REGIONAL_VIEWERS);
+    expect(maximum.incomingKeepaliveMessages).toBe(
+      one.incomingKeepaliveMessages * MAX_REGIONAL_VIEWERS,
+    );
   });
 
   it('handles zero active hours without inventing polls, connections or keepalives', () => {
@@ -108,7 +117,7 @@ describe('source-counted continuous regional capacity model', () => {
     { activeHoursPerRegion: 25 },
     { activeHoursPerRegion: Number.NaN },
     { viewersPerRegion: -1 },
-    { viewersPerRegion: 101 },
+    { viewersPerRegion: MAX_REGIONAL_VIEWERS + 1 },
     { viewersPerRegion: Infinity },
   ])('rejects an invalid scenario: %j', (change) => {
     expect(() => estimateContinuousRegionalUsage({ ...baseline, ...change })).toThrow(RangeError);
@@ -117,20 +126,24 @@ describe('source-counted continuous regional capacity model', () => {
   it.each([
     {
       regions: 1,
-      dataAcknowledgments: 864_000,
-      pings: 288_000,
-      separate: 72_000,
-      combined: 57_600,
+      dataAcknowledgments: 108_000,
+      pings: 72_000,
+      separate: 12_600,
+      combined: 9_000,
     },
     {
       regions: 3,
-      dataAcknowledgments: 2_592_000,
-      pings: 864_000,
-      separate: 216_000,
-      combined: 172_800,
+      dataAcknowledgments: 324_000,
+      pings: 216_000,
+      separate: 37_800,
+      combined: 27_000,
     },
   ])('counts ACK traffic separately from polling for $regions regions', (scenario) => {
-    const input = { regions: scenario.regions, activeHoursPerRegion: 24, viewersPerRegion: 100 };
+    const input = {
+      regions: scenario.regions,
+      activeHoursPerRegion: 24,
+      viewersPerRegion: MAX_REGIONAL_VIEWERS,
+    };
     const separate = estimateContinuousRegionalUsage(input);
     expect(separate.dataAcknowledgments).toBe(scenario.dataAcknowledgments);
     expect(separate.steadyTraffic).toMatchObject({
@@ -230,11 +243,11 @@ describe('logical credit and explicit operation scenarios', () => {
     );
     expect(
       regionalDeliveryCredit(
-        100,
-        Array.from({ length: 100 }, () => ({ bytes: 64 * 1024 })),
+        MAX_REGIONAL_VIEWERS,
+        Array.from({ length: MAX_REGIONAL_VIEWERS }, () => ({ bytes: 64 * 1024 })),
       ),
     ).toMatchObject({
-      outstandingBytes: 6_553_600,
+      outstandingBytes: 1_638_400,
       withinBudget: true,
     });
   });
@@ -246,14 +259,14 @@ describe('logical credit and explicit operation scenarios', () => {
         emittedDeliveries: 100,
         coalescedUpdates: 900,
         healthOnlyDeliveries: 100,
-        initialConnections: 100,
+        initialConnections: MAX_REGIONAL_VIEWERS,
         rejectedControls: 10,
       }),
     );
     expect(stalled).toMatchObject({
       acceptedAcknowledgments: 0,
       incomingMessages: 10,
-      requestEquivalentIncludingConnections: 100.5,
+      requestEquivalentIncludingConnections: 25.5,
     });
     const resumed = summarizeDeliveryTraffic(
       traffic({
@@ -275,17 +288,17 @@ describe('logical credit and explicit operation scenarios', () => {
 
     const storm = summarizeDeliveryTraffic(
       traffic({
-        initialConnections: 100,
+        initialConnections: MAX_REGIONAL_VIEWERS,
         reconnectAttempts: 30,
         acceptedReconnects: 1,
         rejectedReconnects: 29,
       }),
     );
     expect(storm).toMatchObject({
-      openedConnections: 101,
-      offeredConnectionAttempts: 130,
+      openedConnections: MAX_REGIONAL_VIEWERS + 1,
+      offeredConnectionAttempts: MAX_REGIONAL_VIEWERS + 30,
       rejectedReconnects: 29,
-      requestEquivalentIncludingConnections: 130,
+      requestEquivalentIncludingConnections: MAX_REGIONAL_VIEWERS + 30,
     });
   });
 
@@ -324,7 +337,7 @@ describe('logical credit and explicit operation scenarios', () => {
   });
 
   it('rejects unsafe counts, invalid subsets and unverifiable duration inputs', () => {
-    expect(() => regionalDeliveryCredit(101, [])).toThrow(RangeError);
+    expect(() => regionalDeliveryCredit(MAX_REGIONAL_VIEWERS + 1, [])).toThrow(RangeError);
     expect(() => regionalDeliveryCredit(0, [{ bytes: 1 }])).toThrow(RangeError);
     expect(() => regionalDeliveryCredit(1, [{ bytes: MAX_LIVE_MESSAGE_BYTES + 1 }])).toThrow(
       RangeError,

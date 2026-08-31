@@ -23,6 +23,7 @@ import { POLL_INTERVAL_MS } from '../../worker/polling';
 import { RUNTIME_POLICY_CHECK_INTERVAL_MS } from '../../worker/regionalFeedHub';
 import { deliveriesSettled, nextFrame, setAutomaticAcknowledgments } from './liveSocket';
 import type { ViewerAttachment } from '../../worker/delivery';
+import { LIVE_DELIVERY_ACK_TIMEOUT_MS } from '../../worker/deliveryPolicy';
 import type { AirspaceSnapshot } from '../../src/live/types';
 import { compileRuntimePolicy, runtimePolicyInputFromBindings } from '../../src/live/runtimePolicy';
 import { CURRENT_SUCCESS_KV_ROWS } from '../../tools/live/capacityModel';
@@ -342,7 +343,7 @@ describe('independent aggregate retention', () => {
     expect(fetchMock).toHaveBeenCalledOnce();
   }, 40_000);
 
-  it('does not write another alarm for unchanged joins, REST reads or scheduling calls', async () => {
+  it('separates a new viewer ACK alarm from unchanged REST reads and scheduling calls', async () => {
     const fetchMock = vi.fn(async () => providerResponse());
     vi.stubGlobal('fetch', fetchMock);
     await connectedViewer();
@@ -366,14 +367,15 @@ describe('independent aggregate retention', () => {
       vi.spyOn(state.storage, 'transaction').mockImplementation(intercept);
     });
     await connectedViewer();
+    expect(alarmWrites).toBe(2);
     await snapshotRequest();
     await snapshotRequest();
     expect(await alarmAt()).toBe(deadline);
-    expect(alarmWrites).toBe(0);
+    expect(alarmWrites).toBe(2);
     expect(fetchMock).toHaveBeenCalledOnce();
   });
 
-  it('matches the capacity model with nine KV rows and one alarm write for a scheduled success', async () => {
+  it('matches the capacity model with nine KV rows and two alarm writes for a scheduled success', async () => {
     const fetchMock = vi.fn(async () => providerResponse());
     vi.stubGlobal('fetch', fetchMock);
     const viewer = await connectedViewer();
@@ -428,7 +430,7 @@ describe('independent aggregate retention', () => {
     await runDurableObjectAlarm(stub());
     await delivered;
     expect(kvRows).toBe(CURRENT_SUCCESS_KV_ROWS);
-    expect(alarmWrites).toBe(1);
+    expect(alarmWrites).toBe(2);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
@@ -524,6 +526,7 @@ describe('transactional expiry and recovery', () => {
     const socket = await unacceptedSocket();
     const firstFrame = nextFrame(socket, 'airspace.snapshot');
     socket.accept();
+    await deliveriesSettled(stub());
     expect(await alarmAt()).toBe(clock + POLL_INTERVAL_MS);
     release();
     const [response, frame] = await Promise.all([firstResponse, firstFrame]);
@@ -621,11 +624,13 @@ describe('transactional expiry and recovery', () => {
     const afterCommit = (await committed).snapshot;
     expect(injected).toBe(true);
     expect(afterCommit.sequence).toBe(viewer.snapshot.sequence + 1);
+    const acknowledgmentDeadline = clock + LIVE_DELIVERY_ACK_TIMEOUT_MS;
     const nextPoll = clock + POLL_INTERVAL_MS;
-    expect(await alarmAt()).toBe(nextPoll);
+    expect(await alarmAt()).toBe(acknowledgmentDeadline);
     expect(await metricKeys()).toEqual([keyAt(clock)]);
     setAutomaticAcknowledgments(viewer.socket, true);
     await deliveriesSettled(stub());
+    expect(await alarmAt()).toBe(nextPoll);
     await evictDurableObject(stub(), { webSockets: 'hibernate' });
     clock = nextPoll - 1;
     await runDurableObjectAlarm(stub());

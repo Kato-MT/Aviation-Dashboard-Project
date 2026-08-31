@@ -94,7 +94,7 @@ function runtimePolicy(applicationVersion = '3.0.0-dev') {
       },
     },
     limits: {
-      schemaVersion: 'runtime-policy-limits.v1',
+      schemaVersion: 'runtime-policy-limits.v2',
       browser: {
         bundle: { initialShellGzipBytes: 200_000, lazyMapGzipBytes: 400_000 },
       },
@@ -119,7 +119,7 @@ function bindings(): RunbookRehearsalBindingsV1 {
       policyEpoch: 'r3-runbook-rehearsal-1',
       canonicalSha256: '3'.repeat(64),
       sourceDescriptorSha256: '4'.repeat(64),
-      limitsSchemaVersion: 'runtime-policy-limits.v1',
+      limitsSchemaVersion: 'runtime-policy-limits.v2',
       limitsSha256: '5'.repeat(64),
       limits: runtimePolicy().limits,
     },
@@ -393,7 +393,7 @@ describe('retained-candidate runbook rehearsal', () => {
       },
       canonicalSha256: '2'.repeat(64),
       limits: {
-        schemaVersion: 'runtime-policy-limits.v1',
+        schemaVersion: 'runtime-policy-limits.v2',
         canonicalSha256: '3'.repeat(64),
       },
       policy: runtimePolicy(),

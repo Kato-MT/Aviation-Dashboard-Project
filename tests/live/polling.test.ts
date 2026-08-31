@@ -98,7 +98,9 @@ describe('shared polling deadlines', () => {
 
   it('also respects a later cadence reservation', () => {
     const plan = providerRetryPlan(1, undefined, now, () => 0);
-    expect(pollDeadline({ ...plan, nextPollAt: now + 5 * POLL_INTERVAL_MS })).toBe(now + 50_000);
+    expect(pollDeadline({ ...plan, nextPollAt: now + 5 * POLL_INTERVAL_MS })).toBe(
+      now + 5 * POLL_INTERVAL_MS,
+    );
   });
 
   it.each([NaN, Infinity, -1])('bounds an unusable jitter source: %s', (draw) => {
@@ -122,7 +124,7 @@ describe('shared polling deadlines', () => {
     expect(pollDeadline(plan)).toBeUndefined();
   });
 
-  it.each([-1, NaN, MAX_POLL_TIMESTAMP_MS - POLL_INTERVAL_MS])(
+  it.each([-1, NaN, MAX_POLL_TIMESTAMP_MS - POLL_INTERVAL_MS + 1])(
     'fails closed when the completion clock cannot safely represent the next retry: %s',
     (finishedAt) =>
       expect(providerRetryPlan(1, undefined, finishedAt, () => 0).retryBlocked).toBe(true),

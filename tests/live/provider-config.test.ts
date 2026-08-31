@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { REGION_CONFIGS } from '../../src/live/regions';
+import { ADSB_LOL_USER_AGENT } from '../../src/live/providers/adsbLol';
 import { compileRuntimePolicy, type RuntimePolicyInput } from '../../src/live/runtimePolicy';
 import type { LiveBuildTarget, LiveProviderMode } from '../../src/live/source';
 import {
@@ -154,6 +155,12 @@ describe('fail-closed provider selection', () => {
         `${mode === 'mock' ? MOCK_PROVIDER_ORIGIN : LIVE_PROVIDER_ORIGIN}/v2/point/${REGION_CONFIGS[0]!.center.latitude}/${REGION_CONFIGS[0]!.center.longitude}/${REGION_CONFIGS[0]!.radiusNauticalMiles}`,
       ]);
       expect(requests.every((request) => request.method === 'GET')).toBe(true);
+      expect(
+        requests.every((request) => request.headers.get('user-agent') === ADSB_LOL_USER_AGENT),
+      ).toBe(true);
+      expect(
+        requests.every((request) => request.headers.get('accept') === 'application/json'),
+      ).toBe(true);
       expect(requests.every((request) => !request.headers.has('authorization'))).toBe(true);
       expect(requests.every((request) => !request.headers.has('cookie'))).toBe(true);
     },
@@ -226,5 +233,16 @@ describe('fail-closed provider selection', () => {
     expect(() =>
       configuredProvider({ ...env, LIVE_PROVIDER_BASE_URL: 'https://api.adsb.lol' }),
     ).toThrow();
+  });
+
+  it('allows only the fixed Atlanta path in real-source mode', async () => {
+    const external = vi.fn(async () => Response.json({ now: Date.now(), ac: [] }));
+    vi.stubGlobal('fetch', external);
+    const provider = configuredProvider(environment('live-staging', 'live'))!;
+
+    await expect(provider.fetchRegion(REGION_CONFIGS[1]!)).rejects.toThrow(
+      'The live aircraft provider request failed.',
+    );
+    expect(external).not.toHaveBeenCalled();
   });
 });

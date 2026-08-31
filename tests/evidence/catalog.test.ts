@@ -63,4 +63,17 @@ describe('static Evidence catalog', () => {
       '41cda60f3c50172ef3b8f46f114668d9710fc6862b5a8f7f10da4afbf9beef95',
     );
   });
+
+  it('keeps G2 pending after the sanitized provider-coordination response', () => {
+    const providerGate = DEFAULT_RELEASE_GATES.find(({ id }) => id === 'g2-provider');
+
+    expect(providerGate).toMatchObject({
+      implementation: 'not-applicable',
+      execution: 'external-evidence-needed',
+      release: 'pending',
+    });
+    expect(providerGate?.evidence).toContain('response received on 2026-08-30');
+    expect(providerGate?.evidence).toContain('not an approved provider-gate receipt');
+    expect(providerGate?.evidence).toContain('G2 remains pending');
+  });
 });

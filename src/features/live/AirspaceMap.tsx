@@ -5,6 +5,7 @@ import { resolveHistorySample } from '../../live/historyPresentation';
 import type { AircraftState, LiveFeedBinding } from '../../live/types';
 import type { ServerTimeInterval } from '../../live/clock';
 import type { MapRenderer } from './mapRenderer';
+import { LIVE_PILOT_POLICY } from '../../live/pilotPolicy';
 
 export const MAP_LOAD_TIMEOUT_MS = 15_000;
 type RendererModule = Pick<typeof import('./mapRenderer'), 'createMapRenderer'>;
@@ -194,6 +195,12 @@ export function AirspaceMap({
           <span>Hollow: stale position</span>
         </p>
         <p className="map-attribution">
+          {binding?.providerId === LIVE_PILOT_POLICY.providerId && (
+            <>
+              Aircraft observations: <a href={LIVE_PILOT_POLICY.sourceUrl}>ADSB.lol</a> ·{' '}
+              <a href={LIVE_PILOT_POLICY.licenseUrl}>{LIVE_PILOT_POLICY.licenseLabel}</a> ·{' '}
+            </>
+          )}
           <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a> ·{' '}
           <a href="https://protomaps.com">Protomaps</a> ·{' '}
           <a href="https://esa-worldcover.org/en/data-access">ESA WorldCover</a>

@@ -22,6 +22,7 @@ import type {
   SnapshotValidationSummary,
 } from '../types';
 import { RUNTIME_POLICY_LIMITS } from '../runtimePolicyLimits';
+import { LIVE_PILOT_POLICY } from '../pilotPolicy';
 
 const DEFAULT_BASE_URL = 'https://api.adsb.lol';
 const DEFAULT_MAX_RESPONSE_BYTES: number = RUNTIME_POLICY_LIMITS.provider.maximumResponseBytes;
@@ -38,6 +39,8 @@ export interface AdsbLolProviderOptions {
   timeoutMs?: number;
   now?: () => number;
 }
+
+export const ADSB_LOL_USER_AGENT = LIVE_PILOT_POLICY.userAgent;
 
 interface AdsbLolPayload {
   now: number;
@@ -302,7 +305,7 @@ export function createAdsbLolProvider(options: AdsbLolProviderOptions = {}): Liv
   return {
     id: 'adsb-lol',
     label: 'ADSB.lol',
-    attributionUrl: 'https://www.adsb.lol/',
+    attributionUrl: LIVE_PILOT_POLICY.sourceUrl,
     async fetchRegion(region, signal) {
       const url = `${baseUrl}/v2/point/${region.center.latitude}/${region.center.longitude}/${region.radiusNauticalMiles}`;
       try {
@@ -310,7 +313,10 @@ export function createAdsbLolProvider(options: AdsbLolProviderOptions = {}): Liv
           async (requestSignal) => {
             const response = await fetcher(url, {
               method: 'GET',
-              headers: { Accept: 'application/json' },
+              headers: {
+                Accept: 'application/json',
+                'User-Agent': ADSB_LOL_USER_AGENT,
+              },
               signal: requestSignal,
               redirect: 'error',
             });
@@ -326,6 +332,11 @@ export function createAdsbLolProvider(options: AdsbLolProviderOptions = {}): Liv
                 `The live aircraft provider returned HTTP ${response.status}.`,
                 {
                   status: response.status,
+                  retryBlocked:
+                    response.status >= 400 &&
+                    response.status < 500 &&
+                    response.status !== 408 &&
+                    response.status !== 429,
                   ...parseRetryAfter(response.headers.get('retry-after'), headerReceivedAtMs),
                 },
               );

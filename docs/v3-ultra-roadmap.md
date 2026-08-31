@@ -32,7 +32,7 @@ It is not a complete flight tracker, dispatch tool, safety system, route predict
 
 ### The 90-second portfolio journey
 
-1. Open Live Airspace in one of three fixed Georgia regions.
+1. Open the fixed Atlanta Live Airspace pilot.
 2. Select a recently observed aircraft from the map or synchronized table.
 3. Inspect the exact retained receipt, received position, altitude, speed, vertical rate, freshness, session trail, and charts.
 4. Open the regional quality ledger and explain missing, stale, or uncertain data without treating it as an aircraft fault.
@@ -46,7 +46,8 @@ Real provider data is the final operational proof, not a dependency for a reliab
 
 ### Must ship in v3
 
-- Fixed regions: Atlanta, Savannah and Statesboro, and Central Georgia.
+- Real-source pilot: Atlanta only, using `GET /v2/point/33.6407/-84.4277/100`, one shared attempt no more often than every 20 seconds, and at most 25 attached or closing WebSocket viewers.
+- Synthetic assurance may retain the Atlanta, Savannah / Statesboro, and Central Georgia presets; those additional presets are not public real-source routes.
 - Live Airspace as the normal online entry point.
 - A+B visual direction: light evidence-first workspace, dominant map, synchronized table, selected-track investigation rail, and session charts.
 - Explicit source, receipt, observation-age, transport, data-quality, and limitation labels.
@@ -89,7 +90,7 @@ The current raw smoke and maximum reports are authentic only while their capture
 ```mermaid
 flowchart LR
     P[Approved aircraft-data provider] --> A[Bounded provider adapter]
-    A --> D[One SQLite-backed Durable Object per region]
+    A --> D[One SQLite-backed Durable Object per active source region; Atlanta for the pilot]
     D --> H[Validated HTTP snapshot and health]
     D --> W[Acknowledged WebSocket delivery]
     H --> R[React Live Airspace runtime]
@@ -123,11 +124,11 @@ Provider, region, feed epoch, sequence, delivery ID, aircraft identity, and rece
 
 ADSB.lol is the preferred primary provider candidate, not an approved production dependency yet.
 
-Current official material says the API is free, public API data is ODbL 1.0, rate limits are dynamic, a feeder-linked API key may be required later, and production users should contact the operator so their application is not broken accidentally. The deployed API description and repository wording differ, so the release record must preserve dated snapshots of both.
+ADSB.lol coordination response received on 2026-08-30. The provider confirmed general requirements for visible ODbL attribution, an identifiable contact-bearing User-Agent, respectful handling of HTTP errors and Retry-After, shared caching and deduplication, no rate-limit circumvention, and no service-level or stability guarantee. The response did not approve the proposed 20-second cadence, 25-viewer ceiling, exact User-Agent, public no-key access, incident contact, change-notification channel, or the ODbL obligations for transient normalized browser redistribution. G2 remains pending and Live remains disabled. The sanitized repository record is [`docs/provider/adsb-lol-coordination-2026-08-30.json`](provider/adsb-lol-coordination-2026-08-30.json).
 
 Before public use, obtain operational acknowledgement for:
 
-- the three exact regional queries and maximum radius;
+- the one exact Atlanta pilot query and 100-nautical-mile radius;
 - minimum polling interval, concurrency, and daily ceiling;
 - Cloudflare proxy and cache behavior;
 - required headers or future API-key migration;
@@ -159,12 +160,12 @@ Current official free limits include:
 - SQLite-backed Durable Objects: 5 million rows read and 100,000 rows written per day.
 - R2 Standard: 10 GB-month storage, 1 million Class A operations, and 10 million Class B operations per month.
 
-The repository's source-counted continuous three-region model estimates about 259,200 Durable Object row writes per day before extra viewers and maintenance. Therefore, `free-tier-first` is a design goal, not a verified production claim.
+The current one-region pilot makes at most 4,320 scheduled attempts per continuously viewed day. With the verified source-counted success path of nine KV-row writes plus two alarm-row writes per attempt, that is a minimum of 47,520 Durable Object row writes per day before initialization, early alarms, cleanup, failures, snapshot callers, or other workloads. This is below the published 100,000-row Free allowance, but it is source-counted modeling rather than platform billing proof. Therefore, `free-tier-first` remains a design goal, not a verified production claim.
 
 G1 must choose and enforce one operating mode:
 
-1. **Recommended first:** on-demand regional activation, poll only while a viewer is present, idle shutdown, and strict daily budgets.
-2. Restricted active regions or operating hours.
+1. **Recommended first:** on-demand Atlanta activation, poll only while a viewer is present, idle shutdown, and strict daily budgets.
+2. Restricted operating hours or a lower daily request budget.
 3. A user-approved paid plan and explicit monthly ceiling.
 
 Every mode needs hard application caps, tested quota-exhaustion behavior, a visible disabled or capacity state, usage alerts, and a one-action kill switch. Never enable an automatic paid upgrade.
@@ -383,7 +384,7 @@ Performance gates:
 - Lazy map route JavaScript below 500 kB gzip.
 - At 500 visible aircraft, p95 validated-snapshot-to-paint below 500 ms on the recorded desktop profile and below one second on the recorded mobile profile.
 - At 2,000 accepted records, no crash, truncation, unbounded queue, or loss of filter, focus, selection, and table access.
-- One and three hubs, 1, 10, and 100 viewers, one stalled viewer, reconnect storm, hibernation, restart, and backoff remain bounded.
+- One Atlanta hub with 1, 10, and 25 WebSocket viewers, one stalled viewer, reconnect storm, hibernation, restart, and backoff remains bounded. Additional three-region synthetic regression does not expand the public pilot envelope.
 - A fresh corrected smoke, maximum, and real 30-minute soak pass on the exact frozen source and artifact.
 
 G0 exit gate:
@@ -409,7 +410,7 @@ Execution:
 
 - Deploy the exact retained mock candidate to an isolated non-public target.
 - Keep every real provider path disabled and deny unexpected egress.
-- Exercise one and three regions with 1, 10, and 100 synthetic viewers within the approved window.
+- Exercise one Atlanta-equivalent mock region with 1, 10, and 25 synthetic WebSocket viewers within the approved window.
 - Verify R2 byte ranges, Durable Object hibernation and restart, alarms, capacity rejection, reconnects, aggregate metrics, disablement, and cleanup.
 - Measure actual requests, rows read and written, duration, CPU, R2 operations, and headroom.
 
@@ -423,16 +424,18 @@ No G1 result is provider approval or public release evidence.
 
 ### Gate G2: provider-coordinated real-source staging
 
+The 2026-08-30 response closes the provider-contact substep only. It is not an approved provider-gate receipt and does not authorize a real-source request.
+
 Preconditions requiring external and Kato approval:
 
 - dated provider terms and operational acknowledgement or written license;
-- exact endpoint, region, cadence, concurrency, daily request ceiling, attribution, cache, redistribution, retention, and API-key decisions;
+- exact `GET /v2/point/33.6407/-84.4277/100` endpoint, no-faster-than-20-second shared cadence, 25-WebSocket-viewer ceiling, daily request ceiling, attribution, cache, redistribution, retention, and API-key decisions;
 - exact target, time window, request ceiling, stop conditions, and privacy plan;
 - production candidate with no mock code, binding, or client-selectable source.
 
 Execution:
 
-- Begin with one region and the minimum approved cadence.
+- Use only the fixed Atlanta endpoint, never start attempts more often than every 20 seconds, and admit at most 25 attached or closing WebSocket viewers.
 - Run a bounded health and valid-empty check, then a nonempty observation walkthrough if observations are available within the approved limit.
 - Verify attribution, freshness, server time, rate-limit handling, disablement, and recovery.
 - Retain only aggregate gate evidence. Do not retain aircraft identifiers, callsigns, positions, trails, payloads, or screenshots containing live aircraft data.

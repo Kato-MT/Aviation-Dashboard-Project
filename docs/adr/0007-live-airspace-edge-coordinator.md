@@ -11,10 +11,11 @@ Public ADS-B observations are also a different data domain from the synthetic di
 
 ## Decision
 
-Use one Cloudflare Worker deployment for the application assets and `/api/v1` routes. Route each fixed Georgia region to one SQLite-backed Durable Object. The Durable Object:
+Use one Cloudflare Worker deployment for the application assets and `/api/v1` routes. In real-source mode, expose only the fixed Atlanta pilot and route it to one SQLite-backed Durable Object. The only permitted upstream request shape is `GET /v2/point/33.6407/-84.4277/100`. The retained Savannah / Statesboro and Central Georgia presets remain available for synthetic assurance only. The Durable Object:
 
 - accepts hibernatable WebSocket clients;
-- performs one shared provider request at a time;
+- admits at most 25 attached or closing WebSocket clients;
+- performs one shared provider request at a time, with at least 20 seconds between attempt starts;
 - polls only while regional viewers are connected;
 - uses an on-demand poll for snapshot requests without creating an idle polling loop;
 - enforces timeout, Retry-After, exponential backoff, and circuit-breaker state;
@@ -22,13 +23,15 @@ Use one Cloudflare Worker deployment for the application assets and `/api/v1` ro
 - persists control state and hourly aggregate feed metrics only;
 - deletes aggregate metric hours older than 30 days.
 
-The browser starts with a validated HTTP snapshot and then consumes versioned WebSocket snapshots and health messages. Browser trails are bounded and exist only for the current session. Changing regions starts a new session and clears all aircraft evidence.
+The browser starts with a validated HTTP snapshot and then consumes versioned WebSocket snapshots and health messages. Browser trails are bounded and exist only for the current session. The real-source experience is fixed to Atlanta; changing a retained synthetic region starts a new session and clears all aircraft evidence.
 
-Only the three checked-in region presets are accepted. The product does not proxy arbitrary coordinates, offer military-only endpoints, resolve owners, predict routes, or create persistent aircraft watchlists.
+Real-source mode accepts only the checked-in Atlanta pilot route. Synthetic mode may use the three checked-in Georgia presets for deterministic assurance. Neither mode proxies arbitrary coordinates, offers military-only endpoints, resolves owners, predicts routes, or creates persistent aircraft watchlists.
 
 ## Provider decision
 
-ADSB.lol is the initial adapter because its public API and public data are documented under ODbL 1.0. The integration uses only the regional point endpoint. Its official API documentation says rate limits are dynamic and asks production users to contact the operator, so production enablement remains a release gate rather than an assumed service-level agreement.
+ADSB.lol is the initial adapter because its public API and public data are documented under ODbL 1.0. The integration uses only the exact Atlanta regional point endpoint above and sends the checked-in identifiable User-Agent `GeorgiaFlightOutlook/0.1 (+https://github.com/Kato-MT/Aviation-Dashboard-Project)`.
+
+ADSB.lol supplied general operating guidance on 2026-08-30: visible ODbL attribution, a contact-bearing User-Agent, respectful HTTP-error and `Retry-After` handling, shared caching and deduplication, no rate-limit circumvention, and no availability guarantee. The response did not approve the exact 20-second cadence, 25-viewer ceiling, User-Agent, public no-key access, incident contact, change-notification channel, or transient normalized redistribution obligations. G2 therefore remains open and Live remains disabled.
 
 The normalized contract and provider interface remain independent of ADSB.lol. A replacement provider must receive its own licensing, privacy, field-mapping, failure, and load review before activation.
 
@@ -38,7 +41,7 @@ The normalized contract and provider interface remain independent of ADSB.lol. A
 
 - One upstream poll can serve many viewers.
 - Provider failures become explicit product states instead of browser-specific exceptions.
-- Fixed regions and strict contracts reduce proxy abuse.
+- One fixed real-source region and strict contracts reduce proxy abuse.
 - The interface can preserve the last valid snapshot during recoverable degradation.
 - No application database of aircraft movements is created.
 
@@ -47,8 +50,8 @@ The normalized contract and provider interface remain independent of ADSB.lol. A
 - Live Airspace requires the network and the edge service; the synthetic lab remains the offline capability.
 - Durable Object alarms have at-least-once behavior, so polling and metrics must remain idempotent and guarded by one in-flight promise.
 - The public provider has no project-owned availability guarantee.
-- ODbL attribution and production-provider coordination must be checked again for every release.
-- Deployment credentials and provider contact remain user-controlled external gates.
+- ODbL attribution and the unresolved production-provider questions must be checked again for every release.
+- Deployment credentials and any further provider coordination remain user-controlled external gates.
 
 ## Primary references
 

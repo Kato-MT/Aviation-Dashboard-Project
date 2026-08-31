@@ -3,10 +3,11 @@ import { MAX_REGIONAL_DELIVERY_BYTES, MAX_REGIONAL_VIEWERS } from '../../worker/
 import { MAX_LIVE_HANDSHAKE_BYTES } from '../../src/live/delivery';
 import { MAX_LIVE_MESSAGE_BYTES } from '../../src/live/validation';
 
-export const CAPACITY_SOURCE_CHECKED_AT = '2026-08-28';
+export const CAPACITY_SOURCE_CHECKED_AT = '2026-08-31';
 export const PUBLISHED_FREE_DO_WRITES_PER_DAY = 100_000;
 export const CURRENT_SUCCESS_KV_ROWS = 9;
 export const CURRENT_FAILURE_KV_ROWS = 6;
+export const CURRENT_SUCCESS_ALARM_ROWS_WITH_VIEWERS = 2;
 const KEEPALIVE_INTERVAL_MS = 30_000;
 
 export interface ContinuousRegionalEnvelope {
@@ -187,7 +188,9 @@ export function estimateContinuousRegionalUsage(input: ContinuousRegionalEnvelop
     input.viewersPerRegion < 0 ||
     input.viewersPerRegion > MAX_REGIONAL_VIEWERS
   )
-    throw new RangeError('viewersPerRegion must be an integer from zero through 100.');
+    throw new RangeError(
+      `viewersPerRegion must be an integer from zero through ${MAX_REGIONAL_VIEWERS}.`,
+    );
 
   const pongDelivery = input.pongDelivery ?? 'standalone';
   if (pongDelivery !== 'standalone' && pongDelivery !== 'co-delivered')
@@ -200,7 +203,10 @@ export function estimateContinuousRegionalUsage(input: ContinuousRegionalEnvelop
     input.regions * input.viewersPerRegion * Math.ceil(activeMs / KEEPALIVE_INTERVAL_MS);
   const initialConnections = activeMs > 0 ? input.regions * input.viewersPerRegion : 0;
   const successKvRows = scheduledAttemptCeiling * CURRENT_SUCCESS_KV_ROWS;
-  const scheduledAlarmRows = scheduledAttemptCeiling;
+  // With a 20-second poll cadence and 10-second delivery receipt deadline, a
+  // healthy delivery first arms the earlier ACK alarm, then restores the later
+  // poll alarm after acknowledgments settle.
+  const scheduledAlarmRows = scheduledAttemptCeiling * CURRENT_SUCCESS_ALARM_ROWS_WITH_VIEWERS;
   const minimumRowWritesAtSuccessCadence = successKvRows + scheduledAlarmRows;
   const dataAcknowledgments = scheduledAttemptCeiling * input.viewersPerRegion;
   const standalonePongs = pongDelivery === 'standalone' ? incomingKeepaliveMessages : 0;

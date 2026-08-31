@@ -4,7 +4,7 @@
 
 The authoritative [Ultra full-stack roadmap](v3-ultra-roadmap.md) is the execution plan. A+B remains selected. M1, M2-map, M2-Lab, the local M3.1 shared-service checkpoint and the local M3.2 linked investigation are implemented and locally verified for their recorded source identities. Fresh raw-artifact smoke and exact 2,000-record maximum profiles pass for the current local R3-exit source identity. The earlier real 30-minute soak remains historical evidence for source-content digest `32d2ff35734f8dfebcdbab319d577b57587cdff379ea5ea285eb47b2f60353bb`. All three are local Miniflare/workerd evidence, not Cloudflare, provider, deployment, or production proof. A raw synthetic integration source crosses the actual adapter, regional Durable Object, admitted and acknowledged WebSocket protocol and measured-time React view. Actual regional geography, feed-scoped receipt selection, linked trails/charts/text, and the React-owned Monitor, Diagnostics, Verification, Investigation, Campaign, and Configuration Lab workflows are integrated.
 
-This is a controlled development preview, not a released public live dashboard. The server verifies and labels its source, production defaults disabled, and no real-aircraft provider was contacted. Numeric application admission, the required Live CI definition, the measured local workerd harness, the complete local A+B investigation, deterministic Replay, Evidence, the four-workspace shell, all six React Lab workflows, and the unified one-file React offline artifact now exist. The evidence-first UI renders a compact live proof strip, exact-receipt measurement ribbon, and bounded regional quality ledger; browser and Worker identities come from one build target and source identity. The offline artifact visibly disables Live while preserving Replay, the six-workflow Lab, and static Evidence under a no-connect policy. D1 and R3-01 through R3-06 are now implemented and locally verified on the current dirty tree, including artifact sanitization, operations compatibility, typed numeric policy, privacy/G2 firebreak, browser budgets and performance, deterministic visual baselines, eight runbooks, and candidate-bound receipt verification. Current-source raw smoke and maximum executions pass locally; the real 30-minute soak remains historical and all three must repeat against the frozen retained candidate. M3.3 is locally accepted with the validation-receipt caveat recorded below. M3.4 was demonstrated locally by the historical retained candidate named below; the current post-candidate source still requires a new retained candidate before any committed-SHA or release claim. Hosted CI evidence, account-level controls, physical platform capacity, the owner-approved operating envelope, a frozen retained candidate, and release gates remain open.
+This is a controlled development preview, not a released public live dashboard. The server verifies and labels its source, and production remains disabled. ADSB.lol was contacted and supplied general operating guidance on 2026-08-30, but no real-aircraft request has been made and the exact pilot envelope was not approved. Numeric application admission, the required Live CI definition, the measured local workerd harness, the complete local A+B investigation, deterministic Replay, Evidence, the four-workspace shell, all six React Lab workflows, and the unified one-file React offline artifact now exist. The evidence-first UI renders a compact live proof strip, exact-receipt measurement ribbon, and bounded regional quality ledger; browser and Worker identities come from one build target and source identity. The offline artifact visibly disables Live while preserving Replay, the six-workflow Lab, and static Evidence under a no-connect policy. D1 and R3-01 through R3-06 are now implemented and locally verified on the current dirty tree, including artifact sanitization, operations compatibility, typed numeric policy, privacy/G2 firebreak, browser budgets and performance, deterministic visual baselines, eight runbooks, and candidate-bound receipt verification. Current-source raw smoke and maximum executions pass locally; the real 30-minute soak remains historical and all three must repeat against the frozen retained candidate. M3.3 is locally accepted with the validation-receipt caveat recorded below. M3.4 was demonstrated locally by the historical retained candidate named below; the current post-candidate source still requires a new retained candidate before any committed-SHA or release claim. Hosted CI evidence, account-level controls, physical platform capacity, the owner-approved operating envelope, a frozen retained candidate, and release gates remain open.
 
 ### Ultra implementation checkpoint, 2026-08-29
 
@@ -34,7 +34,7 @@ The complete post-offline dirty-tree regression recorded at that checkpoint was 
 
 Operational Evidence Option 1 and Runtime Policy Option 2 are fully implemented locally. Strict traceability now binds 218 requirements, 313 declared tests, 55 areas, both selected option IDs, all 16 selected requirements, all 16 selected test cases, and exact regular-file evidence through a source-content manifest. The complete configured static, application, Worker, Python, connected-browser, legacy/offline-browser, flow, walkthrough, build, privacy, runbook, browser-budget, visual-regression, browser-performance, and Worker dry-run gates pass on the dirty development tree.
 
-The runtime policy owns one deeply immutable `runtime-policy-limits.v1` contract for protocol, provider, history, delivery, admission, map, bundle, and performance limits. All seven routes derive enablement, path, method, query, body, upgrade, and response-security decisions from that contract; encoded reserved paths fail closed, and generated candidates route static assets through the Worker while Vite keeps transformed development assets. Both generated connected targets sanitize deployment metadata and pass whole-artifact policy inspection. Operations evidence preserves partial regional results and distinguishes application, provider, delivery, admission, and freshness dimensions. Its closed schema now has recursive property-based privacy tests, and Evidence covers 200-percent text, 320-pixel reflow, keyboard access, reduced motion, and serious or critical Axe findings. Four deterministic A+B baselines cover desktop and mobile Overview and Investigation. Eight operator procedures are machine-checked and synthetically rehearsed without provider, network, cloud, deployment, runtime, or production action. Fresh raw smoke and exact 2,000-record maximum profiles pass against the current local source; the retained-candidate bridge and acceptance recorder are implemented and tested, but no current candidate was retained or accepted by this checkpoint.
+The runtime policy owns one deeply immutable `runtime-policy-limits.v2` contract for protocol, provider, history, delivery, admission, map, bundle, and performance limits. The current conservative real-source envelope is one fixed Atlanta query, one shared attempt no more often than every 20 seconds while viewers exist, and at most 25 attached or closing stream viewers. Synthetic assurance retains all three fixed Georgia presets. All seven routes derive enablement, path, method, query, body, upgrade, and response-security decisions from that contract; encoded reserved paths fail closed, and generated candidates route static assets through the Worker while Vite keeps transformed development assets. Both generated connected targets sanitize deployment metadata and pass whole-artifact policy inspection. Operations evidence preserves partial regional results and distinguishes application, provider, delivery, admission, and freshness dimensions. Its closed schema now has recursive property-based privacy tests, and Evidence covers 200-percent text, 320-pixel reflow, keyboard access, reduced motion, and serious or critical Axe findings. Four deterministic A+B baselines cover desktop and mobile Overview and Investigation. Eight operator procedures are machine-checked and synthetically rehearsed without provider, network, cloud, deployment, runtime, or production action. Fresh raw smoke and exact 2,000-record maximum profiles pass against the current local source; the retained-candidate bridge and acceptance recorder are implemented and tested, but no current candidate was retained or accepted by this checkpoint.
 
 This closes local R3 only. The base HEAD still has a dirty working tree. One committed exact source, retained candidate, retained-byte browser and load matrix, hosted CI, Cloudflare operating envelope, provider approval, real-source observation, deployment, and publication remain separate R4 and G0 through G3 gates.
 
@@ -155,11 +155,11 @@ The subsequent P2 cadence/history/retention checkpoint passed complete isolated 
 
 Independent aggregate expiry is also implemented, with 23 focused workerd cases. It survives idle regions, provider failure/backoff and hibernation, uses transactional bounded cleanup and a durable retry, and does not repeat unchanged alarm writes. Attempt reservation and socket admission preserve the next polling wakeup before final scheduling. The post-change 52.4-second outage/recovery flow, both Live builds and artifact-isolation checks passed. Later M3.1 checkpoints close local logical delivery, publication durability, near-limit fairness and reconnect recovery. Corrected smoke/maximum profiles, the 30-minute soak, hosted CI and physical platform gates remain open.
 
-`pnpm live:capacity` provides a tested, source-counted estimate rather than a billing claim. The current continuous three-region baseline is 259,200 row writes/day before extra callers and maintenance, so it does not support a claim that three continuously active regions fit the published 100,000 Free write allowance. Platform measurements and an explicit operating-envelope decision remain required. See the roadmap for assumptions and current primary sources.
+`pnpm live:capacity` provides a tested, source-counted estimate rather than a billing claim. At this historical checkpoint, the former three-region, ten-second baseline was 259,200 row writes/day before extra callers and maintenance. The current Atlanta-only, 20-second pilot makes at most 4,320 scheduled attempts/day; its verified success path is nine KV-row writes plus two alarm-row writes per attempt, or at least 47,520 writes/day before initialization, early alarms, cleanup, failures, snapshot callers, or other workloads. The modeled minimum is below the published 100,000 Free write allowance, but platform measurements and an explicit operating-envelope decision remain required. See the roadmap for assumptions and current primary sources.
 
 Run the local synthetic preview with `pnpm dev:live` and open `http://127.0.0.1:4174/live.html`. `#lab` or `#lab-monitor` opens React Monitor without starting Live, `#lab-diagnostics` opens React Diagnostics, `#lab-verification` opens React Verification, `#lab-investigation` opens React Investigation, `#lab-campaign` opens React Campaign, and `#lab-configuration` opens React Configuration. It uses the actual local backend and no remote aircraft provider. `pnpm build:offline` produces the separate one-file React offline artifact. For a fresh checkout, `pnpm maps:prepare`, `pnpm maps:manifest` and `pnpm maps:seed` prepare the public regional geography and local-only map storage; they do not deploy cloud resources. The legacy artifact remains a rollback and regression reference. `pnpm test:live-browser`, `pnpm test:live-flow`, `pnpm verify:live-builds`, and `pnpm exec playwright test tests/browser/offline.spec.ts` reproduce the applicable local proof; build the relevant targets before running their artifact checks.
 
-HEAD remains `80c1e47`; changes are uncommitted. The package version remains 2.2.0 and development metadata does not claim an exact released v3. No aircraft-provider contact, cloud account resource, commit, push or deployment occurred. All external G1-G3 gates remain open.
+The recorded base HEAD at that checkpoint was `80c1e47`, with uncommitted changes. The package version remains 2.2.0 and development metadata does not claim an exact released v3. ADSB.lol coordination has since supplied general guidance, but no exact pilot-envelope approval, real-aircraft request, cloud account resource, commit, push, or deployment is proved. All external G1-G3 gates remain open.
 
 The requirements below describe the finished product and are not evidence that every downstream behavior is implemented.
 
@@ -171,13 +171,13 @@ The application reports those conditions as feed-quality evidence. It does not i
 
 ## Regional presets
 
-| Region                | Center            | Radius |
-| --------------------- | ----------------- | ------ |
-| Atlanta               | 33.6407, -84.4277 | 100 nm |
-| Savannah / Statesboro | 32.3000, -81.5000 | 100 nm |
-| Central Georgia       | 32.6500, -83.6000 | 100 nm |
+| Region                | Center            | Radius | Availability                              |
+| --------------------- | ----------------- | ------ | ----------------------------------------- |
+| Atlanta               | 33.6407, -84.4277 | 100 nm | Real-source pilot and synthetic assurance |
+| Savannah / Statesboro | 32.3000, -81.5000 | 100 nm | Synthetic assurance only                  |
+| Central Georgia       | 32.6500, -83.6000 | 100 nm | Synthetic assurance only                  |
 
-These presets are server-side configuration. An API caller cannot substitute arbitrary coordinates.
+These presets are server-side configuration. Real-source mode exposes only Atlanta and permits only `GET /v2/point/33.6407/-84.4277/100`; the other presets remain deterministic test and replay coverage. An API caller cannot substitute arbitrary coordinates.
 
 ## Provider field and unit contract
 
@@ -204,7 +204,7 @@ The unit mapping is consistent with the upstream readsb JSON contract for [altit
 ```mermaid
 flowchart LR
     P["ADSB.lol regional point API"] --> A["Bounded provider adapter"]
-    A --> D["One Durable Object per region"]
+    A --> D["One Durable Object per active source region; Atlanta for the pilot"]
     D --> H["Validated HTTP snapshot"]
     D --> W["Versioned WebSocket stream"]
     H --> R["Browser live runtime"]
@@ -218,8 +218,8 @@ flowchart LR
 
 | Route                                   | Purpose                                               |
 | --------------------------------------- | ----------------------------------------------------- |
-| `GET /api/v1/regions`                   | Return the fixed regional catalog                     |
-| `GET /api/v1/health`                    | Return application and per-region feed state          |
+| `GET /api/v1/regions`                   | Return the active source's fixed regional catalog     |
+| `GET /api/v1/health`                    | Return application and active-region feed state       |
 | `GET /api/v1/airspace/:region/snapshot` | Return one validated current regional snapshot        |
 | `GET /api/v1/airspace/:region/stream`   | Upgrade to the read-only versioned WebSocket protocol |
 
@@ -227,9 +227,9 @@ All JSON responses disable caching. Unsupported methods, routes, and regions ret
 
 ## Polling and failure behavior
 
-- Poll interval with viewers: 10 seconds.
+- Real-source poll interval with viewers: at least 20 seconds between shared attempts.
 - Provider timeout: 8 seconds.
-- One regional provider request may be in flight at a time.
+- One Atlanta provider request may be in flight at a time.
 - Snapshot callers share an existing in-flight request.
 - Provider Retry-After information contributes to the next permitted request time.
 - Three consecutive failures open a 60-second circuit.
@@ -259,12 +259,12 @@ Application-level invocation logging is disabled in `wrangler.jsonc` to avoid cr
 
 ## Provider terms and release gate
 
-The checked technical candidate is [ADSB.lol](https://api.adsb.lol/). Its current API repository documents public API access, dynamic rate limits and the possibility of a future API-key requirement. The current API application source declares the API and public data under ODbL 1.0. That declaration identifies the license, but production coordination and the exact attribution, share-alike, browser-redistribution, produced-work and derived-database compliance steps for this product still require review and written confirmation. They remain a provider/license gate, not a completed release fact. [Current API repository](https://github.com/adsblol/api/), [current API license declaration](https://github.com/adsblol/api/blob/main/src/adsb_api/app.py), [privacy and license page](https://www.adsb.lol/privacy-license/)
+The checked technical candidate is [ADSB.lol](https://api.adsb.lol/). ADSB.lol coordination response received on 2026-08-30. The provider confirmed general requirements for visible ODbL attribution, an identifiable contact-bearing User-Agent, respectful handling of HTTP errors and Retry-After, shared caching and deduplication, no rate-limit circumvention, and no service-level or stability guarantee. The response did not approve the proposed 20-second cadence, 25-viewer ceiling, exact User-Agent, public no-key access, incident contact, change-notification channel, or the ODbL obligations for transient normalized browser redistribution. G2 remains pending and Live remains disabled. The repository retains only a [sanitized coordination summary](provider/adsb-lol-coordination-2026-08-30.json); Kato's mailbox remains the owner-controlled primary record.
 
 The provider documentation also asks production users to contact the operator. Before a public v3 production release:
 
-1. Kato must coordinate the intended regional polling pattern with ADSB.lol or select another reviewed provider.
-2. The current output license, redistribution and derived-database obligations, attribution wording, endpoint, fields, API-key policy and rate-limit guidance must be confirmed in writing and reverified for the exact release.
+1. Obtain a specific answer for the remaining exact pilot-envelope questions or select another reviewed provider.
+2. The current output license, redistribution and derived-database obligations, attribution wording, endpoint, fields, API-key policy and rate-limit guidance must be confirmed and reverified for the exact release.
 3. The exact deployed origin and Worker configuration must pass the release and privacy checks.
 4. No availability or service-level guarantee may be claimed without written evidence.
 

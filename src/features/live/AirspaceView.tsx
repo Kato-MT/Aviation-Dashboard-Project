@@ -29,7 +29,7 @@ import {
 import { getRegionConfig, REGION_CONFIGS } from '../../live/regions';
 import type { LiveSessionState } from '../../live/session';
 import type { ServerTimeInterval } from '../../live/clock';
-import type { AircraftState } from '../../live/types';
+import type { AircraftState, RegionConfig } from '../../live/types';
 import { AirspaceMap } from './AirspaceMap';
 import { SelectedTrackInvestigation } from './SelectedTrackInvestigation';
 
@@ -85,6 +85,7 @@ function Timestamp({ value }: { value?: string | undefined }) {
 
 interface SharedProps {
   state: LiveSessionState;
+  regions?: readonly RegionConfig[];
   filters: AircraftFilters;
   sortField: AircraftSortField;
   sortDirection: SortDirection;
@@ -188,6 +189,7 @@ export function AirspaceInvestigationView(props: SharedProps) {
   );
   const summary = useMemo(() => summarizeAirspace(aircraft, state.time), [aircraft, state.time]);
   const region = getRegionConfig(state.regionId)!;
+  const availableRegions = props.regions ?? REGION_CONFIGS;
   const selected = useMemo(
     () => aircraft.find((track) => track.aircraftId === state.selectedAircraftId),
     [aircraft, state.selectedAircraftId],
@@ -252,12 +254,12 @@ export function AirspaceInvestigationView(props: SharedProps) {
       >
         <label>
           {presentation.regionLabel}
-          {props.onRegion ? (
+          {props.onRegion && availableRegions.length > 1 ? (
             <select
               value={state.regionId}
               onChange={(event) => props.onRegion?.(event.target.value)}
             >
-              {REGION_CONFIGS.map((entry) => (
+              {availableRegions.map((entry) => (
                 <option key={entry.id} value={entry.id}>
                   {entry.label}
                 </option>

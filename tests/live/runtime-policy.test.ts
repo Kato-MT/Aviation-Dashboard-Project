@@ -510,6 +510,15 @@ describe('runtime-policy.v1 compiler', () => {
     expect(mock.artifact.allowedBindings).toContain('MOCK_PROVIDER');
     expect(mock.featureGates.live).toEqual({ enabled: true, reason: null });
 
+    const live = await compileRuntimePolicy(targetInput('production', 'live'), sha256);
+    expect(live.source).toMatchObject({
+      capability: 'fixed-https',
+      providerOrigin: RUNTIME_POLICY_LIVE_PROVIDER_ORIGIN,
+      providerPaths: ['/v2/point/33.6407/-84.4277/100'],
+    });
+    expect(live.artifact.allowedBindings).not.toContain('MOCK_PROVIDER');
+    expect(live.featureGates.live).toEqual({ enabled: true, reason: null });
+
     const disabled = await compileRuntimePolicy(targetInput('production', 'disabled'), sha256);
     expect(disabled.source).toMatchObject({ capability: 'none', providerOrigin: null });
     expect(disabled.source.providerPaths).toEqual([]);

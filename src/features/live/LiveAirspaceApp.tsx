@@ -8,6 +8,8 @@ import {
 } from '../../live/presentation';
 import { AirspaceView } from './AirspaceView';
 import { useLiveAirspace } from './useLiveAirspace';
+import { regionConfigsForLiveSource } from '../../live/regions';
+import { LIVE_PILOT_POLICY } from '../../live/pilotPolicy';
 
 type RuntimeFactory = (options: LiveAirspaceRuntimeOptions) => LiveAirspaceRuntime;
 const defaultRuntimeFactory: RuntimeFactory = (options) => new LiveAirspaceRuntime(options);
@@ -19,8 +21,9 @@ function ConnectedAirspace({
   info: LiveServiceInfo;
   createRuntime: RuntimeFactory;
 }) {
+  const regions = regionConfigsForLiveSource(info.source);
   const [runtime] = useState(() =>
-    createRuntime({ regionId: 'atlanta', providerId: info.source.providerId }),
+    createRuntime({ regionId: regions[0]!.id, providerId: info.source.providerId }),
   );
   const [paused, setPaused] = useState(false);
   const [filters, setFilters] = useState(() => ({ ...DEFAULT_AIRCRAFT_FILTERS }));
@@ -30,6 +33,7 @@ function ConnectedAirspace({
   return (
     <AirspaceView
       state={state}
+      regions={regions}
       filters={filters}
       sortField={sortField}
       sortDirection={sortDirection}
@@ -109,6 +113,12 @@ export function LiveAirspaceApp({
               ? 'Fictional observations through the real backend. No real aircraft provider is contacted.'
               : 'Public surveillance observations, not aircraft-health telemetry. Coverage and freshness vary.'}
           </span>
+          {!info.source.synthetic && info.source.mode === 'live' && (
+            <span className="provider-attribution">
+              Aircraft observations: <a href={LIVE_PILOT_POLICY.sourceUrl}>ADSB.lol</a> ·{' '}
+              <a href={LIVE_PILOT_POLICY.licenseUrl}>{LIVE_PILOT_POLICY.licenseLabel}</a>
+            </span>
+          )}
         </div>
       )}
       {!info && !error && (

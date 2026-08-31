@@ -1,6 +1,6 @@
 import type { LiveAircraftProvider } from '../src/live/provider';
-import { createAdsbLolProvider } from '../src/live/providers/adsbLol';
-import { REGION_CONFIGS } from '../src/live/regions';
+import { ADSB_LOL_USER_AGENT, createAdsbLolProvider } from '../src/live/providers/adsbLol';
+import { regionConfigsForLiveSource } from '../src/live/regions';
 import type { RuntimePolicyV1 } from '../src/live/runtimePolicy';
 import { RUNTIME_POLICY_LIMITS, type RuntimePolicyLimits } from '../src/live/runtimePolicyLimits';
 import { describeLiveSource, type LiveSourceDescriptor } from '../src/live/source';
@@ -14,10 +14,12 @@ export interface ProviderConfiguration {
 
 export const MOCK_PROVIDER_ORIGIN = 'https://mock-provider.invalid';
 export const LIVE_PROVIDER_ORIGIN = 'https://api.adsb.lol';
-export const FIXED_PROVIDER_PATHS = REGION_CONFIGS.map(
-  (region) =>
-    `/v2/point/${region.center.latitude}/${region.center.longitude}/${region.radiusNauticalMiles}`,
-);
+function fixedProviderPaths(source: Readonly<LiveSourceDescriptor>): readonly string[] {
+  return regionConfigsForLiveSource(source).map(
+    (region) =>
+      `/v2/point/${region.center.latitude}/${region.center.longitude}/${region.radiusNauticalMiles}`,
+  );
+}
 
 export class LiveConfigurationError extends Error {}
 
@@ -49,7 +51,7 @@ export function configuredProvider(env: ProviderConfiguration): LiveAircraftProv
   return providerForSource(
     source,
     source.synthetic ? MOCK_PROVIDER_ORIGIN : LIVE_PROVIDER_ORIGIN,
-    FIXED_PROVIDER_PATHS,
+    fixedProviderPaths(source),
     env,
     RUNTIME_POLICY_LIMITS.provider,
   );
@@ -80,6 +82,8 @@ function providerForSource(
         url.search ||
         url.hash ||
         !providerPaths.includes(url.pathname) ||
+        request.headers.get('accept') !== 'application/json' ||
+        request.headers.get('user-agent') !== ADSB_LOL_USER_AGENT ||
         request.headers.has('authorization') ||
         request.headers.has('cookie')
       ) {
@@ -109,11 +113,12 @@ export function providerForRuntimePolicy(
 ): LiveAircraftProvider | undefined {
   const { descriptor, providerOrigin, providerPaths } = policy.source;
   if (descriptor.mode === 'disabled') return undefined;
-  if (providerOrigin === null || providerPaths.length !== FIXED_PROVIDER_PATHS.length) {
+  const expectedProviderPaths = fixedProviderPaths(descriptor);
+  if (providerOrigin === null || providerPaths.length !== expectedProviderPaths.length) {
     throw new LiveConfigurationError('The compiled provider capability is incomplete.');
   }
   if (
-    !providerPaths.every((path, index) => path === FIXED_PROVIDER_PATHS[index]) ||
+    !providerPaths.every((path, index) => path === expectedProviderPaths[index]) ||
     providerOrigin !== (descriptor.synthetic ? MOCK_PROVIDER_ORIGIN : LIVE_PROVIDER_ORIGIN)
   ) {
     throw new LiveConfigurationError('The compiled provider capability is outside its boundary.');

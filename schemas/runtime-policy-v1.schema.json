@@ -417,7 +417,7 @@
                 }
               },
               "providerOrigin": { "const": "https://api.adsb.lol" },
-              "providerPaths": { "type": "array", "minItems": 3, "maxItems": 3 }
+              "providerPaths": { "type": "array", "minItems": 1, "maxItems": 1 }
             }
           }
         }
@@ -619,7 +619,7 @@
     },
     "limits": {
       "const": {
-        "schemaVersion": "runtime-policy-limits.v1",
+        "schemaVersion": "runtime-policy-limits.v2",
         "protocol": {
           "maximumMessageBytes": 2097152,
           "maximumAircraft": 2000,
@@ -630,7 +630,7 @@
           "maximumResponseBytes": 2097152,
           "maximumAircraft": 2000,
           "requestTimeoutMs": 8000,
-          "pollIntervalMs": 10000,
+          "pollIntervalMs": 20000,
           "circuitBreakerFailures": 3,
           "circuitBreakerMs": 60000
         },
@@ -641,7 +641,7 @@
           "maximumQualityEvents": 200
         },
         "delivery": {
-          "maximumRegionalViewers": 100,
+          "maximumRegionalViewers": 25,
           "maximumRegionalBytes": 8388608,
           "acknowledgmentTimeoutMs": 10000,
           "minimumPingIntervalMs": 1000,

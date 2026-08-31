@@ -433,7 +433,7 @@ describe('edge API', () => {
     ).rejects.toMatchObject({ code: 'UPSTREAM_HTTP_ERROR', status: 302 });
     expect(fetchMock).toHaveBeenCalledOnce();
   });
-  it('publishes only the fixed regional presets', async () => {
+  it('publishes only the fixed Atlanta preset for the real-source pilot', async () => {
     const response = await worker.fetch(
       new Request('https://workbench.test/api/v1/regions'),
       workerEnv,
@@ -441,11 +441,7 @@ describe('edge API', () => {
     const body = (await response.json()) as { regions: Array<{ id: string }> };
 
     expect(response.status).toBe(200);
-    expect(body.regions.map(({ id }) => id)).toEqual([
-      'atlanta',
-      'savannah-statesboro',
-      'central-georgia',
-    ]);
+    expect(body.regions.map(({ id }) => id)).toEqual(['atlanta']);
   });
 
   it('assembles one release-bound operations projection without provider work', async () => {
@@ -466,22 +462,27 @@ describe('edge API', () => {
       'savannah-statesboro',
       'central-georgia',
     ]);
+    expect(projection.application).toEqual({
+      state: 'partial',
+      reasonCodes: ['APPLICATION_PARTIAL_REGIONS'],
+    });
+    expect(projection.regions[0]?.availability.state).toBe('available');
+    expect(
+      projection.regions.slice(1).every(({ availability }) => availability.state === 'unavailable'),
+    ).toBe(true);
     expect(projection.admission.scope).toBe('worker-isolate');
     expect(projection.limitations.globalAvailabilityProof).toBe('not-provided');
     expect(unexpectedEgress).toBe(0);
   });
 
-  it('preserves successful regional operations when one regional read fails', async () => {
+  it('does not dispatch operations reads for future real-source presets', async () => {
     const realNamespace = workerEnv.REGION_FEEDS;
+    const get = vi.fn((name: string) => realNamespace.getByName(name));
     const fakeEnv = {
       ...workerEnv,
       REGION_FEEDS: {
         idFromName: vi.fn((name: string) => name),
-        get: vi.fn((name: string) =>
-          name === 'savannah-statesboro'
-            ? { fetch: vi.fn(() => Promise.reject(new Error('Controlled regional read failure.'))) }
-            : realNamespace.getByName(name),
-        ),
+        get,
       } as unknown as WorkerEnv['REGION_FEEDS'],
     };
     const response = await worker.fetch(
@@ -495,28 +496,30 @@ describe('edge API', () => {
       reasonCodes: ['APPLICATION_PARTIAL_REGIONS'],
     });
     expect(projection.regions[0]?.availability.state).toBe('available');
-    expect(projection.regions[1]).toMatchObject({
-      regionId: 'savannah-statesboro',
-      availability: { state: 'unavailable', reasonCodes: ['REGION_READ_UNAVAILABLE'] },
-      windows: null,
-    });
-    expect(projection.regions[2]?.availability.state).toBe('available');
+    expect(projection.regions.slice(1)).toEqual([
+      expect.objectContaining({
+        regionId: 'savannah-statesboro',
+        availability: { state: 'unavailable', reasonCodes: ['REGION_READ_UNAVAILABLE'] },
+        windows: null,
+      }),
+      expect.objectContaining({
+        regionId: 'central-georgia',
+        availability: { state: 'unavailable', reasonCodes: ['REGION_READ_UNAVAILABLE'] },
+        windows: null,
+      }),
+    ]);
+    expect(get).toHaveBeenCalledOnce();
+    expect(get).toHaveBeenCalledWith('atlanta');
     expect(unexpectedEgress).toBe(0);
   });
 
-  it('preserves the remaining regional operations when exactly two regional reads fail', async () => {
-    const realNamespace = workerEnv.REGION_FEEDS;
-    const failedRegions = new Set(['atlanta', 'savannah-statesboro']);
-    const failedRead = vi.fn(() =>
-      Promise.reject(new Error('Controlled two-region operations read failure.')),
-    );
+  it('reports application unavailability when the active Atlanta operations read fails', async () => {
+    const failedRead = vi.fn(() => Promise.reject(new Error('Controlled regional read failure.')));
     const fakeEnv = {
       ...workerEnv,
       REGION_FEEDS: {
         idFromName: vi.fn((name: string) => name),
-        get: vi.fn((name: string) =>
-          failedRegions.has(name) ? { fetch: failedRead } : realNamespace.getByName(name),
-        ),
+        get: vi.fn(() => ({ fetch: failedRead })),
       } as unknown as WorkerEnv['REGION_FEEDS'],
     };
 
@@ -528,33 +531,13 @@ describe('edge API', () => {
 
     expect(response.status).toBe(200);
     expect(projection.application).toEqual({
-      state: 'partial',
-      reasonCodes: ['APPLICATION_PARTIAL_REGIONS'],
+      state: 'unavailable',
+      reasonCodes: ['APPLICATION_UNAVAILABLE'],
     });
-    expect(projection.regions.slice(0, 2)).toEqual([
-      expect.objectContaining({
-        regionId: 'atlanta',
-        availability: { state: 'unavailable', reasonCodes: ['REGION_READ_UNAVAILABLE'] },
-        windows: null,
-      }),
-      expect.objectContaining({
-        regionId: 'savannah-statesboro',
-        availability: { state: 'unavailable', reasonCodes: ['REGION_READ_UNAVAILABLE'] },
-        windows: null,
-      }),
-    ]);
-    expect(projection.regions[2]).toMatchObject({
-      regionId: 'central-georgia',
-      availability: { state: 'available', reasonCodes: ['REGION_AVAILABLE'] },
-      provider: { state: 'connecting', reasonCodes: ['PROVIDER_CONNECTING'] },
-      delivery: { state: 'healthy', reasonCodes: ['DELIVERY_HEALTHY'] },
-      freshness: { state: 'empty', reasonCodes: ['FRESHNESS_EMPTY'] },
-      windows: {
-        currentHour: { provider: { pollCount: 0 } },
-        trailing24Hours: { provider: { pollCount: 0 } },
-      },
-    });
-    expect(failedRead).toHaveBeenCalledTimes(2);
+    expect(
+      projection.regions.every(({ availability }) => availability.state === 'unavailable'),
+    ).toBe(true);
+    expect(failedRead).toHaveBeenCalledOnce();
     expect(unexpectedEgress).toBe(0);
   });
 
@@ -615,7 +598,7 @@ describe('edge API', () => {
       'synthetic',
       'target',
     ]);
-    expect(healthBefore.regions).toHaveLength(3);
+    expect(healthBefore.regions).toHaveLength(1);
     for (const region of healthBefore.regions) {
       expect(Object.keys(region).sort()).toEqual([
         'checkedAt',
@@ -634,12 +617,11 @@ describe('edge API', () => {
     expect(Date.parse(checkedAfter)).not.toBeNaN();
     expect(stableHealthAfter).toEqual(stableHealthBefore);
     expect(stateAfterOperations).toEqual(stateBefore);
-    expect(operations.regions.map(({ regionId }) => regionId)).toEqual(
-      healthBefore.regions.map(({ regionId }) => regionId),
-    );
-    expect(operations.regions.every(({ availability }) => availability.state === 'available')).toBe(
-      true,
-    );
+    expect(operations.regions[0]?.regionId).toBe(healthBefore.regions[0]?.regionId);
+    expect(operations.regions[0]?.availability.state).toBe('available');
+    expect(
+      operations.regions.slice(1).every(({ availability }) => availability.state === 'unavailable'),
+    ).toBe(true);
     expect(unexpectedEgress).toBe(0);
   });
 
@@ -649,6 +631,12 @@ describe('edge API', () => {
       workerEnv,
     );
     expect(unknown.status).toBe(404);
+    const futurePreset = await worker.fetch(
+      new Request('https://workbench.test/api/v1/airspace/central-georgia/snapshot'),
+      workerEnv,
+    );
+    expect(futurePreset.status).toBe(404);
+    expect(unexpectedEgress).toBe(0);
 
     const method = await worker.fetch(
       new Request('https://workbench.test/api/v1/regions', { method: 'POST' }),
@@ -678,7 +666,7 @@ describe('edge API', () => {
     expect(regionalFetch).not.toHaveBeenCalled();
   });
 
-  it('rejects health over its exact burst without another three-object fan-out', async () => {
+  it('rejects health over its exact burst without another regional dispatch', async () => {
     const regionalFetch = vi.fn(async (request: Request) =>
       Response.json({ regionId: request.headers.get('x-region-id'), status: 'offline' }),
     );
@@ -694,7 +682,7 @@ describe('edge API', () => {
         (await worker.fetch(new Request('https://workbench.test/api/v1/health'), fakeEnv)).status,
       ).toBe(200);
     }
-    expect(regionalFetch).toHaveBeenCalledTimes(REQUEST_ADMISSION_POLICY.health.burst * 3);
+    expect(regionalFetch).toHaveBeenCalledTimes(REQUEST_ADMISSION_POLICY.health.burst);
     const rejected = await worker.fetch(
       new Request('https://workbench.test/api/v1/health'),
       fakeEnv,
@@ -704,10 +692,10 @@ describe('edge API', () => {
       error: 'HEALTH_ADMISSION_LIMIT',
       admission: { scope: 'worker-isolate' },
     });
-    expect(regionalFetch).toHaveBeenCalledTimes(REQUEST_ADMISSION_POLICY.health.burst * 3);
+    expect(regionalFetch).toHaveBeenCalledTimes(REQUEST_ADMISSION_POLICY.health.burst);
   });
 
-  it('holds the health lease until every failed fan-out branch settles', async () => {
+  it('holds the health lease until the active failed regional branch settles', async () => {
     let releaseRegional!: () => void;
     const pending = new Promise<void>((resolve) => {
       releaseRegional = resolve;
@@ -715,8 +703,10 @@ describe('edge API', () => {
     let calls = 0;
     const regionalFetch = vi.fn(async () => {
       calls += 1;
-      if (calls === 1) throw new Error('Controlled regional health failure.');
-      if (calls <= 3) await pending;
+      if (calls === 1) {
+        await pending;
+        throw new Error('Controlled regional health failure.');
+      }
       return Response.json({ status: 'offline' });
     });
     const fakeEnv = {
@@ -728,11 +718,11 @@ describe('edge API', () => {
     };
     const request = () => new Request('https://workbench.test/api/v1/health');
     const failed = worker.fetch(request(), fakeEnv);
-    await vi.waitFor(() => expect(regionalFetch).toHaveBeenCalledTimes(3));
+    await vi.waitFor(() => expect(regionalFetch).toHaveBeenCalledOnce());
     const busy = await worker.fetch(request(), fakeEnv);
     expect(busy.status).toBe(503);
     expect(await busy.json()).toMatchObject({ error: 'HEALTH_BUSY' });
-    expect(regionalFetch).toHaveBeenCalledTimes(3);
+    expect(regionalFetch).toHaveBeenCalledOnce();
     releaseRegional();
     const failedResponse = await failed;
     expect(failedResponse.status).toBe(500);
@@ -743,7 +733,7 @@ describe('edge API', () => {
     expect(failedResponse.headers.get('content-security-policy')).toContain("default-src 'none'");
     expect(failedResponse.headers.get('cross-origin-opener-policy')).toBe('same-origin');
     expect((await worker.fetch(request(), fakeEnv)).status).toBe(200);
-    expect(regionalFetch).toHaveBeenCalledTimes(6);
+    expect(regionalFetch).toHaveBeenCalledTimes(2);
   });
 
   it('rejects snapshot waiter nine without another regional invocation', async () => {
@@ -856,7 +846,7 @@ describe('edge API', () => {
     );
     const health = (await healthResponse.json()) as { regions: LiveFeedHealth[] };
     expect(health.regions.find((region) => region.regionId === 'atlanta')).toMatchObject(binding);
-    expect(new Set(health.regions.map((region) => region.feedEpoch)).size).toBe(3);
+    expect(new Set(health.regions.map((region) => region.feedEpoch)).size).toBe(1);
     const stub = workerEnv.REGION_FEEDS.getByName('atlanta');
     const persisted = await runInDurableObject(stub, async (_instance, state) =>
       Object.fromEntries(
@@ -1321,7 +1311,7 @@ describe('edge API', () => {
     const body = (await response.json()) as { regions: Array<{ status: string }> };
 
     expect(response.status).toBe(200);
-    expect(body.regions).toHaveLength(3);
+    expect(body.regions).toHaveLength(1);
     expect(body.regions.every(({ status }) => status === 'offline')).toBe(true);
     expect(fetchMock).not.toHaveBeenCalled();
   });

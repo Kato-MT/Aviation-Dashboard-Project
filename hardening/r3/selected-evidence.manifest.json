@@ -392,18 +392,18 @@
     ]
   },
   "source": {
-    "baseHead": "b1230681664b9bc7855c32656c5d96478f2bcf0d",
+    "baseHead": "a3a53e4e3589982e23e2937fd13edf35ed2243be",
     "dirty": true,
     "content": {
       "schemaVersion": "selected-r3-source-content.v1",
       "excludedPaths": ["hardening/r3/selected-evidence.manifest.json"],
-      "fileCount": 559,
-      "totalBytes": 9194856,
+      "fileCount": 563,
+      "totalBytes": 9219057,
       "missingTrackedFileCount": 0,
       "trackedWorktreeMismatchCount": 0,
       "untrackedFileCount": 0,
       "indexDiffersFromHead": true,
-      "sha256": "723d6e5ee4885b40257333c28283c5e2250f1c6978d4daec7fc14cea47f30257"
+      "sha256": "65549ed4a39512147e36cb3385d598097c763f0fec7da670667d5dc632095ee8"
     }
   },
   "evidence": {
@@ -422,8 +422,8 @@
       "Commit, push, hosted CI, retained-candidate, release, deployment, and publication proof."
     ],
     "fileCount": 94,
-    "totalBytes": 2770255,
-    "collectionSha256": "23eca21f96fffa0a95628c3bed0ccc278273f18dc427d916cb2b3f6710d1c3ab",
+    "totalBytes": 2775180,
+    "collectionSha256": "e26f63a27270b4b7be1d019025fc2bc1b4569231c874277c1e94d2c4c694bc0d",
     "files": [
       {
         "path": ".github/workflows/ci.yml",
@@ -527,13 +527,13 @@
       },
       {
         "path": "requirements/requirements.md",
-        "bytes": 124762,
-        "sha256": "180c6ef7f9b9960c0b525d8cc0e34ec6cf1f0f09d22e3e3c52fc62d79ee3b486"
+        "bytes": 124979,
+        "sha256": "02b4d64b27a4a8ea1d102f6699fe7313d2df2b4a2d172be42658da597335c59d"
       },
       {
         "path": "requirements/test-cases.md",
-        "bytes": 180535,
-        "sha256": "3da698f047c8f9063fc7022f7f626ca0b023b77ba08fc751f0fa19fde50e5da2"
+        "bytes": 180505,
+        "sha256": "7936fca83499f9bc025871b271ab5d67fa53ba47bee0e0a151aa6ea0a5c88e42"
       },
       {
         "path": "requirements/traceability.json",
@@ -547,8 +547,8 @@
       },
       {
         "path": "schemas/runtime-policy-v1.schema.json",
-        "bytes": 23300,
-        "sha256": "1ecbbab5d5be0d99a7d9d721f0061c4c92c3d9bc423b169406bc1291f7db2688"
+        "bytes": 23299,
+        "sha256": "2956f73b6cb5b522da273155bbf4347ce123e531f9eaa5cc2f4d1d3dc9da598f"
       },
       {
         "path": "src/evidence/health.ts",
@@ -557,8 +557,8 @@
       },
       {
         "path": "src/features/evidence/EvidenceApp.tsx",
-        "bytes": 29653,
-        "sha256": "e7353014113fb606fce3516ebc56d67cb7b8f4bd06105ceca5e3decd084b6e0a"
+        "bytes": 29897,
+        "sha256": "f122b76a6628839538cfe49d4c01d1a9c980a245265a03763899832f86797281"
       },
       {
         "path": "src/features/evidence/evidence.css",
@@ -567,13 +567,13 @@
       },
       {
         "path": "src/live/runtimePolicy.ts",
-        "bytes": 32212,
-        "sha256": "29e6979171ff0ea594dd91ab651e94197d878b097aa6c6726c12db00e92242d8"
+        "bytes": 32222,
+        "sha256": "ff3c39995b20fda3ff9db93c96b7ee4e33e8c7b315bc98eddfd6c4275f3feda3"
       },
       {
         "path": "src/live/runtimePolicyLimits.ts",
-        "bytes": 2971,
-        "sha256": "827c20e8d3c979c1bb3b7ead8a0d5a3c5341b26e13abce004d33514751f4aae3"
+        "bytes": 3088,
+        "sha256": "104fca07f0dce5753223cb37b61835262fd41f09a7cf0f19346e3becde843cda"
       },
       {
         "path": "src/operations/classifier.ts",
@@ -592,8 +592,8 @@
       },
       {
         "path": "tests/evidence/EvidenceApp.test.tsx",
-        "bytes": 11757,
-        "sha256": "36ad51f2686001d42c246ac1c6df3e50c1aef2cbdf17cb257f81d4870138c362"
+        "bytes": 11755,
+        "sha256": "06dddc57cb2312b68fce3f589f5b00aeaf139a163886363d1c359fb64c728acf"
       },
       {
         "path": "tests/evidence/health.test.ts",
@@ -673,7 +673,7 @@
       {
         "path": "tests/live/candidate-acceptance.test.ts",
         "bytes": 20773,
-        "sha256": "5e1e266117734044c1fe9f63875c35e377797e9171704b22bffef5166e57f687"
+        "sha256": "2a012906c78e5abc37eb203895ff17ad04579ab46894a6ff5d5bf0bdf2ec0628"
       },
       {
         "path": "tests/live/g2-evidence-policy.test.ts",
@@ -702,18 +702,18 @@
       },
       {
         "path": "tests/live/provider-config.test.ts",
-        "bytes": 8935,
-        "sha256": "b98df17d88bf35e89da095d58e3f81006f23c670c99da5748f99bdfb0d2fe48c"
+        "bytes": 9728,
+        "sha256": "90bd8b6da3b3242b31af565b86569409d2bfbe8b680f28e72a209fd21027e66c"
       },
       {
         "path": "tests/live/regional-delivery.test.ts",
-        "bytes": 26547,
-        "sha256": "a9600cad2af76e8618cf9d04bf1449f6f36c75faaf421f858d09f799b1eead68"
+        "bytes": 26546,
+        "sha256": "7bc144690e4ca3d4620c35d951384f69e46cb0e6118954a8c9678e2c852b996c"
       },
       {
         "path": "tests/live/rehearse-candidate-runbooks.test.ts",
         "bytes": 14367,
-        "sha256": "368f0787bf55861320d6a2bb6feeaa0553c2dc4aa359aeceee22bbcc92870c16"
+        "sha256": "6e7dfd8feed5e53925c25c5153577f65e39939a2bf684f6ae8ab4fb7461db774"
       },
       {
         "path": "tests/live/retain-candidate.test.ts",
@@ -737,8 +737,8 @@
       },
       {
         "path": "tests/live/runtime-policy.test.ts",
-        "bytes": 32513,
-        "sha256": "aeef239da03bd088b1febdb1c89f04bd774b850ea1ac2488c3abd89d341eed7a"
+        "bytes": 32950,
+        "sha256": "502a71c3d5bd5891ae430a81ac1fb3a08bdfab88b60ae91e3049501ff37430d1"
       },
       {
         "path": "tests/live/workflow-policy.test.ts",
@@ -747,8 +747,8 @@
       },
       {
         "path": "tests/worker/delivery.test.ts",
-        "bytes": 15819,
-        "sha256": "d9cfb4acc08d5478d5ebdd98cce98a5138c3a3140258cccf8d5679d46959af2a"
+        "bytes": 16380,
+        "sha256": "11df69394857557abe4b6ac4a9d8b57a14b6ba32968a8264787fdb89d4512853"
       },
       {
         "path": "tests/worker/metrics.test.ts",
@@ -757,18 +757,18 @@
       },
       {
         "path": "tests/worker/polling.test.ts",
-        "bytes": 20472,
-        "sha256": "aa074a628c76013c4d9a3d8e40eb402863cac47da53f29945d30ef138a3fea88"
+        "bytes": 22379,
+        "sha256": "d67f2128895ef02cea1ee464e1366c39cc827ac11c569d0bfdbc61361f58e450"
       },
       {
         "path": "tests/worker/retention.test.ts",
-        "bytes": 29510,
-        "sha256": "72c7db290e10f7db8ac5fbe72eb6fddf7ca9c7ce707615ccefc7b8c3f6f3c482"
+        "bytes": 29787,
+        "sha256": "b98d8dabe617829aad9801c0cfcc4c91201ffeaa2e3c5001693fc9bc8bcc3b3d"
       },
       {
         "path": "tests/worker/worker.test.ts",
-        "bytes": 55179,
-        "sha256": "c9709ede83c6b15b3f896bbaf0eb4c6f88df56a83313e97985f8e83687806263"
+        "bytes": 54746,
+        "sha256": "0ab8478a3aa67ee0fef06af06f0e4b74928e282695ecd785322be07cab91f6b1"
       },
       {
         "path": "tools/live/buildConfig.ts",
@@ -777,8 +777,8 @@
       },
       {
         "path": "tools/live/loadHarness.ts",
-        "bytes": 113056,
-        "sha256": "2dd5e99c2147b6d415dec16223f373d816bf38c57c327e518ca2d853658eb64c"
+        "bytes": 113114,
+        "sha256": "9406c36ed5d738e80d4d0a81e931a56aa6609c765196db50961bd689d38c2df7"
       },
       {
         "path": "tools/live/loadHarnessReport.ts",
@@ -798,7 +798,7 @@
       {
         "path": "tools/live/recordCandidateAcceptance.ts",
         "bytes": 27502,
-        "sha256": "eb513c6cf5b99f26b7ddcd03d97fa9f3d76ad314ecc23ba188860b564c8184db"
+        "sha256": "8fe1d9f87bc875fcfd43b92b462535cd6b4ab710e5997c45eca44232bc7956d8"
       },
       {
         "path": "tools/live/rehearseCandidateRunbooks.ts",
@@ -867,8 +867,8 @@
       },
       {
         "path": "worker/index.ts",
-        "bytes": 13770,
-        "sha256": "2f031448b6416ed7d66ce89b0a111d7c3c28266e29be0c00877c98e155be1067"
+        "bytes": 14224,
+        "sha256": "437c543271b0590a98bf846369a2f771725d421055dcae1695ae5a8fa345de2f"
       },
       {
         "path": "worker/mapAssets.ts",
@@ -882,13 +882,13 @@
       },
       {
         "path": "worker/providerConfig.ts",
-        "bytes": 4957,
-        "sha256": "f296fc91341ebc9a5497faff9c1d95537e780d77a533468d4ca31e4ce34c58c5"
+        "bytes": 5285,
+        "sha256": "6a69debb439d273ca3f0c522cb58309dbd583a08eac06b6fb10ffcc00df96102"
       },
       {
         "path": "worker/regionalFeedHub.ts",
-        "bytes": 35033,
-        "sha256": "d52d3c1cb6b8e69ee70e1b1aa5d44a377e050af5fc0ea9aab461513bb4173f3f"
+        "bytes": 35022,
+        "sha256": "53708c59606377b3a71dee532cd846cd571898fa1e1d6fddd769399da34f450a"
       },
       {
         "path": "worker/responsePolicy.ts",

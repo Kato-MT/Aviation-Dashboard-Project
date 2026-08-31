@@ -386,7 +386,7 @@ export class RegionalFeedHub extends DurableObject<WorkerEnv> {
       return {
         ...base,
         status: 'degraded',
-        message: 'Automatic polling is paused because no safe retry deadline is available.',
+        message: 'Automatic polling is paused pending operator review or corrected configuration.',
       };
     }
     if (this.state.consecutiveFailures > 0) {
@@ -890,7 +890,7 @@ export class RegionalFeedHub extends DurableObject<WorkerEnv> {
       protocolVersion: LIVE_STREAM_PROTOCOL_VERSION,
       code: 'UPSTREAM_UNAVAILABLE',
       message: plan.retryBlocked
-        ? 'The provider retry deadline cannot be represented; automatic polling is paused.'
+        ? 'Automatic provider polling is paused pending operator review.'
         : 'The live provider is temporarily unavailable.',
       recoverable: !plan.retryBlocked,
       ...(health.retryAt ? { retryAt: health.retryAt } : {}),

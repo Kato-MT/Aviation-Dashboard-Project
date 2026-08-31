@@ -114,7 +114,7 @@ export const DEFAULT_RELEASE_GATES: readonly Readonly<ReleaseGateEvidence>[] = O
     execution: 'external-evidence-needed',
     release: 'pending',
     evidence:
-      'Provider coordination, current license review, a bounded test budget, and owner approval are separate external gates.',
+      'ADSB.lol coordination response received on 2026-08-30. General ODbL attribution, contact-bearing User-Agent, HTTP error and Retry-After handling, caching and deduplication, no-circumvention, change-tolerance, and no-SLA guidance are confirmed. The exact 20-second cadence, 25-viewer ceiling, User-Agent, no-key access, incident and change contacts, attribution wording, and transient browser-redistribution obligations remain unresolved. This response is not an approved provider-gate receipt; G2 remains pending and Live remains disabled.',
   }),
   Object.freeze({
     id: 'g3-public-v3',

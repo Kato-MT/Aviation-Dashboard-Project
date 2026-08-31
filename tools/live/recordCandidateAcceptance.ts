@@ -84,7 +84,7 @@ export interface AcceptanceReceipt {
         buildTarget: 'mock-staging';
       };
       limits: {
-        schemaVersion: 'runtime-policy-limits.v1';
+        schemaVersion: 'runtime-policy-limits.v2';
         canonicalSha256: string;
       };
     };
@@ -155,7 +155,7 @@ export interface AcceptanceReceipt {
         sourceDescriptorSha256: string;
       };
       limits: {
-        schemaVersion: 'runtime-policy-limits.v1';
+        schemaVersion: 'runtime-policy-limits.v2';
         canonicalSha256: string;
       };
       compatibility: {

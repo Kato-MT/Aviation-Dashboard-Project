@@ -1,4 +1,4 @@
-import { REGION_CONFIGS } from './regions';
+import { regionConfigsForLiveSource } from './regions';
 import {
   describeLiveSource,
   LIVE_BUILD_TARGETS,
@@ -263,13 +263,6 @@ export async function compileRuntimePolicyBindings(
   }
   return policy;
 }
-
-const PROVIDER_PATHS = Object.freeze(
-  REGION_CONFIGS.map(
-    (region) =>
-      `/v2/point/${region.center.latitude}/${region.center.longitude}/${region.radiusNauticalMiles}`,
-  ),
-);
 
 const DEPLOYMENT_CLASSES = Object.freeze(['loopback', 'isolated-cloud', 'public'] as const);
 
@@ -847,6 +840,10 @@ export async function compileRuntimePolicy(
   validateSourceBoundary(input, descriptor, providerGate);
   const origins = canonicalOrigins(input.allowedOrigins, deploymentClass);
   const capability = sourceCapability(descriptor);
+  const providerPaths = regionConfigsForLiveSource(descriptor).map(
+    (region) =>
+      `/v2/point/${region.center.latitude}/${region.center.longitude}/${region.radiusNauticalMiles}`,
+  );
   const liveEnabled = descriptor.mode !== 'disabled';
   const staticHeaders = headerValues(staticContentSecurityPolicy(origins.websocket));
   const workerHeaders = headerValues(workerContentSecurityPolicy());
@@ -869,7 +866,7 @@ export async function compileRuntimePolicy(
           : descriptor.synthetic
             ? RUNTIME_POLICY_MOCK_PROVIDER_ORIGIN
             : RUNTIME_POLICY_LIVE_PROVIDER_ORIGIN,
-      providerPaths: capability === 'none' ? [] : [...PROVIDER_PATHS],
+      providerPaths: capability === 'none' ? [] : providerPaths,
     },
     origins,
     routes: routes(liveEnabled),

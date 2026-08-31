@@ -173,7 +173,10 @@ describe('durable shared polling', () => {
     expect(await runDurableObjectAlarm(stub())).toBe(true);
     expect((await delivered).snapshot.sequence).toBe(first.snapshot.sequence + 1);
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(await alarmAt()).toBe(deadline + POLL_INTERVAL_MS);
+    expect((await persisted())['state:nextPollAt']).toBe(deadline + POLL_INTERVAL_MS);
+    const nextAlarm = await alarmAt();
+    expect(nextAlarm).not.toBeNull();
+    expect(nextAlarm!).toBeLessThanOrEqual(deadline + POLL_INTERVAL_MS);
   });
 
   it('refreshes due REST snapshots once and retains only maintenance alarms without viewers', async () => {
@@ -204,14 +207,15 @@ describe('durable shared polling', () => {
     expect(serialized).toContain('aircraftCountSum');
   });
 
-  it('keeps independent cadence reservations for different regions', async () => {
+  it('keeps real-source polling inside the Atlanta pilot boundary', async () => {
     const fetchMock = vi.fn(async () => providerResponse());
     vi.stubGlobal('fetch', fetchMock);
-    await snapshotRequest();
-    await snapshotRequest('central-georgia');
-    await snapshotRequest();
-    await snapshotRequest('central-georgia');
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect((await snapshotRequest()).status).toBe(200);
+    const outsidePilot = await snapshotRequest('central-georgia');
+    expect(outsidePilot.status).toBe(404);
+    expect(await outsidePilot.json()).toMatchObject({ error: 'REGION_NOT_FOUND' });
+    expect((await snapshotRequest()).status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledOnce();
   });
 
   it('retains a warm snapshot without rewriting timestamps when a due refresh fails', async () => {
@@ -247,7 +251,7 @@ describe('durable shared polling', () => {
     expect(health).not.toHaveProperty('lastSnapshotAt');
     const cold = await snapshotRequest();
     expect(cold.status).toBe(503);
-    expect(cold.headers.get('retry-after')).toBe('9');
+    expect(cold.headers.get('retry-after')).toBe('19');
     expect(await cold.json()).toMatchObject({
       error: 'SNAPSHOT_PENDING',
       health: { status: 'connecting' },
@@ -367,6 +371,48 @@ describe('durable shared polling', () => {
     expect(await alarmAt()).toBe(clock + RUNTIME_POLICY_CHECK_INTERVAL_MS);
     expect(maintenance).toBeGreaterThan(clock + RUNTIME_POLICY_CHECK_INTERVAL_MS);
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  }, 40_000);
+
+  it('persists a deterministic provider 403 as retry-blocked across eviction and alarms', async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 403 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const first = await snapshotRequest();
+    expect(first.status).toBe(503);
+    expect(first.headers.get('retry-after')).toBeNull();
+    expect(await first.json()).toMatchObject({
+      error: 'POLLING_PAUSED',
+      health: { status: 'degraded', consecutiveFailures: 1 },
+    });
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(await persisted()).toMatchObject({
+      'state:consecutiveFailures': 1,
+      'state:nextRetryAt': 0,
+      'state:circuitOpenUntil': 0,
+      'state:retryBlocked': true,
+    });
+
+    await evictDurableObject(stub());
+    clock += 86_400_000;
+    const socket = await unacceptedSocket();
+    const waiting = nextFrame(socket, 'feed.health');
+    socket.accept();
+    expect(await waiting).toMatchObject({
+      health: {
+        status: 'degraded',
+        consecutiveFailures: 1,
+      },
+    });
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    const cold = await snapshotRequest();
+    expect(cold.status).toBe(503);
+    expect(cold.headers.get('retry-after')).toBeNull();
+    expect(await cold.json()).toMatchObject({ error: 'POLLING_PAUSED' });
+    expect(await alarmAt()).toBe(clock + RUNTIME_POLICY_CHECK_INTERVAL_MS);
+    expect(await runDurableObjectAlarm(stub())).toBe(true);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect((await persisted())['state:retryBlocked']).toBe(true);
   }, 40_000);
 
   it('keeps the completion backoff floor when a provider asks for an immediate retry', async () => {

@@ -1,5 +1,6 @@
 import {
   CAPACITY_SOURCE_CHECKED_AT,
+  CURRENT_SUCCESS_ALARM_ROWS_WITH_VIEWERS,
   CURRENT_SUCCESS_KV_ROWS,
   estimateContinuousRegionalUsage,
   PUBLISHED_FREE_DO_WRITES_PER_DAY,
@@ -22,7 +23,7 @@ import { MAX_LIVE_MESSAGE_BYTES } from '../../src/live/validation';
 import { REQUEST_ADMISSION_POLICY } from '../../worker/admission';
 import { MAX_MAP_RANGE_BYTES } from '../../src/map/assets';
 
-const scenarios = [1, 10, 100].flatMap((viewersPerRegion) => [
+const scenarios = [1, 10, MAX_REGIONAL_VIEWERS].flatMap((viewersPerRegion) => [
   { regions: 1, activeHoursPerRegion: 24, viewersPerRegion },
   { regions: 3, activeHoursPerRegion: 8, viewersPerRegion },
   { regions: 3, activeHoursPerRegion: 24, viewersPerRegion },
@@ -53,7 +54,7 @@ console.log(
         continuousWindowPerRegion: true,
         successfulPolling: true,
         currentSuccessKvRows: CURRENT_SUCCESS_KV_ROWS,
-        alarmRowsPerScheduledAttempt: 1,
+        alarmRowsPerScheduledAttemptWithHealthyViewers: CURRENT_SUCCESS_ALARM_ROWS_WITH_VIEWERS,
         publishedFreeDoRowWritesPerDay: PUBLISHED_FREE_DO_WRITES_PER_DAY,
         steadyTraffic:
           'Healthy viewers receive and acknowledge every poll; standalone pongs have their own ACK. This is an offered-load scenario, not measured throughput.',
@@ -97,13 +98,13 @@ console.log(
       coDeliveredPongAlternative: estimateContinuousRegionalUsage({
         regions: 3,
         activeHoursPerRegion: 24,
-        viewersPerRegion: 100,
+        viewersPerRegion: MAX_REGIONAL_VIEWERS,
         pongDelivery: 'co-delivered',
       }),
       creditScenarios: {
-        hundredStalled64KiB: regionalDeliveryCredit(
-          100,
-          Array.from({ length: 100 }, () => ({ bytes: 64 * 1024 })),
+        pilotMaximumStalled64KiB: regionalDeliveryCredit(
+          MAX_REGIONAL_VIEWERS,
+          Array.from({ length: MAX_REGIONAL_VIEWERS }, () => ({ bytes: 64 * 1024 })),
         ),
         fourMaximumEnvelopesDoNotFitWithHandshakeCredit: regionalDeliveryCredit(
           4,
@@ -140,7 +141,7 @@ console.log(
           coDeliveredPongs: 0,
           healthOnlyDeliveries: 0,
           rejectedControls: 0,
-          initialConnections: 100,
+          initialConnections: MAX_REGIONAL_VIEWERS,
           reconnectAttempts: 30,
           acceptedReconnects: 1,
           rejectedReconnects: 29,
@@ -165,7 +166,7 @@ console.log(
         }),
       },
       conclusion:
-        'The current three-region continuous success cadence exceeds the published Free write allowance before unmodeled work. Other scenarios are not declared free or production-ready.',
+        'The one-region 20-second pilot baseline is below the published Free write allowance before unmodeled work; the three-region continuous baseline still exceeds it. Neither calculation is account entitlement, measured billing, provider approval, or production readiness.',
     },
     null,
     2,

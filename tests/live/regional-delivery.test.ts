@@ -157,7 +157,7 @@ describe('bounded regional delivery', () => {
     vi.restoreAllMocks();
   });
 
-  it('admits 100 attached viewers and retains closing viewers in the cap', () => {
+  it('admits 25 attached viewers and retains closing viewers in the cap', () => {
     const state = setup(MAX_REGIONAL_VIEWERS - 1);
     expect(state.delivery.canAccept()).toBe(true);
     const socket = new Socket();

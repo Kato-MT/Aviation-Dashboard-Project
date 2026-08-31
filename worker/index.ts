@@ -1,4 +1,8 @@
-import { REGION_CONFIGS, getRegionConfig } from '../src/live/regions';
+import {
+  REGION_CONFIGS,
+  getRegionConfigForLiveSource,
+  regionConfigsForLiveSource,
+} from '../src/live/regions';
 import {
   evaluateRuntimePolicyRequest,
   resolveRuntimePolicyRoute,
@@ -119,8 +123,15 @@ async function applicationOperations(
   if (!decision.ok) return admissionResponse(decision, policy);
   const checkedAt = new Date().toISOString();
   try {
+    const activeRegionIds = new Set(
+      regionConfigsForLiveSource(policy.source.descriptor).map((region) => region.id),
+    );
     const settled = await Promise.allSettled(
-      REGION_CONFIGS.map((region) => regionOperations(request, env, region, checkedAt)),
+      REGION_CONFIGS.map((region) =>
+        activeRegionIds.has(region.id)
+          ? regionOperations(request, env, region, checkedAt)
+          : Promise.reject(new Error('Region is outside the active source capability.')),
+      ),
     );
     const regions = settled.map((result, index) => {
       if (result.status === 'fulfilled') return result.value;
@@ -245,7 +256,9 @@ async function handleApi(
   const action =
     route.id === 'api-snapshot' ? 'snapshot' : route.id === 'api-stream' ? 'stream' : undefined;
   const region =
-    action === undefined || regionId === undefined ? undefined : getRegionConfig(regionId);
+    action === undefined || regionId === undefined
+      ? undefined
+      : getRegionConfigForLiveSource(policy.source.descriptor, regionId);
   if (action !== undefined && !region) {
     return apiResponse(
       { error: 'REGION_NOT_FOUND', message: 'Unknown region preset.' },
@@ -283,7 +296,7 @@ async function handleApi(
     return apiResponse(
       {
         schemaVersion: 'airspace.v1',
-        regions: REGION_CONFIGS,
+        regions: regionConfigsForLiveSource(policy.source.descriptor),
         source: policy.source.descriptor,
         applicationVersion: policy.release.applicationVersion,
         releaseSha: policy.release.releaseSha,
@@ -300,7 +313,7 @@ async function handleApi(
     if (!decision.ok) return admissionResponse(decision, policy);
     try {
       const settledRegions = await Promise.allSettled(
-        REGION_CONFIGS.map((item) => regionHealth(env, item)),
+        regionConfigsForLiveSource(policy.source.descriptor).map((item) => regionHealth(env, item)),
       );
       const failedRegion = settledRegions.find(
         (result): result is PromiseRejectedResult => result.status === 'rejected',

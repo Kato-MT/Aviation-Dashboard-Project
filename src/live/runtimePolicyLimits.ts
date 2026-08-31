@@ -1,4 +1,6 @@
-export const RUNTIME_POLICY_LIMITS_SCHEMA_VERSION = 'runtime-policy-limits.v1' as const;
+import { LIVE_PILOT_POLICY } from './pilotPolicy';
+
+export const RUNTIME_POLICY_LIMITS_SCHEMA_VERSION = 'runtime-policy-limits.v2' as const;
 
 function deepFreeze<T>(value: T, visited = new WeakSet<object>()): Readonly<T> {
   if (typeof value !== 'object' || value === null || visited.has(value)) return value;
@@ -24,7 +26,7 @@ export const RUNTIME_POLICY_LIMITS = deepFreeze({
     maximumResponseBytes: 2 * 1024 * 1024,
     maximumAircraft: 2_000,
     requestTimeoutMs: 8_000,
-    pollIntervalMs: 10_000,
+    pollIntervalMs: LIVE_PILOT_POLICY.pollIntervalMs,
     circuitBreakerFailures: 3,
     circuitBreakerMs: 60_000,
   },
@@ -35,7 +37,7 @@ export const RUNTIME_POLICY_LIMITS = deepFreeze({
     maximumQualityEvents: 200,
   },
   delivery: {
-    maximumRegionalViewers: 100,
+    maximumRegionalViewers: LIVE_PILOT_POLICY.maximumConcurrentViewers,
     maximumRegionalBytes: 8 * 1024 * 1024,
     acknowledgmentTimeoutMs: 10_000,
     minimumPingIntervalMs: 1_000,

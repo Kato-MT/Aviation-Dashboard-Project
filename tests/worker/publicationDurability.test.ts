@@ -192,6 +192,7 @@ describe('durable regional publication', () => {
     const delivered = nextFrame(socket, 'airspace.snapshot');
     socket.accept();
     expect(fetchMock).not.toHaveBeenCalled();
+    await deliveriesSettled(stub());
     expect(await alarmAt()).toBe(deadline);
 
     await evictDurableObject(stub(), { webSockets: 'hibernate' });

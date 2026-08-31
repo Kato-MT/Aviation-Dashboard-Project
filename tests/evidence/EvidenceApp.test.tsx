@@ -75,7 +75,7 @@ describe('Evidence workspace', () => {
     expect(container.querySelectorAll('section[aria-labelledby]')).toHaveLength(5);
     expect(container.querySelectorAll('table caption')).toHaveLength(2);
     expect(container.textContent).toContain('No operational request has been made');
-    expect(container.textContent).toContain('ODbL 1.0 documentation');
+    expect(container.textContent).toContain('ADSB.lol · ODbL 1.0');
     expect(container.textContent).toContain('Session-only observation detail');
     expect(container.textContent).toContain('Implementation, execution, and release gate ledger');
     expect(container.textContent).toContain('No exact v3 artifact');

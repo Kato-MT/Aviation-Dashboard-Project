@@ -563,10 +563,10 @@ export function EvidenceApp({
           <div className="evidence-callout">
             <strong>Provider status remains separately gated.</strong>
             <p>
-              ADSB.lol is the reviewed technical candidate. Its public data is documented under ODbL
-              1.0, but current terms, production coordination, and an approved request budget must
-              be rechecked before release. A failed health check never switches this route into
-              replay.
+              ADSB.lol supplied general operating guidance on August 30, 2026, but did not approve
+              the exact 20-second, 25-viewer pilot envelope or resolve transient browser
+              redistribution obligations. G2 remains pending and Live remains disabled. A failed
+              health check never switches this route into replay.
             </p>
           </div>
         </section>
@@ -680,9 +680,13 @@ export function EvidenceApp({
                 <tr>
                   <th scope="row">ADSB.lol public API data candidate</th>
                   <td>
-                    <a href="https://api.adsb.lol/docs">ODbL 1.0 documentation</a>
+                    <a href="https://www.adsb.lol/">ADSB.lol</a> ·{' '}
+                    <a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL 1.0</a>
                   </td>
-                  <td>Current terms and production coordination remain release gates.</td>
+                  <td>
+                    General guidance is recorded. Exact cadence, access, attribution wording, and
+                    browser-redistribution obligations remain release gates.
+                  </td>
                 </tr>
                 <tr>
                   <th scope="row">Protomaps basemap and OpenStreetMap-derived data</th>

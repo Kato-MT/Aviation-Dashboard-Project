@@ -173,6 +173,30 @@ describe('React-owned live airspace lifecycle and evidence', () => {
     expect(createRuntime).not.toHaveBeenCalled();
   });
 
+  it('binds real-source presentation to Atlanta with visible ADSB.lol attribution', async () => {
+    const state = harness();
+    const load = vi.fn(async () => ({
+      ...info,
+      source: describeLiveSource('production', 'live'),
+    }));
+    await render(<LiveAirspaceApp loadServiceInfo={load} createRuntime={state.createRuntime} />);
+
+    expect(state.createRuntime).toHaveBeenCalledWith({
+      regionId: 'atlanta',
+      providerId: 'adsb-lol',
+    });
+    const attribution = container.querySelector('.provider-attribution');
+    expect(attribution?.textContent).toContain('Aircraft observations: ADSB.lol · ODbL 1.0');
+    expect(
+      [...(attribution?.querySelectorAll<HTMLAnchorElement>('a') ?? [])].map(({ href }) => href),
+    ).toEqual(['https://www.adsb.lol/', 'https://opendatacommons.org/licenses/odbl/1-0/']);
+    const regionLabel = [...container.querySelectorAll('label')].find((entry) =>
+      entry.textContent?.startsWith('Region'),
+    );
+    expect(regionLabel?.querySelector('select')).toBeNull();
+    expect(regionLabel?.querySelector('.static-control')?.textContent).toBe('Atlanta');
+  });
+
   it('reports a bootstrap failure and supports an explicit retry', async () => {
     const load = vi
       .fn<() => Promise<LiveServiceInfo>>()

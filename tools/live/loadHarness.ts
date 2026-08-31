@@ -25,6 +25,7 @@ import { REGION_CONFIGS } from '../../src/live/regions';
 import { MAX_LIVE_MESSAGE_BYTES } from '../../src/live/validation';
 import {
   LIVE_DELIVERY_ACK_TIMEOUT_MS,
+  MAX_REGIONAL_VIEWERS,
   MIN_LIVE_PING_INTERVAL_MS,
 } from '../../worker/deliveryPolicy';
 import { POLL_INTERVAL_MS } from '../../worker/polling';
@@ -630,7 +631,7 @@ function caseDefinitions(scenario: LoadHarnessScenario): RunDefinition[] {
       {
         id: 'three-hub-soak',
         regionIds: REGION_IDS,
-        viewersPerRegion: 30,
+        viewersPerRegion: 10,
         overflowAttempts: 0,
         durationMs: scenario.durationMs,
         recordsPerSnapshot: scenario.recordsPerSnapshot,
@@ -642,7 +643,7 @@ function caseDefinitions(scenario: LoadHarnessScenario): RunDefinition[] {
     {
       id: 'one-hub-capacity',
       regionIds: ['atlanta'],
-      viewersPerRegion: 100,
+      viewersPerRegion: MAX_REGIONAL_VIEWERS,
       overflowAttempts: 1,
       durationMs: Math.max(15_000, scenario.durationMs),
       recordsPerSnapshot: scenario.recordsPerSnapshot,
@@ -2054,7 +2055,7 @@ function hardGates(input: GateInputs): HardGate[] {
             observation.wakeSentAtOffsetMs >= observation.expectedDeadlineOffsetMs,
         ) &&
         (stalledClients.length === 0 ||
-          (definition.viewersPerRegion === 100 &&
+          (definition.viewersPerRegion === MAX_REGIONAL_VIEWERS &&
             definition.overflowAttempts > 0 &&
             metrics.reconnectAdmitted === stalledClients.length)),
       detail:
