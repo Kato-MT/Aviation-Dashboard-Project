@@ -64,7 +64,13 @@ function junit(
   overrides: Partial<Record<'tests' | 'failures' | 'errors' | 'skipped', number>> = {},
   names: readonly string[] = M34_ACCEPTANCE_CASE_NAMES,
 ): string {
-  const counts = { tests: 5, failures: 0, errors: 0, skipped: 0, ...overrides };
+  const counts = {
+    tests: M34_ACCEPTANCE_CASE_NAMES.length,
+    failures: 0,
+    errors: 0,
+    skipped: 0,
+    ...overrides,
+  };
   const cases = names
     .slice(0, counts.tests)
     .map(
@@ -311,9 +317,26 @@ afterEach(async () => {
 });
 
 describe('M3.4 acceptance receipt', () => {
+  it('keeps the receipt allowlist synchronized with the exact browser acceptance spec', async () => {
+    const spec = await readFile(
+      join(process.cwd(), 'tests/live-browser/m34-entry-artifact.spec.ts'),
+      'utf8',
+    );
+    const declarations = [...spec.matchAll(/^test\(/gmu)];
+    const names = [...spec.matchAll(/^test\('([^']+)'/gmu)].map((match) => {
+      const name = match[1];
+      if (name === undefined) throw new Error('M3.4 test declaration is missing its case name.');
+      return name;
+    });
+
+    expect(names).toHaveLength(declarations.length);
+    expect(new Set(names).size).toBe(names.length);
+    expect(names.sort()).toEqual([...M34_ACCEPTANCE_CASE_NAMES].sort());
+  });
+
   it('accepts only the exact zero-failure, zero-skip M3.4 JUnit report', () => {
     expect(parsePassingJunit(junit())).toMatchObject({
-      tests: 5,
+      tests: M34_ACCEPTANCE_CASE_NAMES.length,
       failures: 0,
       errors: 0,
       skipped: 0,
@@ -329,13 +352,19 @@ describe('M3.4 acceptance receipt', () => {
     [{ failures: 1 }, 'zero failed'],
     [{ errors: 1 }, 'zero failed'],
     [{ skipped: 1 }, 'zero failed'],
-    [{ tests: 4 }, 'exactly 5'],
+    [
+      { tests: M34_ACCEPTANCE_CASE_NAMES.length - 1 },
+      `exactly ${M34_ACCEPTANCE_CASE_NAMES.length}`,
+    ],
   ] as const)('rejects an incomplete report: %j', (overrides, message) => {
     expect(() => parsePassingJunit(junit(overrides))).toThrow(message);
   });
 
   it('rejects arbitrary passing case names', () => {
-    const names = Array.from({ length: 5 }, (_, index) => `arbitrary case ${index + 1}`);
+    const names = Array.from(
+      { length: M34_ACCEPTANCE_CASE_NAMES.length },
+      (_, index) => `arbitrary case ${index + 1}`,
+    );
     expect(() => parsePassingJunit(junit({}, names))).toThrow('exact M3.4 acceptance cases');
   });
 

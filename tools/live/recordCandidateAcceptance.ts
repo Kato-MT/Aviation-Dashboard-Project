@@ -26,6 +26,8 @@ const ACCEPTANCE_TEST_MATCH = '**/m34-entry-artifact.spec.ts';
 
 export const M34_ACCEPTANCE_CASE_NAMES = [
   'root is the exact retained mock-staging v3 client and opens Live in the four-workspace shell',
+  'served CSP permits the real MapLibre canvas and Campaign blob worker without browser violations',
+  'actual retained route classes carry the complete compiled response policy',
   'all four workspace hashes survive direct entry, reload, Back, and Forward',
   'retained Worker API, WebSocket, and Durable Object prove synthetic mock provenance',
   'v2 rollback serves the exact approved HTML and JavaScript without mounting v3',
