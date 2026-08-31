@@ -1,7 +1,6 @@
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { lstat, mkdir, mkdtemp, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -1918,7 +1917,7 @@ export async function retainMockStagingCandidate(
     rollback.provenance.releaseChecksums.sourcePath,
   );
 
-  const temporaryDirectory = await mkdtemp(join(tmpdir(), 'fdw-retained-candidate-'));
+  const temporaryDirectory = await mkdtemp(`${canonicalOutputDirectory}.assembling-`);
   let candidatePublished = false;
   let selectionPublished = false;
   let completed = false;

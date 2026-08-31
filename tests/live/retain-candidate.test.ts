@@ -530,6 +530,68 @@ describe('mock-staging retained candidate', () => {
     expect(await candidateBytes(first)).toEqual(beforeVerification);
   }, 90_000);
 
+  it('assembles beside the canonical output before an atomic publication rename', async () => {
+    const { repositoryRoot, parent } = await fixture();
+    const outputDirectory = join(parent, 'candidate');
+    const stagingNamePrefix = 'candidate.assembling-';
+    const delegate = stableGitRunner();
+    let sourceStatusCalls = 0;
+    let observedStagingPath: string | undefined;
+    const gitRunner: GitRunner = async (arguments_, root) => {
+      if (arguments_.join(' ') === 'status --porcelain=v1 -z --untracked-files=all') {
+        sourceStatusCalls += 1;
+        if (sourceStatusCalls === 2) {
+          const stagingNames = (await readdir(parent)).filter((name) =>
+            name.startsWith(stagingNamePrefix),
+          );
+          expect(stagingNames).toHaveLength(1);
+          const stagingName = stagingNames[0];
+          if (stagingName === undefined)
+            throw new Error('Expected one candidate staging directory.');
+          observedStagingPath = join(parent, stagingName);
+          await expect(readdir(outputDirectory)).rejects.toMatchObject({ code: 'ENOENT' });
+          await expect(
+            readFile(join(observedStagingPath, 'checksums.sha256'), 'utf8'),
+          ).resolves.toMatch(/^[a-f0-9]{64} {2}/mu);
+        }
+      }
+      return delegate(arguments_, root);
+    };
+
+    await expect(
+      retainMockStagingCandidate({ repositoryRoot, outputDirectory, gitRunner }),
+    ).resolves.toMatchObject({ schemaVersion: 'airspace-retained-candidate.v1' });
+
+    expect(observedStagingPath).toBeDefined();
+    await expect(readdir(observedStagingPath as string)).rejects.toMatchObject({ code: 'ENOENT' });
+    expect(await readdir(outputDirectory)).toEqual(
+      expect.arrayContaining(['artifact', 'checksums.sha256', 'evidence']),
+    );
+  }, 15_000);
+
+  it('cleans both publications if a post-publication observer fails', async () => {
+    const { repositoryRoot, parent } = await fixture();
+    const outputDirectory = join(parent, 'candidate');
+    const selectionRecordPath = candidateSelectionRecordPath(outputDirectory);
+
+    await expect(
+      retainMockStagingCandidate({
+        repositoryRoot,
+        outputDirectory,
+        gitRunner: stableGitRunner(),
+        selectionObserver: () => {
+          throw new Error('injected post-publication failure');
+        },
+      }),
+    ).rejects.toThrow('injected post-publication failure');
+
+    await expect(readdir(outputDirectory)).rejects.toMatchObject({ code: 'ENOENT' });
+    await expect(readFile(selectionRecordPath)).rejects.toMatchObject({ code: 'ENOENT' });
+    expect(
+      (await readdir(parent)).filter((name) => name.startsWith('candidate.assembling-')),
+    ).toEqual([]);
+  }, 15_000);
+
   it('fails closed when the supported SBOM has not been generated', async () => {
     const { repositoryRoot, parent } = await fixture();
     await rm(join(repositoryRoot, 'dist', 'sbom.cdx.json'));

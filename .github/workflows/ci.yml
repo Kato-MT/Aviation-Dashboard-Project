@@ -208,7 +208,7 @@ jobs:
           path: |
             .map-data/georgia-20260828-z12
             .tmp-tests/map-preparation
-          key: live-performance-map-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('maps/recipe.json', 'maps/manifest.json', 'maps/style.json', 'tools/maps/prepare.ts', 'tools/maps/manifest.ts', 'pnpm-lock.yaml') }}
+          key: live-performance-map-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('maps/recipe.json', 'maps/manifest.json', 'maps/style.json', 'tools/maps/prepare.ts', 'tools/maps/cliRelease.ts', 'tools/maps/manifest.ts', 'pnpm-lock.yaml') }}
 
       - name: Prepare pinned regional map inputs on cache miss
         if: steps.live-performance-map-cache.outputs.cache-hit != 'true'
@@ -268,7 +268,7 @@ jobs:
           path: |
             .map-data/georgia-20260828-z12
             .tmp-tests/map-preparation
-          key: live-map-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('maps/recipe.json', 'maps/manifest.json', 'maps/style.json', 'tools/maps/prepare.ts', 'tools/maps/manifest.ts', 'tools/maps/seed.ts', 'tools/maps/wrangler.seed.json', 'pnpm-lock.yaml') }}
+          key: live-map-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('maps/recipe.json', 'maps/manifest.json', 'maps/style.json', 'tools/maps/prepare.ts', 'tools/maps/cliRelease.ts', 'tools/maps/manifest.ts', 'tools/maps/seed.ts', 'tools/maps/wrangler.seed.json', 'pnpm-lock.yaml') }}
 
       - name: Prepare pinned regional map inputs on cache miss
         if: steps.live-map-cache.outputs.cache-hit != 'true'

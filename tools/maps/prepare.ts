@@ -1,20 +1,20 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
 import { unzipSync } from 'fflate';
 import recipe from '../../maps/recipe.json';
+import { selectPmtilesCliRelease } from './cliRelease';
 
 const root = resolve('.');
-const cache = join(root, '.tmp-tests/map-preparation');
+const cliRelease = selectPmtilesCliRelease(process.platform, process.arch);
+const cache = join(root, '.tmp-tests/map-preparation', cliRelease.cacheQualifier);
 const output = join(root, '.map-data', recipe.id);
 const ceiling = 256 * 1024 * 1024;
 await mkdir(cache, { recursive: true });
 await mkdir(output, { recursive: true });
-assert.equal(process.platform, 'win32', 'This pinned CLI bootstrap currently supports Windows.');
-assert.equal(process.arch, 'x64', 'This pinned CLI bootstrap currently supports x64.');
-assert.equal(recipe.cliVersion, '1.31.2');
+assert.equal(recipe.cliVersion, cliRelease.version);
 assert.equal(recipe.maxZoom, 12);
 assert.match(recipe.source.url, /^https:\/\/build\.protomaps\.com\/\d{8}\.pmtiles$/);
 
@@ -78,19 +78,126 @@ async function extractZip(bytes: Uint8Array, directory: string) {
   }
 }
 
-const cliZip = await download(
-  'https://github.com/protomaps/go-pmtiles/releases/download/v1.31.2/go-pmtiles_1.31.2_Windows_x86_64.zip',
-  join(cache, 'pmtiles-1.31.2-windows-x64.zip'),
-  24 * 1024 * 1024,
+const tarStdoutCeiling = 64 * 1024 * 1024;
+const tarStderrCeiling = 1024 * 1024;
+
+async function extractPinnedLinuxExecutable(
+  archivePath: string,
+  target: string,
+  expectedBytes: number,
+  expectedSha256: string,
+): Promise<void> {
+  const executable = await new Promise<Buffer>((resolveExtraction, rejectExtraction) => {
+    const child = spawn('tar', ['-xOzf', archivePath, '--', 'pmtiles'], {
+      shell: false,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    });
+    const stdoutChunks: Buffer[] = [];
+    const stderrChunks: Buffer[] = [];
+    let stdoutBytes = 0;
+    let stderrBytes = 0;
+    let extractionError: Error | undefined;
+    let settled = false;
+    let killEscalation: NodeJS.Timeout | undefined;
+
+    const cleanup = () => {
+      clearTimeout(timeout);
+      if (killEscalation) clearTimeout(killEscalation);
+    };
+    const finish = (error?: Error) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      if (error) rejectExtraction(error);
+      else resolveExtraction(Buffer.concat(stdoutChunks, stdoutBytes));
+    };
+    const stop = (error: Error) => {
+      if (extractionError) return;
+      extractionError = error;
+      child.kill();
+      killEscalation = setTimeout(() => child.kill('SIGKILL'), 1_000);
+    };
+    const timeout = setTimeout(
+      () => stop(new Error('PMTiles CLI extraction exceeded its two-minute deadline.')),
+      120_000,
+    );
+
+    child.stdout.on('data', (chunk: Buffer) => {
+      if (extractionError) return;
+      stdoutBytes += chunk.byteLength;
+      if (stdoutBytes > tarStdoutCeiling) {
+        stop(new Error('PMTiles CLI extraction exceeded its 64 MiB stdout ceiling.'));
+        return;
+      }
+      stdoutChunks.push(chunk);
+    });
+    child.stderr.on('data', (chunk: Buffer) => {
+      if (extractionError) return;
+      stderrBytes += chunk.byteLength;
+      if (stderrBytes > tarStderrCeiling) {
+        stop(new Error('PMTiles CLI extraction exceeded its 1 MiB stderr ceiling.'));
+        return;
+      }
+      stderrChunks.push(chunk);
+    });
+    child.once('error', (error) => finish(error));
+    child.once('close', (code) => {
+      if (extractionError) {
+        finish(extractionError);
+        return;
+      }
+      if (code !== 0) {
+        const stderr = Buffer.concat(stderrChunks, stderrBytes).toString('utf8').trim();
+        finish(new Error(`tar exited with ${code}${stderr ? `: ${stderr}` : '.'}`));
+        return;
+      }
+      finish();
+    });
+  });
+
+  assert.equal(executable.byteLength, expectedBytes, 'CLI executable has an unexpected byte size.');
+  assert.equal(
+    createHash('sha256').update(executable).digest('hex'),
+    expectedSha256,
+    'CLI executable does not match its pinned digest.',
+  );
+
+  await mkdir(dirname(target), { recursive: true });
+  const partial = `${target}.${crypto.randomUUID()}.partial`;
+  try {
+    await writeFile(partial, executable, { flag: 'wx', mode: 0o755 });
+    await chmod(partial, 0o755);
+    await rename(partial, target);
+  } finally {
+    await rm(partial, { force: true });
+  }
+  await chmod(target, 0o755);
+}
+
+const cliArchivePath = join(cache, cliRelease.archiveFileName);
+const cliArchive = await download(
+  cliRelease.archiveUrl,
+  cliArchivePath,
+  cliRelease.archiveMaximumBytes,
 );
 assert.equal(
-  createHash('sha256').update(cliZip).digest('hex'),
-  'a658baa4d7e55020aef6ca17bd9ff9faa1582671266b36f58c52db0ac8e785a1',
+  createHash('sha256').update(cliArchive).digest('hex'),
+  cliRelease.archiveSha256,
   'CLI archive does not match its published release digest.',
 );
-const cliDirectory = join(cache, 'pmtiles-1.31.2');
-await extractZip(cliZip, cliDirectory);
-const cli = join(cliDirectory, 'pmtiles.exe');
+const cliDirectory = join(cache, `pmtiles-${cliRelease.version}`);
+const cli = join(cliDirectory, cliRelease.executableName);
+if (cliRelease.archiveFormat === 'zip') {
+  await extractZip(cliArchive, cliDirectory);
+} else {
+  await extractPinnedLinuxExecutable(
+    cliArchivePath,
+    cli,
+    cliRelease.executableBytes,
+    cliRelease.executableSha256,
+  );
+}
 
 async function runCli(args: string[], boundedOutput?: string) {
   await new Promise<void>((resolveRun, reject) => {

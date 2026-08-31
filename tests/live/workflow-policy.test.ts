@@ -58,6 +58,7 @@ describe('v3 publication firebreaks', () => {
     expect(performanceJob).toContain('runs-on: ubuntu-latest');
     expect(performanceJob).toContain('pnpm exec playwright install --with-deps chromium');
     expect(performanceJob).toContain('pnpm test:browser-performance');
+    expect(performanceJob).toContain("'tools/maps/cliRelease.ts'");
     expect(performanceJob).toContain('name: live-performance-${{ github.sha }}');
     expect(performanceJob).not.toContain('continue-on-error');
 
@@ -90,6 +91,7 @@ describe('v3 publication firebreaks', () => {
     expect(liveJob.match(/pnpm runbooks:verify/gu)).toHaveLength(1);
     expect(liveJob.match(/pnpm runbooks:rehearse:candidate/gu)).toHaveLength(1);
     expect(liveJob.match(/pnpm test:visual-regression/gu)).toHaveLength(1);
+    expect(liveJob).toContain("'tools/maps/cliRelease.ts'");
     expect(liveJob).not.toContain('pnpm test:browser-performance');
     expect(liveJob.match(/pnpm live:load:candidate:smoke/gu)).toHaveLength(1);
     expect(liveJob).toMatch(

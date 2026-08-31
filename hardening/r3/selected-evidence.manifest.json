@@ -392,18 +392,18 @@
     ]
   },
   "source": {
-    "baseHead": "5ae0f1226061e4ff636386ba627a29bd3e586210",
+    "baseHead": "57c7409dd2f13894cf0ff7d821fd3749f5536cf8",
     "dirty": true,
     "content": {
       "schemaVersion": "selected-r3-source-content.v1",
       "excludedPaths": ["hardening/r3/selected-evidence.manifest.json"],
-      "fileCount": 565,
-      "totalBytes": 9220476,
+      "fileCount": 567,
+      "totalBytes": 9231256,
       "missingTrackedFileCount": 0,
       "trackedWorktreeMismatchCount": 0,
       "untrackedFileCount": 0,
       "indexDiffersFromHead": true,
-      "sha256": "62be699068ef69a533de5bc201a0bcb855e2eb003a07b699418fe1772759bcd1"
+      "sha256": "eb07e850b50d7476837991085103b6da87b49d4ce361bf2f1eb5b46813ca2c44"
     }
   },
   "evidence": {
@@ -422,13 +422,13 @@
       "Commit, push, hosted CI, retained-candidate, release, deployment, and publication proof."
     ],
     "fileCount": 94,
-    "totalBytes": 2775562,
-    "collectionSha256": "c8244408a59bca8cd9fb5ce575756b52044170cae9a50bf7a7e49e1ad3ef9681",
+    "totalBytes": 2778421,
+    "collectionSha256": "34496a40cfcdbfd7669ff8d30fa1359f46983bc708c392a2781ef5ad423fdb6d",
     "files": [
       {
         "path": ".github/workflows/ci.yml",
-        "bytes": 21945,
-        "sha256": "2293f7036261e045c406c56dbaab7ef6130b0dddeacdcefe1fa374a7fd93a3d9"
+        "bytes": 22001,
+        "sha256": "79c086db25b6dea0a2adb824c1821a4883bb4e852d1d03717260b57f9799737e"
       },
       {
         "path": ".github/workflows/v3-release-preflight.yml",
@@ -717,8 +717,8 @@
       },
       {
         "path": "tests/live/retain-candidate.test.ts",
-        "bytes": 38539,
-        "sha256": "23ce599a96bbb6b371e23266cfdcc0d80a3579c4918cb1b27cf776ce58e14b8e"
+        "bytes": 41247,
+        "sha256": "dfee2ac6579ceafd4903e8bcbbd375a8bda33dc53963ccd9cda932e4d4869648"
       },
       {
         "path": "tests/live/runbook-policy.test.ts",
@@ -742,8 +742,8 @@
       },
       {
         "path": "tests/live/workflow-policy.test.ts",
-        "bytes": 12833,
-        "sha256": "809b4f668e7a53b2c3af530d39d12cc0a5a7db260b0925ca677158f4dba587f5"
+        "bytes": 12962,
+        "sha256": "bd642c63fbfdc5829936e3bf750344b7c24c8f157e66f07f9b650fe248ef5dd9"
       },
       {
         "path": "tests/worker/delivery.test.ts",
@@ -812,8 +812,8 @@
       },
       {
         "path": "tools/live/retainCandidate.ts",
-        "bytes": 83669,
-        "sha256": "2922c62b4881fef6ff9f8a15a7af048711a06a5860e47b47c399a7dd58474d95"
+        "bytes": 83635,
+        "sha256": "b475e847769b0f40a4bffa4d2f93f5d0471f220dcfddf1f6b4e7d738153d29d8"
       },
       {
         "path": "tools/live/runBrowserPerformance.ts",
