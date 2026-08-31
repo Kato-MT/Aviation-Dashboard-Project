@@ -31,8 +31,11 @@ interface PaintResult {
   recordCount: number;
   sequence: number;
   durationMs: number;
+  domStableDurationMs: number;
+  mapStableDurationMs: number;
   validationDurationMs: number;
   wireBytes: number;
+  visualFixtureKey: string;
   historyAircraft: number;
   minimumHistorySamples: number;
   maximumHistorySamples: number;
@@ -200,7 +203,7 @@ function projectLimit<T extends Record<string, number>>(limits: T, projectName: 
   return value!;
 }
 
-test('500-aircraft validated snapshots reach a stable linked paint within the p95 budget', async ({
+test('500-aircraft validated snapshots reach the stable linked render barrier within the p95 budget', async ({
   page,
 }, testInfo) => {
   const { guard, network } = await openHarness(page);
@@ -209,7 +212,10 @@ test('500-aircraft validated snapshots reach a stable linked paint within the p9
   }
   const paints: number[] = [];
   const validations: number[] = [];
+  const domStableDurations: number[] = [];
+  const mapStableDurations: number[] = [];
   const wireBytes: number[] = [];
+  const visualFixtureKeys: string[] = [];
   for (let index = 0; index < PAINT_ITERATIONS; index += 1) {
     const result = await renderSnapshot(page, PAINT_AIRCRAFT);
     expect(result.recordCount).toBe(PAINT_AIRCRAFT);
@@ -219,9 +225,13 @@ test('500-aircraft validated snapshots reach a stable linked paint within the p9
     expect(result.historiesAtMaximum).toBe(0);
     expect(result.qualityEvents).toBe(0);
     paints.push(result.durationMs);
+    domStableDurations.push(result.domStableDurationMs);
+    mapStableDurations.push(result.mapStableDurationMs);
     validations.push(result.validationDurationMs);
     wireBytes.push(result.wireBytes);
+    visualFixtureKeys.push(result.visualFixtureKey);
   }
+  expect(new Set(visualFixtureKeys).size).toBe(PAINT_ITERATIONS);
   const pageState = await page.evaluate(
     (expectedAircraft) => ({
       rowCount: document.querySelectorAll('.aircraft-link').length,
@@ -263,6 +273,12 @@ test('500-aircraft validated snapshots reach a stable linked paint within the p9
       warmups: PAINT_WARMUPS,
       p95Ms,
       limitMs,
+      minimumMs: Math.min(...paints),
+      p50Ms: [...paints].sort((left, right) => left - right)[Math.ceil(paints.length * 0.5) - 1]!,
+      maximumMs: Math.max(...paints),
+      overBudgetSamples: paints.filter((durationMs) => durationMs > limitMs).length,
+      domStableP95Ms: percentile95(domStableDurations),
+      mapStableP95Ms: percentile95(mapStableDurations),
       validationP95Ms,
       minimumWireBytes: Math.min(...wireBytes),
       maximumWireBytes: Math.max(...wireBytes),
@@ -552,6 +568,8 @@ test('near-limit 2,000-record maximum preserves bounded history and complete key
       totalPreparationReceipts: preparation.totalReceipts,
       preparationDurationMs: preparation.durationMs,
       stablePaintMs: result.durationMs,
+      domStableMs: result.domStableDurationMs,
+      mapStableMs: result.mapStableDurationMs,
       validationMs: result.validationDurationMs,
       wireBytes: result.wireBytes,
       wireLimitBytes: MAX_LIVE_MESSAGE_BYTES,

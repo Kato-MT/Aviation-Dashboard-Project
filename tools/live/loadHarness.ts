@@ -32,6 +32,8 @@ import { POLL_INTERVAL_MS } from '../../worker/polling';
 import {
   LOAD_HARNESS_HELP,
   LOAD_HARNESS_SCHEMA_VERSION,
+  PROVIDER_EARLY_TOLERANCE_MS,
+  PROVIDER_LATE_TOLERANCE_MS,
   assessProviderCadence,
   assessSoakMemoryPlateau,
   attemptAccountingIsComplete,
@@ -75,8 +77,6 @@ const POST_DEADLINE_WAKE_SLACK_MS = 250;
 const POST_DEADLINE_CLOSE_TIMEOUT_MS = 3_000;
 const RECONNECT_SETTLE_TIMEOUT_MS = 3_000;
 const RECONNECT_PROVIDER_OBSERVATION_TIMEOUT_MS = POLL_INTERVAL_MS + 5_000;
-const PROVIDER_EARLY_TOLERANCE_MS = 1_000;
-const PROVIDER_LATE_TOLERANCE_MS = 5_000;
 const MIN_RECONNECT_PROVIDER_GAP_MS = POLL_INTERVAL_MS - PROVIDER_EARLY_TOLERANCE_MS;
 const MAX_RECONNECT_PROVIDER_GAP_MS = POLL_INTERVAL_MS + PROVIDER_LATE_TOLERANCE_MS;
 
@@ -645,7 +645,7 @@ function caseDefinitions(scenario: LoadHarnessScenario): RunDefinition[] {
       regionIds: ['atlanta'],
       viewersPerRegion: MAX_REGIONAL_VIEWERS,
       overflowAttempts: 1,
-      durationMs: Math.max(15_000, scenario.durationMs),
+      durationMs: scenario.durationMs,
       recordsPerSnapshot: scenario.recordsPerSnapshot,
       stalledPerRegion: true,
     },
@@ -654,7 +654,7 @@ function caseDefinitions(scenario: LoadHarnessScenario): RunDefinition[] {
       regionIds: REGION_IDS,
       viewersPerRegion: 10,
       overflowAttempts: 0,
-      durationMs: Math.max(15_000, scenario.durationMs),
+      durationMs: scenario.durationMs,
       recordsPerSnapshot: scenario.recordsPerSnapshot,
       stalledPerRegion: false,
     },

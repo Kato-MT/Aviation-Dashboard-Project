@@ -113,7 +113,7 @@ async function auditAggregateOutput(): Promise<'pass' | 'fail'> {
     typeof parsed !== 'object' ||
     parsed === null ||
     Array.isArray(parsed) ||
-    (parsed as Record<string, unknown>).schemaVersion !== 'airspace-browser-performance.v1'
+    (parsed as Record<string, unknown>).schemaVersion !== 'airspace-browser-performance.v2'
   ) {
     throw new Error('Browser performance aggregate report has an invalid envelope.');
   }

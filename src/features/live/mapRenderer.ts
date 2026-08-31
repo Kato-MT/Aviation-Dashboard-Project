@@ -21,6 +21,28 @@ interface Callbacks {
 }
 
 let protocolOwners = 0;
+
+function sameObservationFeatures(
+  left: MapFrame['observations'] | undefined,
+  right: MapFrame['observations'],
+): boolean {
+  if (left === right) return true;
+  if (left === undefined || left.features.length !== right.features.length) return false;
+  return left.features.every((previous, index) => {
+    const current = right.features[index];
+    return (
+      current !== undefined &&
+      previous.id === current.id &&
+      previous.geometry.coordinates[0] === current.geometry.coordinates[0] &&
+      previous.geometry.coordinates[1] === current.geometry.coordinates[1] &&
+      previous.properties.aircraftId === current.properties.aircraftId &&
+      previous.properties.label === current.properties.label &&
+      previous.properties.freshness === current.properties.freshness &&
+      previous.properties.track === current.properties.track
+    );
+  });
+}
+
 function acquireProtocol() {
   if (protocolOwners === 0) {
     maplibre.setWorkerUrl(mapWorkerUrl);
@@ -110,6 +132,12 @@ export function createMapRenderer(
   let unavailable = false;
   let paintGeneration = 0;
   let pendingPaintFrame: number | undefined;
+  let publishedObservations: MapFrame['observations'] | undefined;
+  let publishedSelectedTrail: MapFrame['selectedTrail'] | undefined;
+  let publishedSelectedId: string | undefined;
+  let selectedIdPublished = false;
+  let publishedResolvedHistorySequence: number | undefined;
+  let resolvedHistorySequencePublished = false;
   let resize: ResizeObserver | undefined;
   const dispose = () => {
     if (disposed) return;
@@ -150,19 +178,47 @@ export function createMapRenderer(
     frame = value;
     if (disposed || unavailable) return;
     try {
-      if (regionId !== frame.regionId) resetView();
+      let mapChanged = false;
+      if (regionId !== frame.regionId) {
+        resetView();
+        mapChanged = true;
+      }
       if (!loaded) return;
-      (map.getSource('observations') as maplibre.GeoJSONSource).setData(frame.observations);
-      (map.getSource('selected-trail') as maplibre.GeoJSONSource).setData(frame.selectedTrail);
-      map.setFilter('selection', ['==', ['get', 'aircraftId'], frame.selectedId ?? '']);
-      map.setFilter('selected-trail-evidence', [
-        '==',
-        ['get', 'historySequence'],
-        frame.resolvedHistorySequence ?? -1,
-      ]);
+      const observationsChanged = !sameObservationFeatures(
+        publishedObservations,
+        frame.observations,
+      );
+      publishedObservations = frame.observations;
+      if (observationsChanged) {
+        (map.getSource('observations') as maplibre.GeoJSONSource).setData(frame.observations);
+        mapChanged = true;
+      }
+      if (publishedSelectedTrail !== frame.selectedTrail) {
+        (map.getSource('selected-trail') as maplibre.GeoJSONSource).setData(frame.selectedTrail);
+        publishedSelectedTrail = frame.selectedTrail;
+        mapChanged = true;
+      }
+      if (!selectedIdPublished || publishedSelectedId !== frame.selectedId) {
+        map.setFilter('selection', ['==', ['get', 'aircraftId'], frame.selectedId ?? '']);
+        publishedSelectedId = frame.selectedId;
+        selectedIdPublished = true;
+        mapChanged = true;
+      }
+      if (
+        !resolvedHistorySequencePublished ||
+        publishedResolvedHistorySequence !== frame.resolvedHistorySequence
+      ) {
+        map.setFilter('selected-trail-evidence', [
+          '==',
+          ['get', 'historySequence'],
+          frame.resolvedHistorySequence ?? -1,
+        ]);
+        publishedResolvedHistorySequence = frame.resolvedHistorySequence;
+        resolvedHistorySequencePublished = true;
+        mapChanged = true;
+      }
       if (painted) {
-        const onIdle = () => {
-          map.off('idle', onIdle);
+        const finishAfterFrame = () => {
           if (disposed || unavailable || generation !== paintGeneration) return;
           if (pendingPaintFrame !== undefined) cancelAnimationFrame(pendingPaintFrame);
           pendingPaintFrame = requestAnimationFrame(() => {
@@ -170,7 +226,13 @@ export function createMapRenderer(
             if (!disposed && !unavailable && generation === paintGeneration) painted();
           });
         };
-        map.once('idle', onIdle);
+        if (mapChanged) {
+          const onIdle = () => {
+            map.off('idle', onIdle);
+            finishAfterFrame();
+          };
+          map.once('idle', onIdle);
+        } else finishAfterFrame();
       }
     } catch {
       onError();
@@ -277,6 +339,7 @@ export function createMapRenderer(
         id: 'observation-label',
         type: 'symbol',
         source: 'observations',
+        minzoom: 8,
         layout: {
           'text-field': ['get', 'label'],
           'text-font': ['Noto Sans Medium'],

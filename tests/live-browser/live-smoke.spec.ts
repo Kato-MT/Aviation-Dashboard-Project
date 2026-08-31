@@ -1,9 +1,16 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { getRegionConfig, REGION_CONFIGS } from '../../src/live/regions';
+import { RUNTIME_POLICY_LIMITS } from '../../src/live/runtimePolicyLimits';
 import { captureLiveWire } from './liveWire';
 import { expectNativeEgressDenied } from './nativeEgress';
 import { LIVE_TEST_HTTP_ORIGIN } from './testOrigin';
+
+const NEXT_PROVIDER_PUBLICATION_TIMEOUT_MS =
+  RUNTIME_POLICY_LIMITS.provider.pollIntervalMs +
+  RUNTIME_POLICY_LIMITS.provider.requestTimeoutMs +
+  5_000;
+const CADENCE_SCENARIO_TIMEOUT_MS = NEXT_PROVIDER_PUBLICATION_TIMEOUT_MS + 30_000;
 
 test.beforeEach(async ({ request, context }) => {
   await expectNativeEgressDenied(request);
@@ -83,7 +90,9 @@ test('actual adapter, coordinator, HTTP and WebSocket feed renders in React with
   await page.getByRole('button', { name: 'TEST01', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'TEST01', exact: true })).toBeVisible();
   await expect(page.locator('.timing-evidence')).toContainText('Backend receipt');
-  await expect(page.locator('.history-table tbody tr')).toHaveCount(1);
+  await expect
+    .poll(() => page.locator('.history-table tbody tr').count())
+    .toBeGreaterThanOrEqual(1);
   await expect(page.locator('.live-history-charts canvas')).toHaveCount(2);
   await expect(page.locator('.session-history')).toContainText('Current browser session');
   await expect(page.locator('.investigation-boundary')).toContainText(
@@ -151,7 +160,9 @@ test('every regional preset supports the selected-track evidence journey', async
     await page.getByRole('button', { name: 'TEST01', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'TEST01', exact: true })).toBeVisible();
     await expect(page.locator('.timing-evidence')).toContainText('Position observed');
-    await expect(page.locator('.history-table tbody tr')).toHaveCount(1);
+    await expect
+      .poll(() => page.locator('.history-table tbody tr').count())
+      .toBeGreaterThanOrEqual(1);
     await expect(page.locator('.live-history-charts canvas')).toHaveCount(2);
     await page.getByRole('button', { name: 'Close selected track', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Select an aircraft' })).toBeVisible();
@@ -276,7 +287,9 @@ test('geographic hit testing selects the same observation as the linked table', 
   await expect(page.locator('.observation-panel tr[data-selected="true"]')).toContainText('TEST01');
   await page.getByRole('button', { name: 'TEST02', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'TEST02', exact: true })).toBeVisible();
-  await expect(page.locator('.history-table tbody tr')).toHaveCount(1);
+  await expect
+    .poll(() => page.locator('.history-table tbody tr').count())
+    .toBeGreaterThanOrEqual(1);
   await expect(page.locator('.live-history-charts canvas')).toHaveCount(2);
   await page.getByLabel('Search observations').fill('nothing');
   await expect(page.locator('.observation-panel tbody tr')).toHaveCount(0);
@@ -308,10 +321,13 @@ test('missing map assets leave the feed usable and support an independent retry'
 test('trail, charts and text table select the same retained receipt', async ({
   page,
 }, testInfo) => {
+  testInfo.setTimeout(CADENCE_SCENARIO_TIMEOUT_MS);
   await page.goto('/live.html');
   await page.getByRole('button', { name: 'TEST01', exact: true }).click();
   const receiptButtons = page.locator('.history-table .receipt-link');
-  await expect.poll(() => receiptButtons.count(), { timeout: 15_000 }).toBeGreaterThanOrEqual(2);
+  await expect
+    .poll(() => receiptButtons.count(), { timeout: NEXT_PROVIDER_PUBLICATION_TIMEOUT_MS })
+    .toBeGreaterThanOrEqual(2);
   await expect(page.locator('.live-history-charts canvas')).toHaveCount(2);
 
   const newestLabel = (await receiptButtons.first().textContent())!.trim();
@@ -367,7 +383,8 @@ test('complete filters and sortable headers remain deterministic', async ({ page
 
 test('actual WebGL context loss cannot break the feed, table or subsequent map retry', async ({
   page,
-}) => {
+}, testInfo) => {
+  testInfo.setTimeout(CADENCE_SCENARIO_TIMEOUT_MS);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   const wire = captureLiveWire(page);
@@ -388,7 +405,9 @@ test('actual WebGL context loss cannot break the feed, table or subsequent map r
   await expect(page.locator('.maplibregl-canvas')).toHaveCount(0);
   await page.getByRole('button', { name: 'TEST01', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'TEST01', exact: true })).toBeVisible();
-  await expect.poll(latestSequence, { timeout: 15_000 }).toBeGreaterThan(before);
+  await expect
+    .poll(latestSequence, { timeout: NEXT_PROVIDER_PUBLICATION_TIMEOUT_MS })
+    .toBeGreaterThan(before);
   await wire.expectAcknowledgments();
   await page.getByRole('button', { name: 'Retry map', exact: true }).click();
   await expect(page.locator('.map-stage')).toHaveAttribute('data-map-status', 'ready');

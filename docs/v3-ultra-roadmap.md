@@ -382,7 +382,7 @@ Performance gates:
 
 - Initial shell JavaScript below 200 kB gzip.
 - Lazy map route JavaScript below 500 kB gzip.
-- At 500 visible aircraft, p95 validated-snapshot-to-paint below 500 ms on the recorded desktop profile and below one second on the recorded mobile profile.
+- At 500 visible aircraft, p95 validated-snapshot-to-stable-render barrier below 500 ms on the recorded desktop profile and below 750 ms on the recorded mobile profile. The barrier covers React stabilization and MapLibre idle plus a subsequent animation-frame callback; it does not claim direct observation of physical display presentation.
 - At 2,000 accepted records, no crash, truncation, unbounded queue, or loss of filter, focus, selection, and table access.
 - One Atlanta hub with 1, 10, and 25 WebSocket viewers, one stalled viewer, reconnect storm, hibernation, restart, and backoff remains bounded. Additional three-region synthetic regression does not expand the public pilot envelope.
 - A fresh corrected smoke, maximum, and real 30-minute soak pass on the exact frozen source and artifact.

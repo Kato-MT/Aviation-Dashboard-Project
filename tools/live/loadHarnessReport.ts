@@ -6,6 +6,11 @@ export const LOAD_HARNESS_PROFILES = ['smoke', 'maximum', 'soak'] as const;
 
 export const ACK_TIMER_EARLY_TOLERANCE_MS = 2;
 
+export const PROVIDER_EARLY_TOLERANCE_MS = 1_000;
+export const PROVIDER_LATE_TOLERANCE_MS = 5_000;
+export const MINIMUM_MEASURED_DURATION_MS =
+  RUNTIME_POLICY_LIMITS.provider.pollIntervalMs + PROVIDER_LATE_TOLERANCE_MS;
+
 export type LoadHarnessProfile = (typeof LOAD_HARNESS_PROFILES)[number];
 
 export interface LoadHarnessScenario {
@@ -122,7 +127,7 @@ const MAXIMUM_VIEWERS = RUNTIME_POLICY_LIMITS.delivery.maximumRegionalViewers;
 const OFFERED_VIEWERS = MAXIMUM_VIEWERS + 1;
 
 const PROFILE_DEFAULTS: Record<LoadHarnessProfile, { durationMs: number; records: number }> = {
-  smoke: { durationMs: 15_000, records: RESPONSIVE_RECORDS },
+  smoke: { durationMs: 30_000, records: RESPONSIVE_RECORDS },
   maximum: { durationMs: 30_000, records: MAXIMUM_RECORDS },
   soak: { durationMs: 30 * 60_000, records: RESPONSIVE_RECORDS },
 };
@@ -218,8 +223,10 @@ export function parseLoadHarnessCli(argv: readonly string[]): LoadHarnessCli {
   const defaults = PROFILE_DEFAULTS[profile];
   const durationMs = (durationSeconds ?? defaults.durationMs / 1_000) * 1_000;
   const recordsPerSnapshot = records ?? defaults.records;
-  if (durationMs < 10_000) {
-    throw new Error('Measured profiles must run for at least 10 real seconds.');
+  if (durationMs < MINIMUM_MEASURED_DURATION_MS) {
+    throw new Error(
+      `Measured profiles must run for at least ${MINIMUM_MEASURED_DURATION_MS / 1_000} real seconds so the evidence window can include a policy-cadence provider publication.`,
+    );
   }
   if (profile === 'soak' && durationMs < 30 * 60_000) {
     throw new Error('The soak profile must run for at least 30 real minutes.');
@@ -567,7 +574,7 @@ Options:
   --artifact-root PATH          Explicit raw mock-staging build root
   --candidate-directory PATH   Verified clean-source retained candidate root
   --profile smoke|maximum|soak  Measured scenario (default: smoke)
-  --duration-seconds N          Real wall duration; soak cannot be below 1800
+  --duration-seconds N          Real wall duration; minimum ${MINIMUM_MEASURED_DURATION_MS / 1_000}, soak minimum 1800
   --records N                   Synthetic records; smoke=${RESPONSIVE_RECORDS}, maximum=${MAXIMUM_RECORDS}
   --ping-probe-ms N             Ordered application ping interval (default: 2000)
   --memory-sample-ms N          Memory sampling interval (default: 5000)

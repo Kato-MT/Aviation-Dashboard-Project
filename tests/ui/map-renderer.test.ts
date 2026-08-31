@@ -191,7 +191,11 @@ describe('MapLibre effect ownership and failure boundaries', () => {
       7,
     ]);
     expect(callbacks.ready).toHaveBeenCalledOnce();
+    const dataPublications = map.source.setData.mock.calls.length;
+    const filterPublications = map.setFilter.mock.calls.length;
     owner.update(changed);
+    expect(map.source.setData).toHaveBeenCalledTimes(dataPublications);
+    expect(map.setFilter).toHaveBeenCalledTimes(filterPublications);
     expect(map.fitBounds).toHaveBeenCalledOnce();
     owner.update({ ...changed, regionId: 'central-georgia' });
     expect(map.fitBounds).toHaveBeenCalledTimes(2);
@@ -199,6 +203,86 @@ describe('MapLibre effect ownership and failure boundaries', () => {
     expect(map.fitBounds).toHaveBeenCalledTimes(3);
     resizeCallback();
     expect(map.resize).toHaveBeenCalledOnce();
+  });
+
+  it('shows dense observation labels only after zooming into the regional view', () => {
+    create();
+    map.emit('load');
+    expect(map.addLayer).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'observation-label', minzoom: 8 }),
+    );
+  });
+
+  it('reports an unchanged map frame on the next presented animation frame', () => {
+    const owner = create();
+    map.emit('load');
+    const painted = vi.fn();
+    owner.update(frame, painted);
+    expect(painted).not.toHaveBeenCalled();
+    animationFrame?.(0);
+    expect(painted).toHaveBeenCalledOnce();
+  });
+
+  it('does not republish structurally identical observation features', () => {
+    const initial = {
+      ...frame,
+      observations: {
+        type: 'FeatureCollection' as const,
+        features: [
+          {
+            type: 'Feature' as const,
+            id: 'a1b2c3',
+            geometry: { type: 'Point' as const, coordinates: [-84.43, 33.64] as [number, number] },
+            properties: {
+              aircraftId: 'a1b2c3',
+              label: 'TEST1',
+              freshness: 'current' as const,
+              track: 90,
+            },
+          },
+        ],
+      },
+    };
+    const owner = createMapRenderer(document.createElement('div'), initial, callbacks);
+    owners.push(owner);
+    map.emit('load');
+    const publications = map.source.setData.mock.calls.length;
+    owner.update({
+      ...initial,
+      observations: {
+        type: 'FeatureCollection',
+        features: initial.observations.features.map((feature) => ({
+          ...feature,
+          geometry: { ...feature.geometry, coordinates: [...feature.geometry.coordinates] },
+          properties: { ...feature.properties },
+        })),
+      },
+    });
+    expect(map.source.setData).toHaveBeenCalledTimes(publications);
+
+    owner.update({
+      ...initial,
+      observations: {
+        type: 'FeatureCollection',
+        features: [
+          {
+            ...initial.observations.features[0]!,
+            geometry: { type: 'Point', coordinates: [-84.42, 33.65] },
+          },
+        ],
+      },
+    });
+    expect(map.source.setData).toHaveBeenCalledTimes(publications + 1);
+  });
+
+  it('applies a selection-only change without republishing map sources', () => {
+    const owner = create();
+    map.emit('load');
+    const publications = map.source.setData.mock.calls.length;
+    const filters = map.setFilter.mock.calls.length;
+    owner.update({ ...frame, selectedId: 'a1b2c3' });
+    expect(map.source.setData).toHaveBeenCalledTimes(publications);
+    expect(map.setFilter).toHaveBeenCalledTimes(filters + 1);
   });
 
   it('reports only the newest successful data update after the map becomes idle', () => {
@@ -249,7 +333,25 @@ describe('MapLibre effect ownership and failure boundaries', () => {
       map.emit('load');
       if (step === 'update') {
         map.source.setData.mockImplementationOnce(fail);
-        owner.update(frame);
+        owner.update({
+          ...frame,
+          observations: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                id: 'a1b2c3',
+                geometry: { type: 'Point', coordinates: [-84.43, 33.64] },
+                properties: {
+                  aircraftId: 'a1b2c3',
+                  label: 'TEST1',
+                  freshness: 'current',
+                  track: 90,
+                },
+              },
+            ],
+          },
+        });
       }
       if (step === 'resize') {
         map.resize.mockImplementationOnce(fail);

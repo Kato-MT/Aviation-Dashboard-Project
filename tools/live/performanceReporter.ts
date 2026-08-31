@@ -29,6 +29,8 @@ const OUTPUT_PATH = join(REPOSITORY_ROOT, 'test-results', 'live-performance', 'r
 const EXPECTED_PROJECTS = new Set(['performance-desktop', 'performance-mobile']);
 const EXPECTED_CASES = new Set(['paint-500', 'maximum-2000']);
 const PERFORMANCE_LIMITS = RUNTIME_POLICY_LIMITS.browser.performance;
+const MAXIMUM_P95_OUTLIERS =
+  PERFORMANCE_LIMITS.paintIterations - Math.ceil(PERFORMANCE_LIMITS.paintIterations * 0.95);
 
 type AggregateRecord = Record<string, string | number | boolean>;
 
@@ -51,6 +53,12 @@ interface FailedPaintMeasurement {
   readonly warmups: 5;
   readonly p95Ms: number;
   readonly limitMs: number;
+  readonly minimumMs: number;
+  readonly p50Ms: number;
+  readonly maximumMs: number;
+  readonly overBudgetSamples: number;
+  readonly domStableP95Ms: number;
+  readonly mapStableP95Ms: number;
   readonly validationP95Ms: number;
 }
 
@@ -89,6 +97,12 @@ function parseRecord(description: string | undefined): AggregateRecord | undefin
       'warmups',
       'p95Ms',
       'limitMs',
+      'minimumMs',
+      'p50Ms',
+      'maximumMs',
+      'overBudgetSamples',
+      'domStableP95Ms',
+      'mapStableP95Ms',
       'validationP95Ms',
       'minimumWireBytes',
       'maximumWireBytes',
@@ -121,6 +135,13 @@ function parseRecord(description: string | undefined): AggregateRecord | undefin
       value.warmups !== PERFORMANCE_LIMITS.paintWarmups ||
       value.limitMs !== expectedLimit ||
       !boundedNumber(value.p95Ms, 0, expectedLimit) ||
+      !boundedNumber(value.minimumMs, 0, value.p95Ms as number) ||
+      !boundedNumber(value.p50Ms, value.minimumMs as number, value.p95Ms as number) ||
+      !boundedNumber(value.maximumMs, value.p95Ms as number, 30_000) ||
+      !boundedNumber(value.overBudgetSamples, 0, MAXIMUM_P95_OUTLIERS) ||
+      !Number.isSafeInteger(value.overBudgetSamples) ||
+      !boundedNumber(value.domStableP95Ms, 0, value.p95Ms as number) ||
+      !boundedNumber(value.mapStableP95Ms, 0, value.p95Ms as number) ||
       !boundedNumber(value.validationP95Ms, 0, 60_000) ||
       !boundedNumber(value.minimumWireBytes, 1, MAX_LIVE_MESSAGE_BYTES) ||
       !boundedNumber(
@@ -179,6 +200,8 @@ function parseRecord(description: string | undefined): AggregateRecord | undefin
       'totalPreparationReceipts',
       'preparationDurationMs',
       'stablePaintMs',
+      'domStableMs',
+      'mapStableMs',
       'validationMs',
       'wireBytes',
       'wireLimitBytes',
@@ -258,6 +281,8 @@ function parseRecord(description: string | undefined): AggregateRecord | undefin
       value.unmeasuredNetworkResponseCount !== 0 ||
       !boundedNumber(value.preparationDurationMs, 0, 120_000) ||
       !boundedNumber(value.stablePaintMs, 0, 30_000) ||
+      !boundedNumber(value.domStableMs, 0, value.stablePaintMs as number) ||
+      !boundedNumber(value.mapStableMs, 0, value.stablePaintMs as number) ||
       !boundedNumber(value.validationMs, 0, 60_000) ||
       !boundedNumber(
         value.wireBytes,
@@ -355,6 +380,34 @@ function parseFailedPaintMeasurement(
   }
   if (
     !isRecord(value) ||
+    !exactKeys(value, [
+      'case',
+      'project',
+      'samples',
+      'warmups',
+      'p95Ms',
+      'limitMs',
+      'minimumMs',
+      'p50Ms',
+      'maximumMs',
+      'overBudgetSamples',
+      'domStableP95Ms',
+      'mapStableP95Ms',
+      'validationP95Ms',
+      'minimumWireBytes',
+      'maximumWireBytes',
+      'browserVersion',
+      'coldNavigationResponseBodyBytes',
+      'coldScriptResponseBodyBytes',
+      'coldStyleResponseBodyBytes',
+      'coldFontResponseBodyBytes',
+      'coldMapResponseBodyBytes',
+      'coldOtherResponseBodyBytes',
+      'coldTotalResponseBodyBytes',
+      'coldResponseBodyLimitBytes',
+      'networkResponseCount',
+      'unmeasuredNetworkResponseCount',
+    ]) ||
     value.case !== 'paint-500' ||
     typeof value.project !== 'string' ||
     !EXPECTED_PROJECTS.has(value.project) ||
@@ -370,6 +423,13 @@ function parseFailedPaintMeasurement(
   if (
     value.limitMs !== expectedLimit ||
     !boundedNumber(value.p95Ms, 0, 30_000) ||
+    !boundedNumber(value.minimumMs, 0, value.p95Ms as number) ||
+    !boundedNumber(value.p50Ms, value.minimumMs as number, value.p95Ms as number) ||
+    !boundedNumber(value.maximumMs, value.p95Ms as number, 30_000) ||
+    !boundedNumber(value.overBudgetSamples, 0, PERFORMANCE_LIMITS.paintIterations) ||
+    !Number.isSafeInteger(value.overBudgetSamples) ||
+    !boundedNumber(value.domStableP95Ms, 0, value.p95Ms as number) ||
+    !boundedNumber(value.mapStableP95Ms, 0, value.p95Ms as number) ||
     !boundedNumber(value.validationP95Ms, 0, 60_000)
   ) {
     return undefined;
@@ -381,6 +441,12 @@ function parseFailedPaintMeasurement(
     warmups: PERFORMANCE_LIMITS.paintWarmups,
     p95Ms: value.p95Ms,
     limitMs: expectedLimit,
+    minimumMs: value.minimumMs,
+    p50Ms: value.p50Ms,
+    maximumMs: value.maximumMs,
+    overBudgetSamples: value.overBudgetSamples,
+    domStableP95Ms: value.domStableP95Ms,
+    mapStableP95Ms: value.mapStableP95Ms,
     validationP95Ms: value.validationP95Ms,
   };
 }
@@ -568,7 +634,7 @@ export default class AggregatePerformanceReporter implements Reporter {
       identityViolationCount === 0 &&
       complete;
     const report = {
-      schemaVersion: 'airspace-browser-performance.v1',
+      schemaVersion: 'airspace-browser-performance.v2',
       result: passed ? 'pass' : 'fail',
       completedAt: new Date().toISOString(),
       source: server?.source ?? null,
@@ -608,10 +674,11 @@ export default class AggregatePerformanceReporter implements Reporter {
       measurement: {
         timerStart: 'after successful Live wire serialization and protocol validation',
         timerEnd:
-          'after React DOM two-frame stabilization and matching MapLibre idle plus one presented animation frame',
+          'after React DOM two-frame stabilization and matching MapLibre idle plus a subsequent animation-frame callback; browser paint presentation is inferred, not directly observed',
         paintWarmups: PERFORMANCE_LIMITS.paintWarmups,
         paintMeasuredIterations: PERFORMANCE_LIMITS.paintIterations,
-        paintState: 'warm map, warm application, sequential validated snapshots',
+        paintState:
+          'warm map and application, with deterministic coordinate and track movement on every sequential validated snapshot',
         maximumState: `warm map, 100 quality-queue receipts, ${RUNTIME_POLICY_LIMITS.history.maximumSamplesPerAircraft} clean history receipts, then one near-limit maximum paint`,
         heapMetric:
           'Chromium performance.memory.usedJSHeapSize with precise-memory-info; JavaScript heap only, not total browser or platform memory',

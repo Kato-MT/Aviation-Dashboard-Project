@@ -392,18 +392,18 @@
     ]
   },
   "source": {
-    "baseHead": "49fa6f9dd119bead64b69a4f5a5aa52467170f20",
+    "baseHead": "445d797f75928944944420deb4130f007e2389f4",
     "dirty": true,
     "content": {
       "schemaVersion": "selected-r3-source-content.v1",
       "excludedPaths": ["hardening/r3/selected-evidence.manifest.json"],
       "fileCount": 567,
-      "totalBytes": 9233308,
+      "totalBytes": 9245486,
       "missingTrackedFileCount": 0,
       "trackedWorktreeMismatchCount": 0,
       "untrackedFileCount": 0,
       "indexDiffersFromHead": true,
-      "sha256": "b00f72420a426bb773b9e398c9b998f98513dc3b444228b05556c638c09b9fc7"
+      "sha256": "2b77027ef3d0b847b666c11ca6cd9f5f7ce00d2674c3675cc3dcc16a512790a7"
     }
   },
   "evidence": {
@@ -422,8 +422,8 @@
       "Commit, push, hosted CI, retained-candidate, release, deployment, and publication proof."
     ],
     "fileCount": 94,
-    "totalBytes": 2778421,
-    "collectionSha256": "767a0fffc9bb57406b67431515f0cceb5e303f01af3d598226e29823fb339746",
+    "totalBytes": 2783470,
+    "collectionSha256": "242c09983c8b7ce76f2888cef7d319680e3f9f6865d680dbe8d2480552223635",
     "files": [
       {
         "path": ".github/workflows/ci.yml",
@@ -617,13 +617,13 @@
       },
       {
         "path": "tests/live-browser/performance.spec.ts",
-        "bytes": 24251,
-        "sha256": "c7cd1db1614e48099053bd3d75e6c117ce59876c5636d909dc82eac68c45baaf"
+        "bytes": 25179,
+        "sha256": "1fb8eca4f660585bebfeddc8ede8e7485a1473d60f37e6c3414e92b66b401a6c"
       },
       {
         "path": "tests/live-browser/performanceHarness.tsx",
-        "bytes": 18091,
-        "sha256": "9f2d4aac17e489e43fca062b9ad732f4b191053852c52aa5a0ef1fc43d37e87d"
+        "bytes": 19147,
+        "sha256": "e94498ab75329cfb10bc736ea83a27ba1905fa8141bc0cc464bf99d3b3dd54fe"
       },
       {
         "path": "tests/live-browser/replay-evidence.spec.ts",
@@ -777,13 +777,13 @@
       },
       {
         "path": "tools/live/loadHarness.ts",
-        "bytes": 113114,
-        "sha256": "9406c36ed5d738e80d4d0a81e931a56aa6609c765196db50961bd689d38c2df7"
+        "bytes": 113054,
+        "sha256": "5d38267ad39235b8baf9fe9f01b180a44f4a7d76877e11aed002d6441821eb89"
       },
       {
         "path": "tools/live/loadHarnessReport.ts",
-        "bytes": 20920,
-        "sha256": "f4baba6943620c97873ccd62e832f67f4d130f5204d8fb756971bab339187261"
+        "bytes": 21328,
+        "sha256": "c2a3f39fb927101abb9b4c6a1aacf60bfcf1023a25b822bd124394c25807af7f"
       },
       {
         "path": "tools/live/operationsPrivacyAudit.ts",
@@ -792,8 +792,8 @@
       },
       {
         "path": "tools/live/performanceReporter.ts",
-        "bytes": 27356,
-        "sha256": "f9b553ec1c40c905d86c5277258737e61ad7c67537c91c42d88fb4abc72221b5"
+        "bytes": 30073,
+        "sha256": "994f63466f4a75c9a9a9af6d652dc8ec06e5f6568b77c542ff6f532f50a1045e"
       },
       {
         "path": "tools/live/recordCandidateAcceptance.ts",
@@ -818,7 +818,7 @@
       {
         "path": "tools/live/runBrowserPerformance.ts",
         "bytes": 5460,
-        "sha256": "2c8c9034a56ff267e88900828c6ce1e54b1ca0218e2b39260dda63b68d111390"
+        "sha256": "e4cafe672ac7be543dd6dcbbdca0560468584f38708663b853c1c31d79a3f062"
       },
       {
         "path": "tools/live/runG2Firebreak.ts",

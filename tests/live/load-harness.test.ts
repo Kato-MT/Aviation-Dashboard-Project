@@ -41,7 +41,7 @@ describe('load-harness CLI contract', () => {
     expect(parseRaw()).toEqual({
       scenario: {
         profile: 'smoke',
-        durationMs: 15_000,
+        durationMs: 30_000,
         recordsPerSnapshot: 500,
         offeredViewers: 26,
         admittedViewers: 25,
@@ -104,6 +104,13 @@ describe('load-harness CLI contract', () => {
     expect(parseRaw(['--profile', 'soak', '--duration-seconds', '1800']).scenario.durationMs).toBe(
       1_800_000,
     );
+  });
+
+  it('requires enough measured time to observe the next policy-cadence publication', () => {
+    expect(() => parseRaw(['--duration-seconds', '24'])).toThrow(
+      'Measured profiles must run for at least 25 real seconds so the evidence window can include a policy-cadence provider publication.',
+    );
+    expect(parseRaw(['--duration-seconds', '25']).scenario.durationMs).toBe(25_000);
   });
 
   it.each([

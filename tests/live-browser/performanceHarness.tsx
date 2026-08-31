@@ -32,8 +32,11 @@ interface PaintResult {
   readonly recordCount: number;
   readonly sequence: number;
   readonly durationMs: number;
+  readonly domStableDurationMs: number;
+  readonly mapStableDurationMs: number;
   readonly validationDurationMs: number;
   readonly wireBytes: number;
+  readonly visualFixtureKey: string;
   readonly historyAircraft: number;
   readonly minimumHistorySamples: number;
   readonly maximumHistorySamples: number;
@@ -58,8 +61,11 @@ interface PendingPaint {
   readonly startedAt: number;
   readonly validationDurationMs: number;
   readonly wireBytes: number;
+  readonly visualFixtureKey: string;
   domStable: boolean;
   mapStable: boolean;
+  domStableDurationMs?: number;
+  mapStableDurationMs?: number;
   resolve(result: PaintResult): void;
   reject(error: Error): void;
 }
@@ -90,7 +96,14 @@ interface PerformanceHarness {
   renderSnapshot(recordCount: 500 | 2_000): Promise<PaintResult>;
   limits(): Omit<
     PaintResult,
-    'recordCount' | 'sequence' | 'durationMs' | 'validationDurationMs' | 'wireBytes'
+    | 'recordCount'
+    | 'sequence'
+    | 'durationMs'
+    | 'domStableDurationMs'
+    | 'mapStableDurationMs'
+    | 'validationDurationMs'
+    | 'wireBytes'
+    | 'visualFixtureKey'
   >;
 }
 
@@ -117,8 +130,9 @@ const session = new LiveAirspaceSession(
 session.beginFeed(BINDING);
 session.markConnected();
 
-function aircraft(index: number, observedAt: string): AircraftState {
+function aircraft(index: number, observedAt: string, motionStep = 0): AircraftState {
   const aircraftId = (0x100000 + index).toString(16).padStart(6, '0');
+  const motion = (motionStep % 32) * 0.000_05;
   return {
     aircraftId,
     identifierKind: 'icao24',
@@ -127,13 +141,14 @@ function aircraft(index: number, observedAt: string): AircraftState {
     aircraftType: 'TEST',
     category: 'A3',
     position: {
-      latitude: 33.2 + (index % 50) * 0.012,
-      longitude: -84.95 + (Math.floor(index / 50) % 40) * 0.012,
+      latitude: 33.2 + (index % 50) * 0.012 + motion,
+      longitude:
+        -84.95 + (Math.floor(index / 50) % 40) * 0.012 + (index % 2 === 0 ? motion : -motion),
     },
     barometricAltitudeFeet: 4_000 + (index % 300) * 100,
     geometricAltitudeFeet: 4_125 + (index % 300) * 100,
     groundSpeedKnots: 120 + (index % 420),
-    trackDegrees: index % 360,
+    trackDegrees: (index + motionStep) % 360,
     verticalRateFeetPerMinute: (index % 17) * 100 - 800,
     verticalRateBasis: 'barometric',
     onGround: false,
@@ -214,13 +229,18 @@ function validatedSnapshot(
 
 function finishPaint(pending: PendingPaint): void {
   if (pendingPaint !== pending || !pending.domStable || !pending.mapStable) return;
+  if (pending.domStableDurationMs === undefined || pending.mapStableDurationMs === undefined)
+    return;
   pendingPaint = undefined;
   pending.resolve({
     recordCount: pending.recordCount,
     sequence: pending.sequence,
     durationMs: performance.now() - pending.startedAt,
+    domStableDurationMs: pending.domStableDurationMs,
+    mapStableDurationMs: pending.mapStableDurationMs,
     validationDurationMs: pending.validationDurationMs,
     wireBytes: pending.wireBytes,
+    visualFixtureKey: pending.visualFixtureKey,
     ...currentLimits(session.state),
   });
 }
@@ -235,6 +255,7 @@ function PerformanceApplication() {
     const pending = pendingPaint;
     if (!pending || paintedSequence !== pending.sequence) return;
     pending.mapStable = true;
+    pending.mapStableDurationMs = performance.now() - pending.startedAt;
     finishPaint(pending);
   }, []);
 
@@ -247,6 +268,7 @@ function PerformanceApplication() {
       secondFrame = requestAnimationFrame(() => {
         if (pendingPaint !== pending) return;
         pending.domStable = true;
+        pending.domStableDurationMs = performance.now() - pending.startedAt;
         finishPaint(pending);
       });
     });
@@ -340,6 +362,7 @@ function PerformanceApplication() {
             startedAt: performance.now(),
             validationDurationMs: 0,
             wireBytes: 0,
+            visualFixtureKey: 'maximum-preparation',
             domStable: false,
             mapStable: false,
             resolve,
@@ -412,7 +435,7 @@ function PerformanceApplication() {
         wallNowMs = BASE_TIME_MS + sequence * 1_000;
         const generatedAt = new Date(wallNowMs).toISOString();
         const records = Array.from({ length: recordCount }, (_, index) =>
-          aircraft(index, generatedAt),
+          aircraft(index, generatedAt, sequence),
         );
         const validated = validatedSnapshot(
           records,
@@ -427,6 +450,7 @@ function PerformanceApplication() {
             startedAt: performance.now(),
             validationDurationMs: validated.validationDurationMs,
             wireBytes: validated.wireBytes,
+            visualFixtureKey: `${records[0]!.position!.latitude}:${records[0]!.position!.longitude}:${records[0]!.trackDegrees}`,
             domStable: false,
             mapStable: false,
             resolve,
