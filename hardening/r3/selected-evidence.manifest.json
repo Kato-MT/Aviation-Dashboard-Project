@@ -392,18 +392,18 @@
     ]
   },
   "source": {
-    "baseHead": "78b70f0f9445270640787672497386f9f6f5e52d",
+    "baseHead": "5ae0f1226061e4ff636386ba627a29bd3e586210",
     "dirty": true,
     "content": {
       "schemaVersion": "selected-r3-source-content.v1",
       "excludedPaths": ["hardening/r3/selected-evidence.manifest.json"],
       "fileCount": 565,
-      "totalBytes": 9220468,
+      "totalBytes": 9220476,
       "missingTrackedFileCount": 0,
       "trackedWorktreeMismatchCount": 0,
       "untrackedFileCount": 0,
       "indexDiffersFromHead": true,
-      "sha256": "1b832e79c5772ce65ecdd036b48d724a1a8cdd31263de9d005e1fd31379c6fae"
+      "sha256": "62be699068ef69a533de5bc201a0bcb855e2eb003a07b699418fe1772759bcd1"
     }
   },
   "evidence": {
@@ -422,8 +422,8 @@
       "Commit, push, hosted CI, retained-candidate, release, deployment, and publication proof."
     ],
     "fileCount": 94,
-    "totalBytes": 2775554,
-    "collectionSha256": "c6737f5e3367e331cf40712a7721fedc5cbf1673fc9ad5f22d11064c66b1a8ca",
+    "totalBytes": 2775562,
+    "collectionSha256": "c8244408a59bca8cd9fb5ce575756b52044170cae9a50bf7a7e49e1ad3ef9681",
     "files": [
       {
         "path": ".github/workflows/ci.yml",
@@ -762,8 +762,8 @@
       },
       {
         "path": "tests/worker/retention.test.ts",
-        "bytes": 29787,
-        "sha256": "b98d8dabe617829aad9801c0cfcc4c91201ffeaa2e3c5001693fc9bc8bcc3b3d"
+        "bytes": 29795,
+        "sha256": "a9ea6b4941cc6b758ea79ddbe0748d0a57f3bfd3bcdc7b64eb432329c66668d3"
       },
       {
         "path": "tests/worker/worker.test.ts",

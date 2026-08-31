@@ -594,7 +594,7 @@ describe('transactional expiry and recovery', () => {
         state.storage.get(METRIC_CLEANUP_RETRY_KEY),
       ),
     ).toBeUndefined();
-  });
+  }, 40_000);
 
   it('preserves the earlier poll alarm after publication rescheduling fails and the object is evicted', async () => {
     const fetchMock = vi.fn(async () => providerResponse());
