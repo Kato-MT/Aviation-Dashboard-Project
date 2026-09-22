@@ -281,6 +281,7 @@ export interface MutableMetrics {
   ackProbeTimeouts: number;
   ackProbeUnresolvedAtEnd: number;
   runtimeRestarts: number;
+  runtimeErrorCount: number;
   runtimeErrors: string[];
   clientErrors: string[];
   rejections: Rejection[];
@@ -293,7 +294,7 @@ export interface MutableMetrics {
   memory: MemorySample[];
 }
 
-interface ExpiryWakeObservation {
+export interface ExpiryWakeObservation {
   regionId: RegionId;
   stalledClientIndex: number;
   expectedDeadlineOffsetMs: number | null;
@@ -395,6 +396,14 @@ interface GateInputs {
 
 function recordBounded(target: string[], message: string): void {
   if (target.length < MAX_RECORDED_ERRORS) target.push(message.slice(0, 512));
+}
+
+export function recordRuntimeError(
+  metrics: Pick<MutableMetrics, 'runtimeErrorCount' | 'runtimeErrors'>,
+  message: string,
+): void {
+  metrics.runtimeErrorCount += 1;
+  recordBounded(metrics.runtimeErrors, message);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -696,6 +705,7 @@ export function freshMetrics(): MutableMetrics {
     ackProbeTimeouts: 0,
     ackProbeUnresolvedAtEnd: 0,
     runtimeRestarts: 0,
+    runtimeErrorCount: 0,
     runtimeErrors: [],
     clientErrors: [],
     rejections: [],
@@ -732,7 +742,7 @@ function clearPendingPing(client: ClientState): PendingPing | undefined {
   return pending;
 }
 
-function sendPingProbe(
+export function sendPingProbe(
   client: ClientState,
   purpose: PingPurpose,
   metrics: MutableMetrics,
@@ -763,14 +773,22 @@ function sendPingProbe(
   client.pendingPing = { requestId, sentAt, purpose, timeout, observation };
   client.lastPingAt = sentAt;
   metrics.ackProbesSent += 1;
+  let sendFailureRecorded = false;
   const sendFailed = (error: unknown) => {
-    if (observation.outcome !== 'pending') return;
-    if (client.pendingPing?.requestId === requestId) clearPendingPing(client);
-    observation.outcome = 'send-failed';
-    observation.completedAtMonotonicMs = performance.now();
+    if (sendFailureRecorded) return;
+    sendFailureRecorded = true;
+    const lateFailure = observation.outcome !== 'pending';
+    if (!lateFailure) {
+      if (client.pendingPing?.requestId === requestId) clearPendingPing(client);
+      observation.outcome = 'send-failed';
+      observation.completedAtMonotonicMs = performance.now();
+    }
     metrics.ackProbeSendFailures += 1;
     metrics.sendErrors += 1;
-    recordBounded(metrics.clientErrors, `Ping send failed: ${String(error)}`);
+    recordBounded(
+      metrics.clientErrors,
+      `${lateFailure ? 'Late ping send failure after terminal probe outcome' : 'Ping send failed'}: ${String(error)}`,
+    );
   };
   try {
     client.socket.send(pingWire(requestId), (error) => {
@@ -779,7 +797,32 @@ function sendPingProbe(
   } catch (error) {
     sendFailed(error);
   }
-  return true;
+  return !sendFailureRecorded;
+}
+
+export function finalizeExpiryWakeObservations(
+  observations: readonly ExpiryWakeObservation[],
+  clients: readonly {
+    index: number;
+    expectedClose?: { observedAtMonotonicMs: number };
+  }[],
+  runStartedAtMonotonicMs: number,
+  teardownStartedAtMonotonicMs: number,
+): ExpiryWakeObservation[] {
+  const clientsByIndex = new Map(clients.map((client) => [client.index, client]));
+  return observations.map((observation) => {
+    const close = clientsByIndex.get(observation.stalledClientIndex)?.expectedClose;
+    const observedBeforeTeardown =
+      close !== undefined && close.observedAtMonotonicMs <= teardownStartedAtMonotonicMs;
+    return {
+      ...observation,
+      closeObservedBeforeTeardown: observedBeforeTeardown,
+      wakeToCloseMs:
+        observedBeforeTeardown && observation.wakeSentAtOffsetMs !== null
+          ? close.observedAtMonotonicMs - runStartedAtMonotonicMs - observation.wakeSentAtOffsetMs
+          : null,
+    };
+  });
 }
 
 function scheduleAcknowledgment(
@@ -2043,16 +2086,19 @@ function hardGates(input: GateInputs): HardGate[] {
         expiryWakeObservations.length === stalledClients.length &&
         stalledClients.every(
           (client) =>
-            client.expectedClose === undefined ||
-            (client.expectedClose.code === EXPECTED_STALL_CLOSE_CODE &&
-              client.expectedClose.reason === EXPECTED_STALL_CLOSE_REASON &&
-              client.expectedClose.elapsedFromReceiptMs >= LIVE_DELIVERY_ACK_TIMEOUT_MS),
+            client.expectedClose !== undefined &&
+            client.expectedClose.code === EXPECTED_STALL_CLOSE_CODE &&
+            client.expectedClose.reason === EXPECTED_STALL_CLOSE_REASON &&
+            client.expectedClose.elapsedFromReceiptMs >= LIVE_DELIVERY_ACK_TIMEOUT_MS,
         ) &&
         expiryWakeObservations.every(
           (observation) =>
             observation.expectedDeadlineOffsetMs !== null &&
             observation.wakeSentAtOffsetMs !== null &&
-            observation.wakeSentAtOffsetMs >= observation.expectedDeadlineOffsetMs,
+            observation.wakeSentAtOffsetMs >= observation.expectedDeadlineOffsetMs &&
+            observation.closeObservedBeforeTeardown &&
+            observation.wakeToCloseMs !== null &&
+            observation.wakeToCloseMs >= 0,
         ) &&
         (stalledClients.length === 0 ||
           (definition.viewersPerRegion === MAX_REGIONAL_VIEWERS &&
@@ -2177,7 +2223,7 @@ function hardGates(input: GateInputs): HardGate[] {
         metrics.providerErrorMessages === 0 &&
         metrics.unexpectedCloses === 0 &&
         metrics.clientErrors.length === 0 &&
-        metrics.runtimeErrors.length === 0 &&
+        metrics.runtimeErrorCount === 0 &&
         metrics.runtimeRestarts === 0,
       detail:
         'No protocol, send, provider, close, structured-runtime, or restart error was observed.',
@@ -2317,7 +2363,7 @@ async function runDefinition(
     telemetry: { enabled: false },
     handleStructuredLogs(log: V4WorkerdStructuredLog) {
       if (['error', 'fatal'].includes(log.level.toLowerCase())) {
-        recordBounded(metrics.runtimeErrors, log.message);
+        recordRuntimeError(metrics, log.message);
       }
     },
     unsafeHandleRuntimeRestart() {
@@ -2488,13 +2534,13 @@ async function runDefinition(
         const stoppedSampler = await sampler.stop();
         memoryMissedScheduledSlots = stoppedSampler.missedScheduledSlots;
       } catch (error) {
-        recordBounded(metrics.runtimeErrors, `Memory sampler stop: ${String(error)}`);
+        recordRuntimeError(metrics, `Memory sampler stop: ${String(error)}`);
       }
     }
     if (workerdSampler) memoryClose = await workerdSampler.close();
     eventLoop.disable();
     await miniflare.dispose().catch((error: unknown) => {
-      recordBounded(metrics.runtimeErrors, `Miniflare disposal: ${String(error)}`);
+      recordRuntimeError(metrics, `Miniflare disposal: ${String(error)}`);
     });
     await rm(resourceTmpPath, { recursive: true, force: true });
   }
@@ -2572,6 +2618,12 @@ async function runDefinition(
           scenario.memorySampleIntervalMs,
         )
       : null;
+  const expiryWakeObservations = finalizeExpiryWakeObservations(
+    expiryExercise.observations,
+    clients,
+    startMonotonic,
+    teardownStartedAt,
+  );
   const gates = hardGates({
     definition,
     scenario,
@@ -2580,7 +2632,7 @@ async function runDefinition(
     measurement,
     invalidProviderCalls,
     representativeProviderResponseBytes: provider.representativeResponseBytes,
-    expiryWakeObservations: expiryExercise.observations,
+    expiryWakeObservations,
     providerCallsBeforeReconnect: expiryExercise.providerCallsBeforeReconnect,
     providerCallsAfterReconnect: expiryExercise.providerCallsAfterReconnect,
     reconnectProviderObservation: expiryExercise.reconnectProviderObservation,
@@ -2728,7 +2780,7 @@ async function runDefinition(
       scope:
         'Only complete provider sequences strictly after the drained start watermark and at or before the end watermark contribute to snapshot ACK and latency statistics. Receipt-to-callback is client validation, configured delay, and ws.send callback time; it is not server acknowledgment. A matched probe must identify the exact preceding complete-sequence snapshot ACK; its pong proves the server processed that ACK and is a conservative upper bound, not internal server time.',
     },
-    expiryWake: expiryExercise,
+    expiryWake: { ...expiryExercise, observations: expiryWakeObservations },
     stalledViewers: clients
       .filter((client) => client.stalled)
       .map((client) => ({
@@ -2769,6 +2821,7 @@ async function runDefinition(
       ackProbeUnresolvedAtEnd: metrics.ackProbeUnresolvedAtEnd,
       runtimeRestarts: metrics.runtimeRestarts,
       externalEgressAttempts,
+      runtimeErrorCount: metrics.runtimeErrorCount,
       runtime: metrics.runtimeErrors,
       client: metrics.clientErrors,
     },
@@ -2889,9 +2942,13 @@ export async function runLoadHarness(argv: readonly string[]) {
             : {
                 before: artifact.candidateBefore,
                 after: artifactAfter.candidateAfter,
+                treeBefore: artifact.candidateTreeBefore,
+                treeAfter: artifactAfter.candidateTreeAfter,
                 unchanged:
                   JSON.stringify(artifact.candidateBefore) ===
-                  JSON.stringify(artifactAfter.candidateAfter),
+                    JSON.stringify(artifactAfter.candidateAfter) &&
+                  JSON.stringify(artifact.candidateTreeBefore) ===
+                    JSON.stringify(artifactAfter.candidateTreeAfter),
               },
         gate: artifactAfter.gate,
       },

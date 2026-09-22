@@ -295,10 +295,48 @@ describe('load-harness artifact input', () => {
         releaseSha: HEAD,
         retainedArtifactSha256: identity.sha256,
       },
+      candidateTreeBefore: {
+        schemaVersion: 'sha256-file-inventory.v1',
+      },
     });
     expect(completed).toMatchObject({
+      candidateTreeAfter: resolved.candidateTreeBefore,
       unchanged: true,
       gate: { id: 'immutable-artifact-input', passed: true },
+    });
+  });
+
+  it('detects retained-candidate metadata mutation even when artifact bytes stay stable', async () => {
+    const repository = await temporaryRepository();
+    const rawArtifact = await writeArtifact(repository);
+    const candidate = join(repository, 'candidate');
+    await mkdir(candidate);
+    await cp(rawArtifact, join(candidate, 'artifact'), { recursive: true });
+    const cleanSource = sourceIdentity({
+      dirty: false,
+      gitStatus: { format: 'porcelain-v1-z', bytes: 0, sha256: SHA_A },
+    });
+    const identity = await captureArtifactTreeIdentity(rawArtifact);
+    const provenance = retainedProvenance(cleanSource, identity.sha256);
+    const verifyCandidate = vi.fn(async () => provenance);
+    const resolved = await resolveLoadArtifactInput(
+      { mode: 'retained-candidate', path: 'candidate' },
+      repository,
+      cleanSource,
+      {
+        verifyCandidate,
+        selectionExpectation: { expectedSelectionRecordSha256: SHA_A },
+      },
+    );
+
+    await writeFile(join(candidate, 'checksums.sha256'), `${SHA_A}  artifact/client/index.html\n`);
+    const completed = await completeLoadArtifactInput(resolved, cleanSource, { verifyCandidate });
+
+    expect(completed.identityAfter).toEqual(resolved.identityBefore);
+    expect(completed.candidateTreeAfter).not.toEqual(resolved.candidateTreeBefore);
+    expect(completed).toMatchObject({
+      unchanged: false,
+      gate: { id: 'immutable-artifact-input', passed: false },
     });
   });
 

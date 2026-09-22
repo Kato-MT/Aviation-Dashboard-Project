@@ -6,9 +6,12 @@ import {
   buildMeasurementEvidence,
   captureSequenceWatermarkAtBoundary,
   expectedMemorySchedule,
+  finalizeExpiryWakeObservations,
   freezeAndDrainAcknowledgments,
   freshMetrics,
   loadHarnessClientOrigin,
+  recordRuntimeError,
+  sendPingProbe,
   startMemorySampler,
   type DeliveryFrameReceipt,
   type MeasurementClient,
@@ -279,6 +282,168 @@ describe('load-harness bounded ACK drain', () => {
 
     await expect(drained).resolves.toBe(false);
     expect(clients[0]!.acceptingAcknowledgments).toBe(false);
+  });
+});
+
+describe('load-harness probe send accounting', () => {
+  beforeEach(() => {
+    monotonicMs = 0;
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    vi.spyOn(monotonicClock, 'now').mockImplementation(() => monotonicMs);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it('retains a timeout outcome while separately counting a late send failure', async () => {
+    const metrics = freshMetrics();
+    let sendCallback: ((error?: Error) => void) | undefined;
+    const probeClient = {
+      index: 7,
+      socket: {
+        readyState: 1,
+        send: vi.fn((_wire: string, callback: (error?: Error) => void) => {
+          sendCallback = callback;
+        }),
+      },
+      pendingPing: undefined,
+      pingCounter: 0,
+      lastPingAt: Number.NEGATIVE_INFINITY,
+    };
+
+    expect(sendPingProbe(probeClient as never, 'post-deadline-wake', metrics)).toBe(true);
+    await advanceMonotonicTimeBy(5_000);
+    expect(metrics.probeObservations[0]?.outcome).toBe('timed-out');
+
+    sendCallback?.(new Error('late socket callback'));
+
+    expect(metrics.probeObservations[0]?.outcome).toBe('timed-out');
+    expect(metrics.ackProbeTimeouts).toBe(1);
+    expect(metrics.ackProbeSendFailures).toBe(1);
+    expect(metrics.sendErrors).toBe(1);
+    expect(metrics.clientErrors).toContain(
+      'Late ping send failure after terminal probe outcome: late socket callback',
+    );
+  });
+
+  it('returns false and cancels the timeout when the send callback fails synchronously', async () => {
+    const metrics = freshMetrics();
+    const probeClient = {
+      index: 8,
+      socket: {
+        readyState: 1,
+        send: vi.fn((_wire: string, callback: (error?: Error) => void) => {
+          callback(new Error('synchronous callback failure'));
+        }),
+      },
+      pendingPing: undefined,
+      pingCounter: 0,
+      lastPingAt: Number.NEGATIVE_INFINITY,
+    };
+
+    expect(sendPingProbe(probeClient as never, 'post-deadline-wake', metrics)).toBe(false);
+    expect(probeClient.pendingPing).toBeUndefined();
+    expect(metrics.probeObservations[0]?.outcome).toBe('send-failed');
+    expect(metrics.ackProbeSendFailures).toBe(1);
+    expect(metrics.sendErrors).toBe(1);
+
+    await advanceMonotonicTimeBy(5_000);
+    expect(metrics.ackProbeTimeouts).toBe(0);
+  });
+
+  it('returns false and cancels the timeout when socket.send throws synchronously', async () => {
+    const metrics = freshMetrics();
+    const probeClient = {
+      index: 9,
+      socket: {
+        readyState: 1,
+        send: vi.fn(() => {
+          throw new Error('synchronous throw');
+        }),
+      },
+      pendingPing: undefined,
+      pingCounter: 0,
+      lastPingAt: Number.NEGATIVE_INFINITY,
+    };
+
+    expect(sendPingProbe(probeClient as never, 'post-deadline-wake', metrics)).toBe(false);
+    expect(probeClient.pendingPing).toBeUndefined();
+    expect(metrics.probeObservations[0]?.outcome).toBe('send-failed');
+    expect(metrics.ackProbeSendFailures).toBe(1);
+    expect(metrics.sendErrors).toBe(1);
+
+    await advanceMonotonicTimeBy(5_000);
+    expect(metrics.ackProbeTimeouts).toBe(0);
+  });
+});
+
+describe('load-harness runtime error accounting', () => {
+  it('keeps an exact count while bounding retained message samples', () => {
+    const metrics = freshMetrics();
+
+    for (let index = 0; index < 40; index += 1) {
+      recordRuntimeError(metrics, `runtime error ${index}`);
+    }
+
+    expect(metrics.runtimeErrorCount).toBe(40);
+    expect(metrics.runtimeErrors).toHaveLength(32);
+    expect(metrics.runtimeErrors.at(-1)).toBe('runtime error 31');
+  });
+});
+
+describe('load-harness stalled-viewer close evidence', () => {
+  it('refreshes a delayed close observed before teardown without mutating the early snapshot', () => {
+    const early = [
+      {
+        regionId: 'atlanta' as const,
+        stalledClientIndex: 4,
+        expectedDeadlineOffsetMs: 400,
+        wakeSentAtOffsetMs: 500,
+        wakeToCloseMs: null,
+        closeObservedBeforeTeardown: false,
+      },
+    ];
+
+    const finalized = finalizeExpiryWakeObservations(
+      early,
+      [{ index: 4, expectedClose: { observedAtMonotonicMs: 1_650 } }],
+      1_000,
+      2_000,
+    );
+
+    expect(finalized[0]).toMatchObject({
+      closeObservedBeforeTeardown: true,
+      wakeToCloseMs: 150,
+    });
+    expect(early[0]).toMatchObject({
+      closeObservedBeforeTeardown: false,
+      wakeToCloseMs: null,
+    });
+  });
+
+  it('does not claim a close first observed after teardown', () => {
+    const finalized = finalizeExpiryWakeObservations(
+      [
+        {
+          regionId: 'atlanta',
+          stalledClientIndex: 4,
+          expectedDeadlineOffsetMs: 400,
+          wakeSentAtOffsetMs: 500,
+          wakeToCloseMs: null,
+          closeObservedBeforeTeardown: false,
+        },
+      ],
+      [{ index: 4, expectedClose: { observedAtMonotonicMs: 2_100 } }],
+      1_000,
+      2_000,
+    );
+
+    expect(finalized[0]).toMatchObject({
+      closeObservedBeforeTeardown: false,
+      wakeToCloseMs: null,
+    });
   });
 });
 

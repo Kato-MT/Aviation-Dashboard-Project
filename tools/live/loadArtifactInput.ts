@@ -6,7 +6,10 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 import {
+  captureCandidateTreeIdentity,
+  sameCandidateTreeIdentity,
   verifyRetainedCandidate,
+  type CandidateTreeIdentity,
   type RetainedCandidateProvenance,
   type SourceIdentity,
   type VerifyCandidateOptions,
@@ -45,6 +48,7 @@ export interface ResolvedLoadArtifactInput {
   protectedRoots: readonly string[];
   identityBefore: ArtifactTreeIdentity;
   candidateBefore: CandidateLoadIdentity | null;
+  candidateTreeBefore: CandidateTreeIdentity | null;
   candidateRoot: string | null;
   candidateSelection: CandidateSelectionExpectation | null;
 }
@@ -85,6 +89,7 @@ export interface ResolvedLoadHarnessOutput {
 export interface CompletedLoadArtifactInput {
   identityAfter: ArtifactTreeIdentity;
   candidateAfter: CandidateLoadIdentity | null;
+  candidateTreeAfter: CandidateTreeIdentity | null;
   unchanged: boolean;
   gate: {
     id: 'immutable-artifact-input';
@@ -483,6 +488,7 @@ export async function resolveLoadArtifactInput(
   let artifactPath = selected.reportPath;
   let candidateRoot: string | null = null;
   let candidateBefore: CandidateLoadIdentity | null = null;
+  let candidateTreeBefore: CandidateTreeIdentity | null = null;
   let candidateSelection: CandidateSelectionExpectation | null = null;
 
   if (request.mode === 'retained-candidate') {
@@ -512,6 +518,9 @@ export async function resolveLoadArtifactInput(
   ) {
     throw new Error('Retained candidate artifact identity does not match verified provenance.');
   }
+  if (candidateRoot !== null) {
+    candidateTreeBefore = await captureCandidateTreeIdentity(candidateRoot);
+  }
 
   const workerRoot = join(artifactRoot, 'airspace_worker');
   return {
@@ -525,6 +534,7 @@ export async function resolveLoadArtifactInput(
     protectedRoots: candidateRoot === null ? [artifactRoot] : [candidateRoot],
     identityBefore,
     candidateBefore,
+    candidateTreeBefore,
     candidateRoot,
     candidateSelection,
   };
@@ -548,12 +558,19 @@ export async function completeLoadArtifactInput(
     candidateAfter = candidateIdentity(provenance, sourceBefore);
   }
   const identityAfter = await captureArtifactTreeIdentity(input.artifactRoot);
+  const candidateTreeAfter =
+    input.candidateRoot === null ? null : await captureCandidateTreeIdentity(input.candidateRoot);
   const unchanged =
     sameArtifactTreeIdentity(input.identityBefore, identityAfter) &&
-    sameCandidateIdentity(input.candidateBefore, candidateAfter);
+    sameCandidateIdentity(input.candidateBefore, candidateAfter) &&
+    (input.candidateTreeBefore === null
+      ? candidateTreeAfter === null
+      : candidateTreeAfter !== null &&
+        sameCandidateTreeIdentity(input.candidateTreeBefore, candidateTreeAfter));
   return {
     identityAfter,
     candidateAfter,
+    candidateTreeAfter,
     unchanged,
     gate: {
       id: 'immutable-artifact-input',
