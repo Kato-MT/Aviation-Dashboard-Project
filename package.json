@@ -41,6 +41,10 @@
     "checksums": "node scripts/release/generate-checksums.mjs dist",
     "validate": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm test:python && pnpm requirements:check && pnpm build && pnpm build:offline"
   },
+  "resolutions": {
+    "brace-expansion": "^5.0.9",
+    "fast-uri": "^3.1.6"
+  },
   "dependencies": {
     "@fontsource/inter": "5.2.8",
     "@fontsource/jetbrains-mono": "5.2.8",
@@ -59,8 +63,10 @@
     "@types/papaparse": "5.5.2",
     "@types/ws": "8.18.1",
     "@vitest/coverage-v8": "4.1.10",
+    "brace-expansion": "^5.0.12",
     "eslint": "10.8.0",
     "fast-check": "4.9.0",
+    "fast-uri": "^3.1.8",
     "jsdom": "30.0.1",
     "prettier": "3.9.6",
     "tsx": "4.23.1",
