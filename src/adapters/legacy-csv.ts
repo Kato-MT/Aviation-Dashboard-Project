@@ -163,7 +163,15 @@ export class LegacyCsvAdapter implements TelemetryAdapter<string> {
       }
     }
 
-    const duplicateHeaders = headers.filter((header, index) => headers.indexOf(header) !== index);
+    const seenHeaders = new Set<string>();
+    const duplicateHeaders: string[] = [];
+    for (const header of headers) {
+      if (seenHeaders.has(header)) {
+        duplicateHeaders.push(header);
+      } else {
+        seenHeaders.add(header);
+      }
+    }
     if (duplicateHeaders.length > 0) {
       validationIssues.push({
         code: 'MALFORMED_CSV',
