@@ -27,7 +27,9 @@ describe('sourceProfileFromJson', () => {
     expect(profileNoVersion).toBeDefined();
     expect(profileNoVersion?.id).toBe('generic-fixed-wing');
 
-    const profileNumVersion = sourceProfileFromJson('{"profile": {"id": "generic-fixed-wing", "version": 123}}');
+    const profileNumVersion = sourceProfileFromJson(
+      '{"profile": {"id": "generic-fixed-wing", "version": 123}}',
+    );
     expect(profileNumVersion).toBeDefined();
     expect(profileNumVersion?.id).toBe('generic-fixed-wing');
   });
