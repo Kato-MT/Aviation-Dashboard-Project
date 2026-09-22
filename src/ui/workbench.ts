@@ -107,7 +107,7 @@ function isProfileId(value: unknown): value is string {
   return typeof value === 'string' && getDetectionProfile(value) !== undefined;
 }
 
-function sourceProfileFromJson(text: string): DetectionProfile | undefined {
+export function sourceProfileFromJson(text: string): DetectionProfile | undefined {
   try {
     const parsed = JSON.parse(text) as { profile?: { id?: unknown; version?: unknown } };
     if (!isProfileId(parsed.profile?.id)) return undefined;
