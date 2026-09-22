@@ -1,13 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest';
-import {
-  byId,
-  downloadText,
-  formatNumber,
-  formatObserved,
-  setText,
-  slug,
-} from '../../src/ui/dom';
+import { byId, downloadText, formatNumber, formatObserved, setText, slug } from '../../src/ui/dom';
 
 describe('src/ui/dom', () => {
   describe('formatObserved', () => {
@@ -82,7 +75,9 @@ describe('src/ui/dom', () => {
     it('byId returns element if found and throws if not found', () => {
       document.body.innerHTML = '<div id="test-div">hello</div>';
       expect(byId('test-div')).toBeInstanceOf(HTMLElement);
-      expect(() => byId('non-existent')).toThrow('Required interface element #non-existent was not found.');
+      expect(() => byId('non-existent')).toThrow(
+        'Required interface element #non-existent was not found.',
+      );
     });
 
     it('setText sets textContent of specified element by id', () => {
