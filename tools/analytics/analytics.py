@@ -439,7 +439,7 @@ def run_analytical_queries(
     connection: sqlite3.Connection, queries_path: Path = DEFAULT_QUERIES
 ) -> dict[str, list[dict[str, Any]]]:
     return {
-        name: [dict(row) for row in connection.execute(sql)]
+        name: [dict(row) for row in connection.execute(sql, ())]
         for name, sql in load_named_queries(queries_path).items()
     }
 
