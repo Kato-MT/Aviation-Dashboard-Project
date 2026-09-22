@@ -538,23 +538,38 @@ function simpleRuleFindings(rule: DetectionRule, samples: TelemetrySample[]): Fi
   }
 
   if (rule.kind === 'window-decrease') {
+    let startIndex = 0;
     for (let index = 1; index < samples.length; index += 1) {
       const current = samples[index]!;
       const targetTimestamp = current.timestampMs - rule.windowMs;
-      let nearest: TelemetrySample | undefined;
-      let nearestDistance = Number.POSITIVE_INFINITY;
 
-      for (let priorIndex = index - 1; priorIndex >= 0; priorIndex -= 1) {
-        const candidate = samples[priorIndex]!;
-        const distance = Math.abs(candidate.timestampMs - targetTimestamp);
-        if (distance < nearestDistance) {
-          nearest = candidate;
-          nearestDistance = distance;
-        }
-        if (candidate.timestampMs < targetTimestamp - rule.toleranceMs) break;
+      if (startIndex >= index) {
+        startIndex = index - 1;
       }
 
-      if (!nearest || nearestDistance > rule.toleranceMs) continue;
+      while (
+        startIndex > 0 &&
+        Math.abs(samples[startIndex - 1]!.timestampMs - targetTimestamp) <
+          Math.abs(samples[startIndex]!.timestampMs - targetTimestamp)
+      ) {
+        startIndex -= 1;
+      }
+
+      let currentDistance = Math.abs(samples[startIndex]!.timestampMs - targetTimestamp);
+      while (startIndex + 1 < index) {
+        const nextDistance = Math.abs(samples[startIndex + 1]!.timestampMs - targetTimestamp);
+        if (nextDistance <= currentDistance) {
+          startIndex += 1;
+          currentDistance = nextDistance;
+        } else {
+          break;
+        }
+      }
+
+      const nearest = samples[startIndex]!;
+      const nearestDistance = currentDistance;
+
+      if (nearestDistance > rule.toleranceMs) continue;
       const previousValue = nearest.measurements[rule.channel];
       const currentValue = current.measurements[rule.channel];
       if (
