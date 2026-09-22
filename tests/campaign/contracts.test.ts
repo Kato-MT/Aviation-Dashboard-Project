@@ -127,7 +127,16 @@ describe('campaign contracts and metric edge cases', () => {
   });
 
   it('rejects malformed JSON and unsupported result versions', () => {
-    expect(() => parseCampaignResult('{')).toThrow('not valid JSON');
+    let caughtError: unknown;
+    try {
+      parseCampaignResult('{');
+    } catch (error) {
+      caughtError = error;
+    }
+    expect(caughtError).toBeInstanceOf(Error);
+    expect((caughtError as Error).message).toBe('Campaign result is not valid JSON.');
+    expect((caughtError as Error).cause).toBeInstanceOf(SyntaxError);
+
     expect(() =>
       parseCampaignResult(
         JSON.stringify({
