@@ -48,6 +48,17 @@ function expectDeeplyFrozen(value: unknown, visited = new WeakSet<object>()): vo
 describe('runtime-policy numeric contract', () => {
   it('is one versioned, deeply immutable limits tree', () => {
     expect(RUNTIME_POLICY_LIMITS.schemaVersion).toBe(RUNTIME_POLICY_LIMITS_SCHEMA_VERSION);
+    expect(RUNTIME_POLICY_LIMITS_SCHEMA_VERSION).toBe('runtime-policy-limits.v3');
+    expect(RUNTIME_POLICY_LIMITS.browser.performance).toMatchObject({
+      performanceProfileId: 'airspace-browser-performance.strict.v3',
+      paintWarmups: 5,
+      paintIterations: 30,
+      paintBlocks: 3,
+      paintP95Ms: { desktop: 500, mobile: 750 },
+      interactionWarmups: 2,
+      interactionIterations: 20,
+      interactionP95Ms: { desktop: 1_000, mobile: 1_000 },
+    });
     expectDeeplyFrozen(RUNTIME_POLICY_LIMITS);
     expect(() => {
       (RUNTIME_POLICY_LIMITS.provider as unknown as { pollIntervalMs: number }).pollIntervalMs = 1;

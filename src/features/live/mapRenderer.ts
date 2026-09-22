@@ -117,6 +117,7 @@ export function createMapRenderer(
       maxZoom: 12,
       maxPitch: 0,
       dragRotate: false,
+      fadeDuration: 0,
       attributionControl: false,
       renderWorldCopies: false,
       cooperativeGestures: true,

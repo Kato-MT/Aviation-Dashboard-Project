@@ -213,6 +213,16 @@ describe('MapLibre effect ownership and failure boundaries', () => {
     );
   });
 
+  it('disables MapLibre symbol fading at construction', () => {
+    create();
+    expect(engine.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fadeDuration: 0,
+        style: expect.objectContaining({ transition: { duration: 0, delay: 0 } }),
+      }),
+    );
+  });
+
   it('reports an unchanged map frame on the next presented animation frame', () => {
     const owner = create();
     map.emit('load');

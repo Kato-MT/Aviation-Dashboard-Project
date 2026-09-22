@@ -3,7 +3,7 @@ import {
   LIVE_PILOT_POLL_INTERVAL_MS,
 } from './pilotEnvelope';
 
-export const RUNTIME_POLICY_LIMITS_SCHEMA_VERSION = 'runtime-policy-limits.v2' as const;
+export const RUNTIME_POLICY_LIMITS_SCHEMA_VERSION = 'runtime-policy-limits.v3' as const;
 
 function deepFreeze<T>(value: T, visited = new WeakSet<object>()): Readonly<T> {
   if (typeof value !== 'object' || value === null || visited.has(value)) return value;
@@ -83,10 +83,14 @@ export const RUNTIME_POLICY_LIMITS = deepFreeze({
       lazyMapGzipBytes: 500 * 1024,
     },
     performance: {
+      performanceProfileId: 'airspace-browser-performance.strict.v3',
       paintWarmups: 5,
       paintIterations: 30,
+      paintBlocks: 3,
       paintP95Ms: { desktop: 500, mobile: 750 },
-      interactionLimitMs: { desktop: 1_000, mobile: 1_000 },
+      interactionWarmups: 2,
+      interactionIterations: 20,
+      interactionP95Ms: { desktop: 1_000, mobile: 1_000 },
       ageTickLimitMs: { desktop: 250, mobile: 375 },
       browserJsHeapBytes: 512 * 1024 * 1024,
       ageTickJsHeapGrowthBytes: 16 * 1024 * 1024,

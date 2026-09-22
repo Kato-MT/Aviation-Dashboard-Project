@@ -619,7 +619,7 @@
     },
     "limits": {
       "const": {
-        "schemaVersion": "runtime-policy-limits.v2",
+        "schemaVersion": "runtime-policy-limits.v3",
         "protocol": {
           "maximumMessageBytes": 2097152,
           "maximumAircraft": 2000,
@@ -682,10 +682,14 @@
             "lazyMapGzipBytes": 512000
           },
           "performance": {
+            "performanceProfileId": "airspace-browser-performance.strict.v3",
             "paintWarmups": 5,
             "paintIterations": 30,
+            "paintBlocks": 3,
             "paintP95Ms": { "desktop": 500, "mobile": 750 },
-            "interactionLimitMs": { "desktop": 1000, "mobile": 1000 },
+            "interactionWarmups": 2,
+            "interactionIterations": 20,
+            "interactionP95Ms": { "desktop": 1000, "mobile": 1000 },
             "ageTickLimitMs": { "desktop": 250, "mobile": 375 },
             "browserJsHeapBytes": 536870912,
             "ageTickJsHeapGrowthBytes": 16777216,

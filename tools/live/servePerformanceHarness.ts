@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { constants, createReadStream } from 'node:fs';
-import { lstat, mkdir, open, readFile, readdir, rename, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, open, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { createServer, type ServerResponse } from 'node:http';
 import { extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,13 +12,13 @@ import { findMapAsset, MAP_ID, MAX_MAP_RANGE_BYTES } from '../../src/map/assets'
 import { parseByteRange } from '../../src/map/ranges';
 import { runtimePolicyCanonicalJson } from '../../src/live/runtimePolicy';
 import { RUNTIME_POLICY_LIMITS } from '../../src/live/runtimePolicyLimits';
-import { PERFORMANCE_CLIENT_OUTDIR } from '../../vite.performance.config';
 import { captureArtifactTreeIdentity, sameArtifactTreeIdentity } from './loadArtifactInput';
-import type { PerformanceServerIdentity } from './performanceContract';
+import { requirePerformanceRunPaths, type PerformanceServerIdentity } from './performanceContract';
 import { captureSourceIdentity, sameSourceIdentity } from './retainCandidate';
 
 const REPOSITORY_ROOT = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const MAP_ROOT = join(REPOSITORY_ROOT, '.map-data', MAP_ID);
+const PERFORMANCE_RUN_PATHS = requirePerformanceRunPaths(REPOSITORY_ROOT, process.env);
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "script-src 'self'",
@@ -58,10 +58,6 @@ function port(): number {
     throw new Error('LIVE_TEST_PORT is invalid.');
   }
   return parsed;
-}
-
-function privateIdentityPath(listenPort: number): string {
-  return join(REPOSITORY_ROOT, '.tmp-tests', `performance-server-identity-${listenPort}.json`);
 }
 
 function contentType(path: string): string {
@@ -148,10 +144,29 @@ async function verifyMapFiles(): Promise<{
   readonly files: ReadonlyMap<string, VerifiedMapFile>;
   readonly identity: PerformanceServerIdentity['map'];
 }> {
+  if (
+    mapManifest.schemaVersion !== 'map-assets.v1' ||
+    mapManifest.id !== MAP_ID ||
+    !Number.isSafeInteger(mapManifest.totalBytes) ||
+    mapManifest.totalBytes < 0 ||
+    !Array.isArray(mapManifest.assets) ||
+    mapManifest.assets.length < 1
+  ) {
+    throw new Error('Local performance map manifest identity is invalid.');
+  }
   const files = new Map<string, VerifiedMapFile>();
   const identityHash = createHash('sha256');
   identityHash.update('airspace-performance-map.v1\0');
   for (const asset of mapManifest.assets) {
+    if (
+      typeof asset.path !== 'string' ||
+      asset.path.length < 1 ||
+      !Number.isSafeInteger(asset.bytes) ||
+      asset.bytes < 0 ||
+      !/^[a-f0-9]{64}$/u.test(asset.sha256)
+    ) {
+      throw new Error('Local performance map manifest asset identity is invalid.');
+    }
     const path = within(MAP_ROOT, join(MAP_ROOT, ...asset.path.split('/')));
     const status = await lstat(path);
     if (!status.isFile() || status.isSymbolicLink() || status.size !== asset.bytes) {
@@ -231,9 +246,11 @@ async function main(): Promise<void> {
   if (!sameSourceIdentity(sourceBefore, sourceAfter)) {
     throw new Error('Source changed while the optimized performance harness was built.');
   }
-  const optimizedClient = await captureArtifactTreeIdentity(PERFORMANCE_CLIENT_OUTDIR);
-  const staticAssets = await loadStaticAssets(PERFORMANCE_CLIENT_OUTDIR);
-  const optimizedClientAfterLoad = await captureArtifactTreeIdentity(PERFORMANCE_CLIENT_OUTDIR);
+  const optimizedClient = await captureArtifactTreeIdentity(PERFORMANCE_RUN_PATHS.clientOutput);
+  const staticAssets = await loadStaticAssets(PERFORMANCE_RUN_PATHS.clientOutput);
+  const optimizedClientAfterLoad = await captureArtifactTreeIdentity(
+    PERFORMANCE_RUN_PATHS.clientOutput,
+  );
   if (!sameArtifactTreeIdentity(optimizedClient, optimizedClientAfterLoad)) {
     throw new Error('Optimized performance output changed while it was loaded.');
   }
@@ -341,14 +358,19 @@ async function main(): Promise<void> {
     server.once('error', reject);
     server.listen(listenPort, '127.0.0.1', () => accept());
   });
-  await mkdir(join(REPOSITORY_ROOT, '.tmp-tests'), { recursive: true });
-  const identityPath = privateIdentityPath(listenPort);
+  await mkdir(PERFORMANCE_RUN_PATHS.identityDirectory, { recursive: true });
+  const identityPath = PERFORMANCE_RUN_PATHS.serverIdentity;
   const temporaryIdentityPath = `${identityPath}.${process.pid}.tmp`;
-  await writeFile(temporaryIdentityPath, `${JSON.stringify(identity)}\n`, {
-    encoding: 'utf8',
-    flag: 'wx',
-  });
-  await rename(temporaryIdentityPath, identityPath);
+  try {
+    await writeFile(temporaryIdentityPath, `${JSON.stringify(identity)}\n`, {
+      encoding: 'utf8',
+      flag: 'wx',
+    });
+    await rename(temporaryIdentityPath, identityPath);
+  } catch (error) {
+    await rm(temporaryIdentityPath, { force: true }).catch(() => undefined);
+    throw error;
+  }
   identityPublished = true;
   process.stdout.write(
     `Optimized performance harness ready on loopback; client ${optimizedClient.sha256}; map ${map.identity.sha256}.\n`,

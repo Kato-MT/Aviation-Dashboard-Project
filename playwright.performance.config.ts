@@ -1,5 +1,15 @@
+import { resolve } from 'node:path';
+
 import { defineConfig, devices } from '@playwright/test';
 import { LIVE_TEST_HTTP_ORIGIN, LIVE_TEST_PORT } from './tests/live-browser/testOrigin';
+import {
+  performanceRunEnvironment,
+  PERFORMANCE_ENVIRONMENT_ELIGIBILITY_CONTRACT,
+  requirePerformanceRunPaths,
+} from './tools/live/performanceContract';
+
+const REPOSITORY_ROOT = resolve(import.meta.dirname);
+const PERFORMANCE_RUN_PATHS = requirePerformanceRunPaths(REPOSITORY_ROOT, process.env);
 
 if (process.env.PLAYWRIGHT_NO_COPY_PROMPT !== '1') {
   throw new Error(
@@ -15,9 +25,12 @@ export default defineConfig({
   timeout: 180_000,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
+  metadata: {
+    performanceEnvironmentEligibility: PERFORMANCE_ENVIRONMENT_ELIGIBILITY_CONTRACT,
+  },
   preserveOutput: 'never',
   reporter: [['./tools/live/performanceReporter.ts']],
-  outputDir: '.tmp-tests/live-performance-private',
+  outputDir: PERFORMANCE_RUN_PATHS.playwrightOutput,
   use: {
     baseURL: LIVE_TEST_HTTP_ORIGIN,
     trace: 'off',
@@ -36,6 +49,7 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 180_000,
     env: {
+      ...performanceRunEnvironment(PERFORMANCE_RUN_PATHS),
       LIVE_TEST_PORT: String(LIVE_TEST_PORT),
       NODE_ENV: 'production',
       PLAYWRIGHT_NO_COPY_PROMPT: '1',
