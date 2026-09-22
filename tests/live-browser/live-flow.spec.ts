@@ -2,12 +2,14 @@ import { expect, test } from '@playwright/test';
 import { captureLiveWire } from './liveWire';
 import { expectNativeEgressDenied } from './nativeEgress';
 import { LIVE_TEST_HTTP_ORIGIN, LIVE_TEST_WEBSOCKET_ORIGIN } from './testOrigin';
+import { WALKTHROUGH_STEP_TIMEOUT_MS, WALKTHROUGH_TEST_TIMEOUT_MS } from './walkthroughTiming';
 
 test('real synthetic-provider outage and recovery preserve provenance and observation age', async ({
   page,
   context,
   request,
 }, testInfo) => {
+  test.setTimeout(WALKTHROUGH_TEST_TIMEOUT_MS);
   await expectNativeEgressDenied(request);
   const metadata = await request.get('/api/v1/regions');
   expect(metadata.ok()).toBe(true);
@@ -34,12 +36,14 @@ test('real synthetic-provider outage and recovery preserve provenance and observ
   await expect(observationTable.locator('tbody tr')).toHaveCount(3);
   await expect(observationTable.locator('tbody [data-freshness="current"]')).toHaveCount(2);
 
-  await expect(observationTable.locator('tbody tr')).toHaveCount(0, { timeout: 20_000 });
+  await expect(observationTable.locator('tbody tr')).toHaveCount(0, {
+    timeout: WALKTHROUGH_STEP_TIMEOUT_MS,
+  });
   await expect(page.getByRole('heading', { name: 'No aircraft reported' })).toBeVisible();
   await expect(page.locator('.feed-notice')).toContainText('responded successfully');
 
   await expect(observationTable.locator('tbody [data-freshness="stale"]')).toHaveCount(2, {
-    timeout: 20_000,
+    timeout: WALKTHROUGH_STEP_TIMEOUT_MS,
   });
   await page.getByRole('button', { name: 'TEST01', exact: true }).click();
   const receipts = page.locator('.history-table .receipt-link');
@@ -56,7 +60,7 @@ test('real synthetic-provider outage and recovery preserve provenance and observ
   await page.screenshot({ path: testInfo.outputPath('live-stale.png'), fullPage: true });
 
   await expect(page.locator('.feed-notice')).toContainText('temporarily unavailable', {
-    timeout: 20_000,
+    timeout: WALKTHROUGH_STEP_TIMEOUT_MS,
   });
   await expect(observationTable.locator('tbody tr')).toHaveCount(3);
   await expect(observationTable.locator('tbody [data-freshness="current"]')).toHaveCount(0);
@@ -64,7 +68,7 @@ test('real synthetic-provider outage and recovery preserve provenance and observ
   await page.screenshot({ path: testInfo.outputPath('live-unavailable.png'), fullPage: true });
 
   await expect(observationTable.locator('tbody [data-freshness="current"]')).toHaveCount(2, {
-    timeout: 30_000,
+    timeout: WALKTHROUGH_STEP_TIMEOUT_MS,
   });
   await expect(page.locator('.feed-notice')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'TEST01', exact: true })).toBeVisible();

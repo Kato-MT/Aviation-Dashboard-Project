@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
+import { expectedReleaseSha } from './expectedReleaseSha';
 import { LIVE_TEST_HTTP_ORIGIN, LIVE_TEST_WEBSOCKET_ORIGIN } from './testOrigin';
 
 type ApiPolicy = 'forbid' | 'health-only' | 'allow-live';
@@ -136,6 +137,7 @@ test('Evidence is useful statically and performs exactly one explicit aggregate 
   page,
   context,
 }) => {
+  const releaseSha = expectedReleaseSha();
   const network = await installNetworkGuard(page, context, 'health-only');
   await page.goto('/live.html#evidence');
 
@@ -148,9 +150,7 @@ test('Evidence is useful statically and performs exactly one explicit aggregate 
   await expect(page.locator('.evidence-release-banner')).toContainText(
     'Unreleased development build',
   );
-  await expect(page.locator('.evidence-release-banner')).toContainText(
-    '3.0.0-dev · local-unreleased',
-  );
+  await expect(page.locator('.evidence-release-banner')).toContainText(`3.0.0-dev · ${releaseSha}`);
   await expect(page.locator('#evidence-build')).toContainText('local-mock');
   await expect(page.locator('#evidence-map')).toContainText('georgia-20260828-z12');
   await expect(page.locator('#evidence-map')).toContainText(

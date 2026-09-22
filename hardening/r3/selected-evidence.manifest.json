@@ -392,18 +392,18 @@
     ]
   },
   "source": {
-    "baseHead": "35cc3a981a59d3341b2a4b10dfe78730c9636e8e",
+    "baseHead": "c728b6dabc3bf44dcb04a200f76027a284388659",
     "dirty": true,
     "content": {
       "schemaVersion": "selected-r3-source-content.v1",
       "excludedPaths": ["hardening/r3/selected-evidence.manifest.json"],
-      "fileCount": 570,
-      "totalBytes": 9488572,
+      "fileCount": 572,
+      "totalBytes": 9491327,
       "missingTrackedFileCount": 0,
       "trackedWorktreeMismatchCount": 0,
       "untrackedFileCount": 0,
       "indexDiffersFromHead": true,
-      "sha256": "e69a5b5f1ff8eec908efe9228ef4a933a082689d2c90aeed9fe63b79957ff7b2"
+      "sha256": "f1fd6c74fdf79a6081ad0ab316de518a8fad9e3f8ed5999dd5b46e4873bfad2d"
     }
   },
   "evidence": {
@@ -422,8 +422,8 @@
       "Commit, push, hosted CI, retained-candidate, release, deployment, and publication proof."
     ],
     "fileCount": 94,
-    "totalBytes": 2921555,
-    "collectionSha256": "2948441e35d3e25cfb65d97a993b283165ae6e621081f4bb96af08e9393c7707",
+    "totalBytes": 2921945,
+    "collectionSha256": "1e057da07641058d9113aa2c608145d41b88cf4bbf248a6c17f3d303ad3409de",
     "files": [
       {
         "path": ".github/workflows/ci.yml",
@@ -562,8 +562,8 @@
       },
       {
         "path": "src/features/evidence/evidence.css",
-        "bytes": 9899,
-        "sha256": "6ac99ff9e34db744d90d9212a2b943d909be746e6762fdabaf6b994f75c63116"
+        "bytes": 9964,
+        "sha256": "d7e5c5021038934977aa9fd31492cfa345df8c3636e4ebcca5ce8c13d4d939fe"
       },
       {
         "path": "src/live/runtimePolicy.ts",
@@ -607,8 +607,8 @@
       },
       {
         "path": "tests/live-browser/live-flow.spec.ts",
-        "bytes": 4082,
-        "sha256": "f8484fb5e2f8ac0c141362155103ab5a1af4c5e055de47e645c257567e9ba405"
+        "bytes": 4317,
+        "sha256": "6bb0ceaef27ef1cc748a7e136fc45aae17000f1dc7e9dc6339f732709c87d535"
       },
       {
         "path": "tests/live-browser/m34-entry-artifact.spec.ts",
@@ -627,8 +627,8 @@
       },
       {
         "path": "tests/live-browser/replay-evidence.spec.ts",
-        "bytes": 12412,
-        "sha256": "ba6bc696264c8d13ebdbcb2cd484285f85eaf8ea63201b08aca6ee1055b8547d"
+        "bytes": 12502,
+        "sha256": "0260f6816b2251319fd5b2a7112bd0703c52686de21f70a963553460359733d1"
       },
       {
         "path": "tests/live-browser/visual-regression.spec.ts",

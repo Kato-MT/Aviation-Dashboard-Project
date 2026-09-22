@@ -1,12 +1,16 @@
 import { expect, test } from '@playwright/test';
+import { expectedReleaseSha } from './expectedReleaseSha';
 import { expectNativeEgressDenied } from './nativeEgress';
 import { LIVE_TEST_HTTP_ORIGIN } from './testOrigin';
+import { WALKTHROUGH_STEP_TIMEOUT_MS, WALKTHROUGH_TEST_TIMEOUT_MS } from './walkthroughTiming';
 
 test('M3 desktop and mobile portfolio walkthrough preserves every evidence boundary', async ({
   page,
   context,
   request,
 }, testInfo) => {
+  test.setTimeout(WALKTHROUGH_TEST_TIMEOUT_MS);
+  const releaseSha = expectedReleaseSha();
   await expectNativeEgressDenied(request);
   const metadataResponse = await request.get('/api/v1/regions');
   expect(metadataResponse.ok()).toBe(true);
@@ -14,7 +18,7 @@ test('M3 desktop and mobile portfolio walkthrough preserves every evidence bound
   expect(metadata).toMatchObject({
     schemaVersion: 'airspace.v1',
     applicationVersion: '3.0.0-dev',
-    releaseSha: 'local-unreleased',
+    releaseSha,
     source: {
       target: 'local-mock',
       mode: 'mock',
@@ -59,8 +63,15 @@ test('M3 desktop and mobile portfolio walkthrough preserves every evidence bound
   await expect(page.locator('.live-history-charts canvas')).toHaveCount(2);
   await expect(page.locator('.history-table tbody tr')).toHaveCount(1);
 
-  await expect(page.locator('.observation-panel [data-freshness="stale"]')).toHaveCount(2, {
-    timeout: 35_000,
+  const observationPanel = page.locator('.observation-panel');
+  await expect(
+    observationPanel.getByRole('heading', { name: 'No aircraft reported', exact: true }),
+  ).toBeVisible({ timeout: WALKTHROUGH_STEP_TIMEOUT_MS });
+  await expect(page.locator('.feed-notice')).toContainText(
+    'The source responded successfully with no aircraft observations in this region.',
+  );
+  await expect(observationPanel.locator('[data-freshness="stale"]')).toHaveCount(2, {
+    timeout: WALKTHROUGH_STEP_TIMEOUT_MS,
   });
   await expect(page.locator('.transport-status')).toHaveText('Connected');
   await expect(page.locator('.feed-notice')).toContainText('position observations are stale');
@@ -82,8 +93,11 @@ test('M3 desktop and mobile portfolio walkthrough preserves every evidence bound
   await page.getByRole('button', { name: 'Retry map', exact: true }).click();
   await expect(page.locator('.map-stage')).toHaveAttribute('data-map-status', 'ready');
 
-  await expect(page.locator('.observation-panel [data-freshness="current"]')).toHaveCount(2, {
-    timeout: 45_000,
+  await expect(page.locator('.feed-notice')).toContainText('temporarily unavailable', {
+    timeout: WALKTHROUGH_STEP_TIMEOUT_MS,
+  });
+  await expect(observationPanel.locator('[data-freshness="current"]')).toHaveCount(2, {
+    timeout: WALKTHROUGH_STEP_TIMEOUT_MS,
   });
   await page.getByRole('link', { name: 'Synthetic Replay', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Provider outage and recovery' })).toBeVisible();
@@ -116,9 +130,7 @@ test('M3 desktop and mobile portfolio walkthrough preserves every evidence bound
 
   await page.getByRole('link', { name: 'Evidence', exact: true }).click();
   await expect(page.locator('#evidence-main')).toBeVisible();
-  await expect(page.locator('.evidence-release-banner')).toContainText(
-    '3.0.0-dev · local-unreleased',
-  );
+  await expect(page.locator('.evidence-release-banner')).toContainText(`3.0.0-dev · ${releaseSha}`);
   await expect(page.locator('#evidence-build')).toContainText('local-mock');
   await expect(page.locator('#evidence-map')).toContainText('georgia-20260828-z12');
   await expect(page.locator('#evidence-map')).toContainText(
