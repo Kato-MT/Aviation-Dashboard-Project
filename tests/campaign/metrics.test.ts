@@ -9,11 +9,7 @@ import {
   emptyConfusionMatrix,
   summarizeDistribution,
 } from '../../src/campaign/metrics';
-import type {
-  CampaignCaseResult,
-  CampaignSpec,
-  ConfusionMatrix,
-} from '../../src/campaign/types';
+import type { CampaignCaseResult, CampaignSpec, ConfusionMatrix } from '../../src/campaign/types';
 
 describe('campaign metrics', () => {
   describe('emptyConfusionMatrix', () => {
