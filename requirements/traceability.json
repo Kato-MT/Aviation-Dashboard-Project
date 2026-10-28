@@ -589,6 +589,52 @@
         "tools/nominal-correction",
         "docs/nominal-correction.md"
       ]
+    },
+    {
+      "area": "full-mission-supervised-model",
+      "requirements": ["FDW-SM-001", "FDW-SM-002", "FDW-SM-003", "FDW-SM-004", "FDW-SMR-001"],
+      "tests": [
+        "TC-SM-001",
+        "TC-SM-002",
+        "TC-SM-003",
+        "TC-SM-004",
+        "TC-SM-005",
+        "TC-SM-006",
+        "TC-SM-007",
+        "TC-SM-008",
+        "TC-SM-009",
+        "TC-SM-010",
+        "TC-SM-011",
+        "TC-SM-012",
+        "TC-SM-013",
+        "TC-SM-014",
+        "TC-SM-015",
+        "TC-SM-016",
+        "TC-SM-017",
+        "TC-SM-018",
+        "TC-SMP-001",
+        "TC-SMP-002",
+        "TC-SMP-003",
+        "TC-SMP-004",
+        "TC-SMP-005",
+        "TC-SMR-001",
+        "TC-SMR-002",
+        "TC-SMR-003",
+        "TC-SMR-004",
+        "TC-SMR-005",
+        "TC-SMR-006",
+        "TC-SMR-007",
+        "TC-SMR-008",
+        "TC-SMR-009"
+      ],
+      "evidencePaths": [
+        "tools/full-mission-model",
+        "tools/full-mission-refinement",
+        "tests/mission-evaluation/full-mission-refinement.test.ts",
+        "tests/mission-evaluation/full-mission-model.test.ts",
+        "tests/full-mission-model",
+        "docs/full-mission-trained-model.md"
+      ]
     }
   ]
 }

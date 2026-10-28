@@ -276,3 +276,13 @@ Full-stream learned-model false alarms, first post-onset indication, detection d
 | FDW-NC-001 | Fit and calibrate a separate observed-only full-stream nominal envelope with finite scale floors, preserving the registered classifier and production artifacts.                                                  |
 | FDW-NC-002 | Reserve fresh disjoint fitting, calibration, development and final seeds; freeze selection before final evaluation; compare matched detector outputs with paired seed bootstrap and existing recall/delay limits. |
 | FDW-NC-003 | Preserve exact replay, checksum-verified resumable batches, explicit failed status, and honest rejected-candidate reporting.                                                                                      |
+
+## Full-mission supervised model
+
+| ID          | Requirement                                                                                                                                                    |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FDW-SM-001  | Train on all eligible mission endpoints with observed-only features, training-only robust scaling, finite resolution floors and explicit binary supervision.   |
+| FDW-SM-002  | Confirm active fault-specific alerts using aligned independent nominal controls, causal three-sample confirmation and unchanged observable-fault denominators. |
+| FDW-SM-003  | Preserve fresh four-way partitions, matched seed bootstrap, frozen model selection, bounded resumable artifacts and unchanged production behavior.             |
+| FDW-SM-004  | Export portable fitted models with validated cross-runtime numerical parity, checksummed training provenance, strict failure paths and exact replay.           |
+| FDW-SMR-001 | Refine a frozen experimental model using development-only threshold and persistence choices, consistent ordinary/control alert streams and final-access locks. |

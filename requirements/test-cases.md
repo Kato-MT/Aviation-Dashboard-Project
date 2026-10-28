@@ -344,3 +344,40 @@ The source column records the intended evidence location, not a pass result. `Li
 | TC-NC-012 | Exact replay and registered model immutability                                   |
 | TC-NC-013 | Frozen selection, source changes, corrupt batches and failure status             |
 | TC-NC-014 | Signed paired deltas and recall guard match hand-calculated improvement and loss |
+
+## Full-mission supervised model
+
+| ID         | Verification                                                       |
+| ---------- | ------------------------------------------------------------------ |
+| TC-SM-001  | hand-calculated observed feature values                            |
+| TC-SM-002  | missing, sparse and tied lag alignments                            |
+| TC-SM-003  | 72-feature truth and quality independence                          |
+| TC-SM-004  | future causality                                                   |
+| TC-SM-005  | finite scaling, clipping and stable logistic inference             |
+| TC-SM-006  | portable tree float32 routing and parity                           |
+| TC-SM-007  | invalid models and cyclic trees                                    |
+| TC-SM-008  | three-sample causal fault-only confirmation                        |
+| TC-SM-009  | carried-in, coincident, persistent and recovery alarms             |
+| TC-SM-010  | unknown controls and restart semantics                             |
+| TC-SM-011  | invalid alignment and timelines                                    |
+| TC-SM-012  | paired seed confidence intervals with known nonzero differences    |
+| TC-SM-013  | undefined and self-comparison evidence                             |
+| TC-SM-014  | duplicate pairs, mismatched observability and delay guards         |
+| TC-SM-015  | fresh seed separation                                              |
+| TC-SM-016  | strict threshold, warmup and CLI semantics                         |
+| TC-SM-017  | selection eligibility, tie breaks and diagnostic fallback          |
+| TC-SM-018  | source drift, corrupt caches, freeze locks and failure status      |
+| TC-SMP-001 | training median/dispersion floors and constant mask                |
+| TC-SMP-002 | invalid numerical training data                                    |
+| TC-SMP-003 | inclusive active/recovery targets                                  |
+| TC-SMP-004 | nominal mission maximum threshold derivation                       |
+| TC-SMP-005 | portable forest leaf parity against scikit-learn                   |
+| TC-SMR-001 | strict threshold, causal streak start and nominal reset            |
+| TC-SMR-002 | warmup and final-endpoint streak boundaries                        |
+| TC-SMR-003 | independent trained scores versus baseline abstention              |
+| TC-SMR-004 | malformed scores, thresholds and streaks                           |
+| TC-SMR-005 | identical filtered stream for ordinary and matched-control scoring |
+| TC-SMR-006 | frozen selection ordering and rejected fallback                    |
+| TC-SMR-007 | bounded grid and exact retained incumbent                          |
+| TC-SMR-008 | stage-specific CLI validation                                      |
+| TC-SMR-009 | no development resume after parent final access                    |
