@@ -8,6 +8,7 @@ node_modules
 tmp????????/
 analytics/latest-report.md
 artifacts/
+reports/
 models/*.json
 models/TEMPORAL_MODEL_CARD.md
 models/TEMPORAL_INTEGRATION_MODEL_CARD.md

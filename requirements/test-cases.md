@@ -299,3 +299,29 @@ The source column records the intended evidence location, not a pass result. `Li
 | TC-TOFF-001 | Production and self-contained offline builds both include temporal inference, Investigation, and worker-backed campaign capabilities from the same version.           | Linked: `tests/browser/offline.spec.ts`                                            |
 | TC-TOFF-002 | The offline application runs a temporal investigation and campaign with network disabled and makes no CDN or telemetry-upload request.                                | Linked: `tests/browser/offline.spec.ts`                                            |
 | TC-TOFF-003 | Normal and offline applications produce equivalent deterministic Investigation and campaign evidence for the same scenario and seed.                                  | Linked: `tests/browser/offline.spec.ts`                                            |
+
+## Full-mission evaluation cases
+
+| ID        | Case                                                                                    |
+| --------- | --------------------------------------------------------------------------------------- |
+| TC-FM-001 | scores inclusive active boundaries, false starts, recovery, and causal streaks by hand  |
+| TC-FM-002 | does not credit a persistent pre-onset alert or recovery-only alert as active detection |
+| TC-FM-003 | retains unobservable faults and true onset delay through model warmup                   |
+| TC-FM-004 | abstention and unavailable samples reset streaks without removing fault denominators    |
+| TC-FM-005 | unavailable nominal data is explicit rather than a successful true negative             |
+| TC-FM-006 | deterministic alerts carried through warmup do not become new interval starts           |
+| TC-FM-007 | final instantaneous alerts have no fabricated following exposure                        |
+| TC-FM-008 | rejects malformed identity, cadence, predictions, truth, and policies                   |
+| TC-FM-009 | selects the shortest tied admissible improvement and supports a paired final reduction  |
+| TC-FM-010 | retains baseline for ties and rejects missed faults or excessive paired delays          |
+| TC-FM-011 | family recall guard prevents a small fault family being hidden in aggregate             |
+| TC-FM-012 | paired bootstrap is seed-grouped, reproducible, and preserves related variants          |
+| TC-FM-013 | undefined guards are not silently passed and percentile rules are explicit              |
+| TC-FM-014 | prediction extraction excludes ground truth and preserves all observed states           |
+| TC-FM-015 | future measurement changes cannot affect earlier predictions, and replay is exact       |
+| TC-FM-101 | builds exactly the frozen 41-case matrix and disjoint partitions                        |
+| TC-FM-102 | enforces registered bytes and replays default and variant predictions exactly           |
+| TC-FM-103 | rejects ambiguous CLI inputs and invalid stages                                         |
+| TC-FM-104 | refuses final evaluation without frozen evidence and development after final starts     |
+| TC-FM-105 | rejects corrupt cached batches with explicit failed status                              |
+| TC-FM-106 | serializes stable identities, rejects partial reports, and escapes report values        |

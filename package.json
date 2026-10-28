@@ -31,6 +31,7 @@
     "analytics": "python tools/analytics/analytics.py report --output analytics/latest-report.md",
     "analytics:campaign": "python tools/analytics/temporal_campaign.py report",
     "campaign:report": "tsx tools/release/generate-temporal-campaign-report.ts",
+    "evaluate:missions": "tsx tools/mission-evaluation/run.ts",
     "ml:train": "python tools/ml/train.py && python tools/ml/train_temporal_model.py && python tools/ml/train_temporal_integration_model.py",
     "requirements:check": "node scripts/release/verify-traceability.mjs",
     "release:report": "tsx tools/release/generate-verification-report.ts",

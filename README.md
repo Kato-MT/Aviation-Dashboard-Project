@@ -113,6 +113,7 @@ The workbench enforces a 10 MiB upload limit and a 250,000-sample limit with exp
 - [Temporal research model card, v1](models/TEMPORAL_MODEL_CARD.md)
 - [Production-integrated advisory model card, v2](models/TEMPORAL_INTEGRATION_MODEL_CARD.md)
 - [Temporal test plan](docs/temporal-test-plan.md)
+- [Full-mission evaluation and bounded alert-policy experiment](docs/full-mission-evaluation.md)
 - [Temporal threat model](docs/temporal-threat-model.md)
 - [v2.1.0 completed release verification](docs/release-verification-v2.1.0.md)
 - [Release verification template](docs/release-verification.md)

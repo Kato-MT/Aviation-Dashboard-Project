@@ -19,6 +19,7 @@ export default defineConfig({
         'src/export/**/*.ts',
         'src/campaign/**/*.ts',
         'src/investigation/**/*.ts',
+        'src/mission-evaluation/**/*.ts',
         'src/ml/temporalModel.ts',
         'src/model-registry/**/*.ts',
         'src/temporal/**/*.ts',

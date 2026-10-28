@@ -536,6 +536,34 @@
       "requirements": ["FDW-CM-011", "FDW-CM-012"],
       "tests": ["TC-TOFF-001", "TC-TOFF-002", "TC-TOFF-003"],
       "evidencePaths": ["tests/browser", "vite.config.ts", "vite.offline.config.ts"]
+    },
+    {
+      "area": "full-mission-evaluation",
+      "requirements": ["FDW-FM-001", "FDW-FM-002", "FDW-FM-003"],
+      "tests": [
+        "TC-FM-001",
+        "TC-FM-002",
+        "TC-FM-003",
+        "TC-FM-004",
+        "TC-FM-005",
+        "TC-FM-006",
+        "TC-FM-007",
+        "TC-FM-008",
+        "TC-FM-009",
+        "TC-FM-010",
+        "TC-FM-011",
+        "TC-FM-012",
+        "TC-FM-013",
+        "TC-FM-014",
+        "TC-FM-015",
+        "TC-FM-101",
+        "TC-FM-102",
+        "TC-FM-103",
+        "TC-FM-104",
+        "TC-FM-105",
+        "TC-FM-106"
+      ],
+      "evidencePaths": ["tests/mission-evaluation", "docs/full-mission-evaluation.md"]
     }
   ]
 }

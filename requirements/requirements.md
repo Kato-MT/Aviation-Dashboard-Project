@@ -260,3 +260,11 @@ Full-stream learned-model false alarms, first post-onset indication, detection d
 | FDW-SEC-011 | v2.2    | The Investigation workspace shall preserve required controls and evidence at mobile, desktop, and 200 percent zoom layouts and shall have zero serious or critical automated accessibility findings at release.                  |
 | FDW-CM-011  | v2.2    | Normal and self-contained offline builds from the same commit shall include temporal inference and the worker-backed campaign path without runtime CDN or telemetry-upload requests.                                             |
 | FDW-CM-012  | v2.2    | Browser release tests shall exercise Investigation and campaign behavior in normal and offline builds at desktop and mobile viewports and shall confirm equivalent deterministic evidence for the same seed.                     |
+
+## Full-mission synthetic evaluation
+
+| ID         | Requirement                                                                                                                            |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| FDW-FM-001 | Score causal full-mission alerts with explicit active, recovery, warmup, unavailable, and false-alarm boundaries.                      |
+| FDW-FM-002 | Preserve disjoint partitions, registered identities, frozen selection, paired seed-group uncertainty, and explicit improvement limits. |
+| FDW-FM-003 | Provide bounded resumable runs, exact replay, offline evidence reports, and unchanged production behavior.                             |

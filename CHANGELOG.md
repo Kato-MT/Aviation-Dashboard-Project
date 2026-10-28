@@ -4,6 +4,10 @@ All notable changes are documented here. This project follows [Semantic Versioni
 
 ## [Unreleased]
 
+### Added
+
+- Added a local full-mission evaluator with 41 scenarios per seed, disjoint development and final partitions, causal alert-persistence comparisons, paired seed-cluster intervals, frozen selection, resumable checksummed batches, offline HTML evidence, and exact single-case replay. The production model and campaign contracts are unchanged.
+
 ### Fixed
 
 - Stabilized temporal-model distance summation across supported Python runtimes so exact artifact and configuration hashes reproduce without changing the published model identity.
