@@ -178,10 +178,16 @@ describe('full-mission runner', () => {
       expect(escapeHtml('<script>"&')).toBe('&lt;script&gt;&quot;&amp;');
       const context = await loadModelContext();
       const replay = runMission(casesForSeeds([12101])[0]!, context, POLICY_IDS);
-      await writeReplayReport(replay.record, replay.predictions, resolve(path, 'replay.html'));
+      await writeReplayReport(
+        replay.record,
+        replay.predictions,
+        resolve(path, 'replay.html'),
+        'development',
+      );
       const html = await readFile(resolve(path, 'replay.html'), 'utf8');
       expect(html).toContain('Exact synthetic mission replay');
       expect(html).toContain('new Chart');
+      expect(html.includes('--from development')).toBe(true);
       expect(html).not.toMatch(/<script[^>]+src=/);
       await writeFile(resolve(path, 'broken.json'), '{');
       await expect(readJson(resolve(path, 'broken.json'))).rejects.toThrow();

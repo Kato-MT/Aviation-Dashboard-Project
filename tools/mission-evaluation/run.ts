@@ -356,7 +356,12 @@ export async function replayCase(
     ...replay,
   };
   await writeJson(resolve(directory, `${name}.json`), evidence);
-  await writeReplayReport(replay.record, replay.predictions, resolve(directory, `${name}.html`));
+  await writeReplayReport(
+    replay.record,
+    replay.predictions,
+    resolve(directory, `${name}.html`),
+    from,
+  );
   console.log(`replay: exact match for ${caseId}`);
   return evidence;
 }
