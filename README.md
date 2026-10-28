@@ -134,6 +134,8 @@ The normal build is deployed at [kato-mt.github.io/Aviation-Dashboard-Project](h
 
 ## Contributing
 
+The local [nominal false-alarm correction experiment](docs/nominal-correction.md) explains the full-mission model weaknesses, fresh held-out results, and why the candidate was rejected. It does not change the production app.
+
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a change. Security reports belong in the private process described by [SECURITY.md](SECURITY.md), not a public issue.
 
 ## Author and license

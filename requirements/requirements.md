@@ -268,3 +268,11 @@ Full-stream learned-model false alarms, first post-onset indication, detection d
 | FDW-FM-001 | Score causal full-mission alerts with explicit active, recovery, warmup, unavailable, and false-alarm boundaries.                      |
 | FDW-FM-002 | Preserve disjoint partitions, registered identities, frozen selection, paired seed-group uncertainty, and explicit improvement limits. |
 | FDW-FM-003 | Provide bounded resumable runs, exact replay, offline evidence reports, and unchanged production behavior.                             |
+
+## Experimental nominal correction
+
+| ID         | Requirement                                                                                                                                                                                                       |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FDW-NC-001 | Fit and calibrate a separate observed-only full-stream nominal envelope with finite scale floors, preserving the registered classifier and production artifacts.                                                  |
+| FDW-NC-002 | Reserve fresh disjoint fitting, calibration, development and final seeds; freeze selection before final evaluation; compare matched detector outputs with paired seed bootstrap and existing recall/delay limits. |
+| FDW-NC-003 | Preserve exact replay, checksum-verified resumable batches, explicit failed status, and honest rejected-candidate reporting.                                                                                      |

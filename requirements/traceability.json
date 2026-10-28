@@ -564,6 +564,31 @@
         "TC-FM-106"
       ],
       "evidencePaths": ["tests/mission-evaluation", "docs/full-mission-evaluation.md"]
+    },
+    {
+      "area": "experimental-nominal-correction",
+      "requirements": ["FDW-NC-001", "FDW-NC-002", "FDW-NC-003"],
+      "tests": [
+        "TC-NC-001",
+        "TC-NC-002",
+        "TC-NC-003",
+        "TC-NC-004",
+        "TC-NC-005",
+        "TC-NC-006",
+        "TC-NC-007",
+        "TC-NC-008",
+        "TC-NC-009",
+        "TC-NC-010",
+        "TC-NC-011",
+        "TC-NC-012",
+        "TC-NC-013",
+        "TC-NC-014"
+      ],
+      "evidencePaths": [
+        "tests/mission-evaluation/nominal-correction.test.ts",
+        "tools/nominal-correction",
+        "docs/nominal-correction.md"
+      ]
     }
   ]
 }

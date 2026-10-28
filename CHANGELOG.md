@@ -6,6 +6,8 @@ All notable changes are documented here. This project follows [Semantic Versioni
 
 ### Added
 
+- Added an isolated nominal false-alarm experiment with full-stream nominal coverage, bounded feature scaling, fresh four-way seed partitions, frozen candidate selection, paired detector metrics and exact replay. Production inference is unchanged; failed tradeoffs remain explicitly rejected.
+
 - Added a local full-mission evaluator with 41 scenarios per seed, disjoint development and final partitions, causal alert-persistence comparisons, paired seed-cluster intervals, frozen selection, resumable checksummed batches, offline HTML evidence, and exact single-case replay. The production model and campaign contracts are unchanged.
 
 ### Fixed

@@ -325,3 +325,22 @@ The source column records the intended evidence location, not a pass result. `Li
 | TC-FM-104 | refuses final evaluation without frozen evidence and development after final starts     |
 | TC-FM-105 | rejects corrupt cached batches with explicit failed status                              |
 | TC-FM-106 | serializes stable identities, rejects partial reports, and escapes report values        |
+
+## Experimental nominal correction
+
+| ID        | Verification                                                                     |
+| --------- | -------------------------------------------------------------------------------- |
+| TC-NC-001 | Hand-computed scale floors, centroids, and calibration quantiles                 |
+| TC-NC-002 | Invalid fitting populations and incompatible envelopes fail                      |
+| TC-NC-003 | Standardized nearest-prototype distance matches hand calculation                 |
+| TC-NC-004 | Warmup, unavailable states, rule decisions and baseline inputs are preserved     |
+| TC-NC-005 | Missing observations remain finite and changing truth cannot change predictions  |
+| TC-NC-006 | Future observations cannot change earlier predictions                            |
+| TC-NC-007 | Self-comparison and seed-cluster bootstrap are exact and reproducible            |
+| TC-NC-008 | Undefined rates cannot pass acceptance                                           |
+| TC-NC-009 | Unmatched cases, timelines, cadence, duration and coverage fail                  |
+| TC-NC-010 | Historical, previous-sprint and new partition overlaps fail                      |
+| TC-NC-011 | CLI validation and evidence checksum verification                                |
+| TC-NC-012 | Exact replay and registered model immutability                                   |
+| TC-NC-013 | Frozen selection, source changes, corrupt batches and failure status             |
+| TC-NC-014 | Signed paired deltas and recall guard match hand-calculated improvement and loss |
