@@ -12,18 +12,18 @@ At 19 of the 26 episode peaks, tree-path contrasts against clear nominal mission
 
 Cruise lag is a weak signal. A three-sample delay shifts the nominal cruise speed by at most about 0.781 knots, compared with a nominal sensor-pair noise standard deviation of 1.221 knots. Climb lag produces about 2.374 knots. The old lag feature searches both leading and lagging offsets on unequal timestamp supports, and its best raw-error improvement can favor noise.
 
-A diagnostic signed comparison of smoothed GPS against current IAS separates the already-observed nominal/cruise-lag values at sample100 better: AUC 0.8747 versus 0.6183 for the old raw RMS improvement. Replacing the generator's repeated historical IAS noise with current-time nominal noise retains diagnostic separation (AUC 0.8844). These reused-seed diagnostics are not new validation and did not set a final threshold.
+A diagnostic signed comparison of smoothed GPS against current IAS separates the already-observed nominal/cruise-lag values at sample 100 better: AUC 0.8747 versus 0.6183 for the old raw RMS improvement. Replacing the generator's repeated historical IAS noise with current-time nominal noise retains diagnostic separation (AUC 0.8844). These reused-seed diagnostics are not new validation and did not set a final threshold.
 
 ## Fixed targeted experiment
 
-Two forests will use identical fresh fitting missions, weighting, robust scaling and existing tree parameters: 64 trees, maximum depth18, minimum leaf5, maximum feature fraction0.75 and two training threads. This isolates the feature bundle rather than combining it with an untested regularization change.
+Two forests will use identical fresh fitting missions, weighting, robust scaling and existing tree parameters: 64 trees, maximum depth 18, minimum leaf 5, maximum feature fraction 0.75 and two training threads. This isolates the feature bundle rather than combining it with an untested regularization change.
 
 - **Control:** the original 72 observed features, retrained on the new fitting partition.
 - **Targeted candidate:** keep the original features except the raw best-offset/RMS-improvement lag pair; add 15-sample mean, RMS and missingness for each of the three redundant sensor pairs; add signed smoothed lag evidence and its valid-support fraction. Short summaries remain available for prompt detection.
 
-The common exported matrix has 83 columns. Model-specific masks retain72 control inputs and81 targeted inputs. Missing evidence is explicit. No seed, truth, true phase, absolute endpoint, future observation or nominal-control trajectory enters inference.
+The common exported matrix has 83 columns. Model-specific masks retain 72 control inputs and 81 targeted inputs. Missing evidence is explicit. No seed, truth, true phase, absolute endpoint, future observation or nominal-control trajectory enters inference.
 
-The new lag evidence smooths GPS using seven-point centered means within the current40-sample window. It compares IAS at positions20–36 to GPS references at the same positions and three positions earlier, using exactly the same valid supports. Its numerator is the reduction in summed squared error under the delayed reference; its denominator is the square root of reference-change energy, floored at1e-9. The feature requires at least eight valid comparisons and records the valid fraction. All samples are at or before the current endpoint. The three-sample smoothing delay remains part of measured detection delay, without backdating.
+The new lag evidence smooths GPS using seven-point centered means within the current 40-sample window. It compares IAS at positions 20–36 to GPS references at the same positions and three positions earlier, using exactly the same valid supports. Its numerator is the reduction in summed squared error under the delayed reference; its denominator is the square root of reference-change energy, floored at 1e-9. The feature requires at least eight valid comparisons and records the valid fraction. All samples are at or before the current endpoint. The three-sample smoothing delay remains part of measured detection delay, without backdating.
 
 | Partition   | Seeds       | Primary missions | Use                                        |
 | ----------- | ----------- | ---------------: | ------------------------------------------ |
@@ -32,30 +32,30 @@ The new lag evidence smooths GPS using seven-point centered means within the cur
 | Development | 24101–24140 |            1,640 | Select and freeze one setting per model    |
 | Final       | 25101–25180 |            3,280 | Test frozen settings without retuning      |
 
-All seeds must be disjoint from registered-model partitions and every prior experiment through21180. Primary missions retain the existing41-case matrix,180samples and one-second cadence. Development and final additionally include one cruise-lag challenge per seed that delays latent speed while retaining current-time IAS measurement noise. The challenge is evaluation-only and is reported separately from the primary41-case metrics. Generation may use truth to construct this synthetic challenge; inference never receives that truth as a feature.
+All seeds must be disjoint from registered-model partitions and every prior experiment through 21180. Primary missions retain the existing 41-case matrix, 180 samples and one-second cadence. Development and final additionally include one cruise-lag challenge per seed that delays latent speed while retaining current-time IAS measurement noise. The challenge is evaluation-only and is reported separately from the primary 41-case metrics. Generation may use truth to construct this synthetic challenge; inference never receives that truth as a feature.
 
-Calibration considers fixed thresholds0.50,0.60,0.70,0.80,0.90,0.95 plus nearest-rank p50,p75,p90,p95 and maximum of nominal-mission score maxima, deduplicated. All policies use one window. Development selects the targeted model's passing setting with the lowest nominal mission alarm rate, then highest confirmed cruise-lag recall, highest overall confirmed recall and lower threshold. A control setting is frozen separately for a descriptive feature ablation; final control results cannot replace the primary candidate after evaluation.
+Calibration considers fixed thresholds 0.50, 0.60, 0.70, 0.80, 0.90, 0.95 plus nearest-rank p50, p75, p90, p95 and maximum of nominal-mission score maxima, deduplicated. All policies use one window. Development selects the targeted model's passing setting with the lowest nominal mission alarm rate, then highest confirmed cruise-lag recall, highest overall confirmed recall and lower threshold. A control setting is frozen separately for a descriptive feature ablation; final control results cannot replace the primary candidate after evaluation.
 
 ## Acceptance before new final data
 
-The comparator is the previous full-mission forest at0.80, not the weaker registered v2 model. Registered v2 and deterministic rules remain separate references.
+The comparator is the previous full-mission forest at 0.80, not the weaker registered v2 model. Registered v2 and deterministic rules remain separate references.
 
 - Preserve ordinary active recall within two percentage points overall and five points per family, with paired p95 added delay at most five seconds.
 - Preserve confirmed fault-specific recall within two points overall and five points per family, with paired p95 added confirmed delay at most five seconds.
-- Require a nominal-mission false-alarm reduction with a strictly negative upper95% paired confidence bound.
+- Require a nominal-mission false-alarm reduction with a strictly negative upper 95% paired confidence bound.
 - Require at least a ten-point gain in confirmed `lag / standard-cruise` recall, with a strictly positive lower paired confidence bound, in both the primary matrix and the current-noise challenge.
 
-Uncertainty uses1,000 paired bootstrap resamples grouped by seed. Related variants and the shared nominal control remain together. Undefined required evidence fails a gate. If no development setting passes, freeze the diagnostic candidate as rejected; final data cannot rescue a development failure. Final results may confirm or reject the frozen candidate, but cannot drive another tuning cycle on those seeds.
+Uncertainty uses 1,000 paired bootstrap resamples grouped by seed. Related variants and the shared nominal control remain together. Undefined required evidence fails a gate. If no development setting passes, freeze the diagnostic candidate as rejected; final data cannot rescue a development failure. Final results may confirm or reject the frozen candidate, but cannot drive another tuning cycle on those seeds.
 
 The ten-point lag gain is an improvement criterion, not a claim that the blind spot is eliminated. Absolute nominal and lag rates remain prominent, even if relative gates pass.
 
-## Checkpoint status
+## Implementation checkpoint before training
 
 Diagnosis, design and isolated implementation are complete. Hand-calculated feature fixtures, portable-model tests, paired-gate tests and frozen-run guards cover the new path. No 221xx–251xx mission has been generated at this implementation checkpoint. Fresh training and evaluation are pending. The previous work through `6843224` and design checkpoint `9c70614` have been pushed and verified on GitHub.
 
 ## Reproduction commands
 
-Use the pinned pnpm11.9.0 toolchain and the isolated Python3.12 environment with `tools/full-mission-model/requirements.txt`. The previous forest artifact is retained in the earlier delivery package or its local report directory. The new runner validates its learned inference identity, so harmless parity-metadata roundoff from refitting cannot change which baseline is compared.
+Use the pinned pnpm 11.9.0 toolchain and the isolated Python 3.12 environment with `tools/full-mission-model/requirements.txt`. The previous forest artifact is retained in the earlier delivery package or its local report directory. The new runner validates its learned inference identity, so harmless parity-metadata roundoff from refitting cannot change which baseline is compared.
 
 ```powershell
 pnpm exec tsx tools/residual-lag/run.ts --stage train --output reports/residual-lag-v1 --incumbent reports/full-mission-model-v1/model.json --python .tmp-tests/full-mission-venv/Scripts/python.exe
@@ -72,3 +72,7 @@ Runs retain checksummed five-seed batches. Source/model changes require a new ou
 No tested setting passed all development gates. The prescribed diagnostic fallback freezes targeted and control forests at threshold 0.70. Both are rejected; final results cannot change that development decision. The targeted model produced 18/40 nominal missions with alerts versus 10/40 for the incumbent. Confirmed cruise-lag responses improved from 1/40 to 15/40, and current-noise challenge responses from 0/40 to 13/40. The rejected fallback prioritizes cruise recall among settings preserving detection limits, as specified before evaluation; it is not the lowest-alarm setting.
 
 Higher thresholds reduced nominal alarms, but none jointly established a supported reduction and the required cruise-lag benefit. The trained model, exported parity, selected settings and development report hashes are recorded in [the frozen checkpoint](residual-alarm-cruise-lag-freeze.json). This checkpoint is committed before final evaluation starts.
+
+## Completed disposition
+
+The final candidate is rejected. See [the final results and verification](residual-alarm-cruise-lag-results-2026-10-28.md). Production is unchanged. Every reserved partition in this study has now been used.
