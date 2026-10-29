@@ -76,3 +76,7 @@ The isolated policy, evaluator, resumable runner and offline report are implemen
 No setting passes every gate. The predefined fallback freezes `adaptive-0.95-0.7` as rejected. Nominal alarm missions fall from 12/40 to 7/40 with paired delta interval -25.0 to -2.5 points. Primary cruise confirmation falls from 24/40 to 23/40; its paired lower bound is -7.5 points. Current-noise confirmation remains 17/40, but paired p95 added confirmation delay is 15 seconds. The low-0.65 settings preserve primary point counts and improve challenge counts but still fail the uncertainty and delay limits.
 
 The exact setting and evidence hashes are in [the frozen checkpoint](alarm-preservation-freeze.json). It is committed before final access. Final testing measures this rejected tradeoff; it cannot change the development failure or trigger further tuning.
+
+## Completed final disposition
+
+The frozen candidate remains rejected. On seeds 27101–27180, nominal alarm missions fall from 40/80 to 18/80 with a paired difference interval of -37.50 to -18.75 percentage points. The same 41 primary cruise confirmations survive, but the current-noise challenge loses one confirmation, from 39/80 to 38/80. Rare added confirmation delays reach 18 seconds in primary cruise and 19 seconds in the challenge despite zero paired p95 values. See [the completed results](alarm-preservation-results-2026-10-28.md) for causes, individual cases, uncertainty and verification. No production change or final tuning occurred.

@@ -7,6 +7,7 @@ All notable changes are documented here. This project follows [Semantic Versioni
 ### Added
 
 - Added a frozen-model adaptive threshold experiment that reserves sensitivity for positive observed lag evidence. Four declared settings use new development/final seeds, dual-comparator preservation gates, explicit case gains/losses and exact replay outside production.
+- Recorded the rejected adaptive tradeoff on 80 fresh final seeds: nominal alarm missions fall from 40/80 to 18/80, the same 41 primary cruise confirmations survive, but current-noise confirmations fall from 39/80 to 38/80. Rare added confirmation delays reach 19 seconds. Production remains unchanged.
 
 - Added an isolated residual-alarm and cruise-lag experiment with longer sensor agreement summaries, signed smoothed lag evidence, a matched feature ablation, and a current-noise challenge. Fresh partitions, frozen selection, paired acceptance gates and exact replay compare against the previous full-mission forest. Production remains unchanged.
 - Recorded its rejected final tradeoff on 80 fresh seeds: confirmed cruise lag improves from 7/80 to 38/80, but nominal alarm missions increase from 20/80 to 40/80 and confirmed recall drops from 95.75% to 93.03%. The frozen candidate is not promoted.

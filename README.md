@@ -120,6 +120,7 @@ The workbench enforces a 10 MiB upload limit and a 250,000-sample limit with exp
 - [Residual alarm and cruise-lag study: fixed design and reproduction](docs/residual-alarm-cruise-lag-experiment.md)
 - [Fresh residual-alarm results: cruise-lag gain, rejected false-alarm tradeoff](docs/residual-alarm-cruise-lag-results-2026-10-28.md)
 - [Adaptive alarm reduction while preserving cruise-lag gains](docs/alarm-preservation-experiment.md)
+- [Fresh alarm-reduction results: fewer alarms, one lost challenge confirmation](docs/alarm-preservation-results-2026-10-28.md)
 - [Temporal threat model](docs/temporal-threat-model.md)
 - [v2.1.0 completed release verification](docs/release-verification-v2.1.0.md)
 - [Release verification template](docs/release-verification.md)
