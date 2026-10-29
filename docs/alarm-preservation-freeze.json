@@ -1,0 +1,32 @@
+{
+  "selection": {
+    "setting": {
+      "id": "adaptive-0.95-0.7",
+      "generalThreshold": 0.95,
+      "lagThreshold": 0.7
+    },
+    "developmentPassed": false,
+    "developmentReportSha256": "70689c03eebec39e5378604eed575b22c64a177fbeeacc4aef1fbb7bacfe476a",
+    "sourceSha256": "2659e3b531a53a1d717327e3af5b5e51ff5a57c3eeb8bb5fd3f99980833feaec",
+    "modelSha256": "8b261036651f1b0708c8e45b27565d17280fc84396ca2fef6c1d41a0aa2aed6e",
+    "incumbentSha256": "e1a0fa89202e33b3819ab134301b59f1dedbb4d4d0f5d209b3ead862e9d328e2",
+    "protocolSha256": "c7bad59fa90c89b96ff6a586473dbf1bec5207a01454308268a4c4923de662ad",
+    "frozenAt": "2026-10-29T02:14:16.684Z",
+    "contentSha256": "681d623a3f65e5510599ed2a694b7228eb099e691bac5a4f711aadcc19805a96"
+  },
+  "development": {
+    "primaryMissions": 1640,
+    "challengeMissions": 40,
+    "nominal": [12, 7],
+    "cruiseConfirmed": [24, 23],
+    "challengeConfirmed": [17, 17],
+    "challengePairedP95AddedDelayMs": 15000,
+    "reasons": [
+      "cruise: confirmed point recall falls below the lag-sensitive target or is undefined.",
+      "cruise: paired preservation lower bound is below minus five points or undefined.",
+      "challenge: confirmed paired p95 added delay exceeds five seconds or is undefined."
+    ]
+  },
+  "finalAccess": "not started at this checkpoint",
+  "productionPromoted": false
+}

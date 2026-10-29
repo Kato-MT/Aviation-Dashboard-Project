@@ -70,3 +70,9 @@ Development cannot rerun after selection. Final may resume verified matching bat
 ## Implementation checkpoint before fresh evaluation
 
 The isolated policy, evaluator, resumable runner and offline report are implemented. All 549 TypeScript tests pass, including 15 new policy, preservation, provenance and report fixtures. Lint, typecheck, scoped source formatting and traceability pass; core branch coverage is 91.52%. Six old case/control replays preserve 18 baseline model streams exactly. Unchanged Python, bundling and production-browser evidence is reused. No 261xx or 271xx mission has been generated at this checkpoint.
+
+## Frozen development outcome
+
+No setting passes every gate. The predefined fallback freezes `adaptive-0.95-0.7` as rejected. Nominal alarm missions fall from 12/40 to 7/40 with paired delta interval -25.0 to -2.5 points. Primary cruise confirmation falls from 24/40 to 23/40; its paired lower bound is -7.5 points. Current-noise confirmation remains 17/40, but paired p95 added confirmation delay is 15 seconds. The low-0.65 settings preserve primary point counts and improve challenge counts but still fail the uncertainty and delay limits.
+
+The exact setting and evidence hashes are in [the frozen checkpoint](alarm-preservation-freeze.json). It is committed before final access. Final testing measures this rejected tradeoff; it cannot change the development failure or trigger further tuning.
