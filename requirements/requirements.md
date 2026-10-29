@@ -295,3 +295,12 @@ Full-stream learned-model false alarms, first post-onset indication, detection d
 | FDW-RL-002 | Compare an isolated targeted model and feature ablation on fresh disjoint seeds, retain a current-noise lag challenge, and freeze settings before final access.      |
 | FDW-RL-003 | Preserve active/confirmed recall and delay limits against the improved incumbent; require paired-supported nominal reduction and primary/challenge cruise-lag gains. |
 | FDW-RL-004 | Preserve portable mapped-tree parity, pinned incumbent inference, strict provenance, bounded resume, explicit failure status, exact replay and unchanged production. |
+
+## Alarm reduction with cruise-lag preservation
+
+| ID         | Requirement                                                                                                                                                                            |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FDW-AP-001 | Apply an isolated causal adaptive threshold to a frozen model, with explicit valid lag support, strict score boundaries and preserved unavailable/warmup states.                       |
+| FDW-AP-002 | Reserve disjoint fresh development/final seeds, retain the primary matrix and current-noise challenge, and freeze one of four settings before final access.                            |
+| FDW-AP-003 | Require supported nominal alarm reduction, overall/family detection preservation against both previous forests, and preserved primary/challenge cruise recall with paired uncertainty. |
+| FDW-AP-004 | Preserve immutable model/source provenance, resumable verified batches, exact replay, transparent individual case gains/losses and unchanged production.                               |

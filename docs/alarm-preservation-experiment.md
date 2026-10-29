@@ -54,3 +54,19 @@ Earlier forest file SHA-256: `e1a0fa89202e33b3819ab134301b59f1dedbb4d4d0f5d209b3
 Parent final report content hash: `aacc41e08a844e800f7372dafaddee1c419a2a8329305ace9d06cb30367b4b8e`.
 
 At this design checkpoint, no 261xx or 271xx mission has been generated. Implementation, tests and fresh evaluation are pending. Production remains unchanged regardless of the experimental outcome.
+
+## Reproduction commands
+
+Use the pinned pnpm 11.9.0 toolchain. The parent directory is the previous completed residual-lag study, including its frozen model, incumbent and final report. Initialization verifies their exact hashes and copies only the two model artifacts into the new study. Existing frozen studies remain replayable.
+
+```powershell
+pnpm exec tsx tools/alarm-preservation/run.ts --stage development --parent reports/residual-lag-v1 --output reports/alarm-preservation-v1
+pnpm exec tsx tools/alarm-preservation/run.ts --stage final --output reports/alarm-preservation-v1
+pnpm exec tsx tools/alarm-preservation/run.ts --stage replay --output reports/alarm-preservation-v1 --case-id 27101:lag:standard-cruise
+```
+
+Development cannot rerun after selection. Final may resume verified matching batches. Source or model changes require a new output directory and new study design. This experiment has no training command or new Python dependencies.
+
+## Implementation checkpoint before fresh evaluation
+
+The isolated policy, evaluator, resumable runner and offline report are implemented. All 549 TypeScript tests pass, including 15 new policy, preservation, provenance and report fixtures. Lint, typecheck, scoped source formatting and traceability pass; core branch coverage is 91.52%. Six old case/control replays preserve 18 baseline model streams exactly. Unchanged Python, bundling and production-browser evidence is reused. No 261xx or 271xx mission has been generated at this checkpoint.

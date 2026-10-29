@@ -669,6 +669,32 @@
         "tests/residual-lag",
         "docs/residual-alarm-cruise-lag-experiment.md"
       ]
+    },
+    {
+      "area": "alarm-preservation",
+      "requirements": ["FDW-AP-001", "FDW-AP-002", "FDW-AP-003", "FDW-AP-004"],
+      "tests": [
+        "TC-AP-001",
+        "TC-AP-002",
+        "TC-AP-003",
+        "TC-AP-004",
+        "TC-AP-005",
+        "TC-AP-006",
+        "TC-AP-007",
+        "TC-AP-008",
+        "TC-AP-009",
+        "TC-AP-010",
+        "TC-AP-011",
+        "TC-AP-012",
+        "TC-AP-013",
+        "TC-AP-014",
+        "TC-AP-015"
+      ],
+      "evidencePaths": [
+        "tools/alarm-preservation",
+        "tests/mission-evaluation/alarm-preservation.test.ts",
+        "docs/alarm-preservation-experiment.md"
+      ]
     }
   ]
 }

@@ -407,3 +407,23 @@ The source column records the intended evidence location, not a pass result. `Li
 | TC-RLP-003 | mission-maximum threshold calibration                                                                        |
 | TC-RLP-004 | invalid calibration values and missing controls fail                                                         |
 | TC-RLP-005 | noncontiguous exported features preserve float32 forest predictions                                          |
+
+## Alarm reduction with cruise-lag preservation
+
+| ID        | Verification                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------------ |
+| TC-AP-001 | implements strict score and signed-lag boundaries with inclusive eight-point support             |
+| TC-AP-002 | preserves warmup, unavailable and abstained states without starting or holding alerts            |
+| TC-AP-003 | is point-local and changing future scores or support cannot change earlier decisions             |
+| TC-AP-004 | rejects invalid dimensions, numeric evidence and configurations and freezes a four-setting grid  |
+| TC-AP-005 | improves against the lag-sensitive target without requiring fewer alarms than the earlier forest |
+| TC-AP-006 | requires point-recall preservation in each cruise stream separately                              |
+| TC-AP-007 | rejects uncertain lost/gained case exchange despite preserving the point count                   |
+| TC-AP-008 | allows five seconds but rejects six seconds of added confirmation delay                          |
+| TC-AP-009 | retains the earlier-forest cruise gain and fails undefined target delay evidence                 |
+| TC-AP-010 | excludes every earlier partition and retains the separate challenge matrix                       |
+| TC-AP-011 | applies passing/preserving fallback and the declared minimum-cruise/threshold tie order          |
+| TC-AP-012 | accepts only development parent paths and replay case IDs                                        |
+| TC-AP-013 | fails closed on source/model/selection/stage/cache drift before any experiment inference         |
+| TC-AP-014 | refuses a corrupt or unbound parent report before initializing output                            |
+| TC-AP-015 | escapes case identifiers and reasons in a complete local HTML report                             |
