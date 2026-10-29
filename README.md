@@ -117,6 +117,7 @@ The workbench enforces a 10 MiB upload limit and a 250,000-sample limit with exp
 - [October 2026 full-mission results and rejected persistence experiment](docs/full-mission-results-2026-10-28.md)
 - [Full-mission supervised training and matched-control evaluation](docs/full-mission-trained-model.md)
 - [Trained-model final results, remaining false alarms and cruise-lag weakness](docs/full-mission-trained-results-2026-10-28.md)
+- [Residual alarm and cruise-lag study: fixed design and reproduction](docs/residual-alarm-cruise-lag-experiment.md)
 - [Temporal threat model](docs/temporal-threat-model.md)
 - [v2.1.0 completed release verification](docs/release-verification-v2.1.0.md)
 - [Release verification template](docs/release-verification.md)

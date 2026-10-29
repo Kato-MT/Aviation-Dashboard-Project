@@ -286,3 +286,12 @@ Full-stream learned-model false alarms, first post-onset indication, detection d
 | FDW-SM-003  | Preserve fresh four-way partitions, matched seed bootstrap, frozen model selection, bounded resumable artifacts and unchanged production behavior.             |
 | FDW-SM-004  | Export portable fitted models with validated cross-runtime numerical parity, checksummed training provenance, strict failure paths and exact replay.           |
 | FDW-SMR-001 | Refine a frozen experimental model using development-only threshold and persistence choices, consistent ordinary/control alert streams and final-access locks. |
+
+## Residual alarm and cruise-lag study
+
+| ID         | Requirement                                                                                                                                                          |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FDW-RL-001 | Encode causal long-context sensor disagreements and signed common-support lag evidence with explicit missing support and no truth or future dependence.              |
+| FDW-RL-002 | Compare an isolated targeted model and feature ablation on fresh disjoint seeds, retain a current-noise lag challenge, and freeze settings before final access.      |
+| FDW-RL-003 | Preserve active/confirmed recall and delay limits against the improved incumbent; require paired-supported nominal reduction and primary/challenge cruise-lag gains. |
+| FDW-RL-004 | Preserve portable mapped-tree parity, pinned incumbent inference, strict provenance, bounded resume, explicit failure status, exact replay and unchanged production. |

@@ -381,3 +381,29 @@ The source column records the intended evidence location, not a pass result. `Li
 | TC-SMR-007 | bounded grid and exact retained incumbent                          |
 | TC-SMR-008 | stage-specific CLI validation                                      |
 | TC-SMR-009 | no development resume after parent final access                    |
+
+## Residual alarm and cruise-lag experiment
+
+| ID         | Verification                                                                                                 |
+| ---------- | ------------------------------------------------------------------------------------------------------------ |
+| TC-RL-001  | gives opposite equal lag evidence for synchronous and three-sample-delayed ramps                             |
+| TC-RL-002  | excludes both smoothing supports together and requires at least eight valid comparisons                      |
+| TC-RL-003  | uses GPS through the current endpoint without treating endpoint IAS as an earlier reading                    |
+| TC-RL-004  | computes signed fifteen-sample residual summaries on valid sensor pairs                                      |
+| TC-RL-005  | appends eleven finite features without letting truth labels or future observations enter inference           |
+| TC-RL-006  | delays latent speed while preserving present measurement noise and the original generator                    |
+| TC-RL-007  | rejects a challenge whose declared variant disagrees with its generating options                             |
+| TC-RL-008  | routes global 83-column features with distinct 72/81 masks and float32 parity                                |
+| TC-RL-009  | rejects masked features, malformed trees, cycles and preprocessing provenance drift                          |
+| TC-RL-010  | preserves warmup and metadata, uses strict thresholds, and rejects invalid scores                            |
+| TC-RL-011  | enumerates 41 primary cases plus a separately identified challenge and disjoint fresh partitions             |
+| TC-RL-012  | selects within model, prioritizes passing guards and applies declared tie and diagnostic fallback ordering   |
+| TC-RL-013  | uses the incumbent and requires independent positive cruise and current-noise gains                          |
+| TC-RL-014  | rejects a sub-ten-point cruise gain and excessive paired delay even with nominal improvement                 |
+| TC-RL-015  | accepts only stage-specific options and does not silently allow duplicate flags                              |
+| TC-RL-016  | rejects missing selection, corrupt cache, changed sources and frozen development without generating missions |
+| TC-RLP-001 | original control and targeted feature masks                                                                  |
+| TC-RLP-002 | malformed and reordered feature contracts fail before fitting                                                |
+| TC-RLP-003 | mission-maximum threshold calibration                                                                        |
+| TC-RLP-004 | invalid calibration values and missing controls fail                                                         |
+| TC-RLP-005 | noncontiguous exported features preserve float32 forest predictions                                          |

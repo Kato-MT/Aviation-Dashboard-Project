@@ -51,4 +51,18 @@ The ten-point lag gain is an improvement criterion, not a claim that the blind s
 
 ## Checkpoint status
 
-Diagnosis and design are complete. No221xx–251xx mission has been generated at this checkpoint. Implementation, fresh evaluation and new verification are pending. The existing checkpoint history through `6843224` has been pushed and verified on GitHub.
+Diagnosis, design and isolated implementation are complete. Hand-calculated feature fixtures, portable-model tests, paired-gate tests and frozen-run guards cover the new path. No 221xx–251xx mission has been generated at this implementation checkpoint. Fresh training and evaluation are pending. The previous work through `6843224` and design checkpoint `9c70614` have been pushed and verified on GitHub.
+
+## Reproduction commands
+
+Use the pinned pnpm11.9.0 toolchain and the isolated Python3.12 environment with `tools/full-mission-model/requirements.txt`. The previous forest artifact is retained in the earlier delivery package or its local report directory. The new runner validates its learned inference identity, so harmless parity-metadata roundoff from refitting cannot change which baseline is compared.
+
+```powershell
+pnpm exec tsx tools/residual-lag/run.ts --stage train --output reports/residual-lag-v1 --incumbent reports/full-mission-model-v1/model.json --python .tmp-tests/full-mission-venv/Scripts/python.exe
+pnpm exec tsx tools/residual-lag/run.ts --stage development --output reports/residual-lag-v1
+pnpm exec tsx tools/residual-lag/run.ts --stage final --output reports/residual-lag-v1
+pnpm exec tsx tools/residual-lag/run.ts --stage replay --output reports/residual-lag-v1 --case-id 25101:lag:standard-cruise
+.tmp-tests/full-mission-venv/Scripts/python.exe -m unittest discover -s tests/residual-lag -p "test_*.py"
+```
+
+Runs retain checksummed five-seed batches. Source/model changes require a new output directory. A stopped run only reuses verified matching batches. Once selection exists, training and development are locked. If no setting passes development, the diagnostic fallback first prefers settings preserving ordinary and confirmed detection limits, then higher confirmed cruise-lag recall, lower nominal alarms, higher overall confirmed recall and lower threshold. A fallback remains rejected.

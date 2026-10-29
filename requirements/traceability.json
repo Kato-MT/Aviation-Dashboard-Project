@@ -635,6 +635,40 @@
         "tests/full-mission-model",
         "docs/full-mission-trained-model.md"
       ]
+    },
+    {
+      "area": "residual-alarm-cruise-lag",
+      "requirements": ["FDW-RL-001", "FDW-RL-002", "FDW-RL-003", "FDW-RL-004"],
+      "tests": [
+        "TC-RL-001",
+        "TC-RL-002",
+        "TC-RL-003",
+        "TC-RL-004",
+        "TC-RL-005",
+        "TC-RL-006",
+        "TC-RL-007",
+        "TC-RL-008",
+        "TC-RL-009",
+        "TC-RL-010",
+        "TC-RL-011",
+        "TC-RL-012",
+        "TC-RL-013",
+        "TC-RL-014",
+        "TC-RL-015",
+        "TC-RL-016",
+        "TC-RLP-001",
+        "TC-RLP-002",
+        "TC-RLP-003",
+        "TC-RLP-004",
+        "TC-RLP-005"
+      ],
+      "evidencePaths": [
+        "tools/residual-lag",
+        "tests/mission-evaluation/residual-lag.test.ts",
+        "tests/mission-evaluation/residual-lag-runner.test.ts",
+        "tests/residual-lag",
+        "docs/residual-alarm-cruise-lag-experiment.md"
+      ]
     }
   ]
 }

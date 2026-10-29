@@ -6,6 +6,8 @@ All notable changes are documented here. This project follows [Semantic Versioni
 
 ### Added
 
+- Added an isolated residual-alarm and cruise-lag experiment with longer sensor agreement summaries, signed smoothed lag evidence, a matched feature ablation, and a current-noise challenge. Fresh partitions, frozen selection, paired acceptance gates and exact replay compare against the previous full-mission forest. Production remains unchanged.
+
 - Added an isolated full-mission supervised training experiment with causal sensor features, finite training-only scaling, portable linear/forest models, matched nominal-control confirmation, fresh held-out seeds, frozen development refinement and exact replay. Production inference and registered artifacts remain unchanged.
 
 - Added an isolated nominal false-alarm experiment with full-stream nominal coverage, bounded feature scaling, fresh four-way seed partitions, frozen candidate selection, paired detector metrics and exact replay. Production inference is unchanged; failed tradeoffs remain explicitly rejected.
