@@ -1,0 +1,50 @@
+{
+  "selection": {
+    "settings": [
+      {
+        "id": "targeted-3",
+        "modelId": "targeted",
+        "threshold": 0.7
+      },
+      {
+        "id": "control-3",
+        "modelId": "control",
+        "threshold": 0.7
+      }
+    ],
+    "selectedId": "targeted-3",
+    "developmentPassed": {
+      "targeted-3": false,
+      "control-3": false
+    },
+    "developmentReportSha256": "3097f5abdd36df715ac17923da667abf4f35e3ad937719f0cf218d65176daa34",
+    "sourceSha256": "c68df6dfdba10e1fd277095f32b583556c112042f5de67b7f237434a23fe8103",
+    "modelSha256": "8b261036651f1b0708c8e45b27565d17280fc84396ca2fef6c1d41a0aa2aed6e",
+    "incumbentSha256": "e1a0fa89202e33b3819ab134301b59f1dedbb4d4d0f5d209b3ead862e9d328e2",
+    "protocolSha256": "440a54f8118c2a1d0cb1f4294ca93ec52ea63f251db447da34fe93bf8d840204",
+    "frozenAt": "2026-10-29T00:48:19.355Z",
+    "contentSha256": "cff07d997fc37fd20126af58ecfe7ea5814dc315d4c5bb3920c34a0103c81d3e"
+  },
+  "training": {
+    "status": "completed",
+    "modelSha256": "8b261036651f1b0708c8e45b27565d17280fc84396ca2fef6c1d41a0aa2aed6e",
+    "parity": {
+      "cases": 57,
+      "maximumError": 3.8163916471489756e-16,
+      "tolerance": 1e-10
+    }
+  },
+  "development": {
+    "missions": 1640,
+    "challenges": 40,
+    "baselineNominalAlarms": 10,
+    "candidateNominalAlarms": 18,
+    "baselineCruiseConfirmed": 1,
+    "candidateCruiseConfirmed": 15,
+    "baselineChallengeConfirmed": 0,
+    "candidateChallengeConfirmed": 13,
+    "reasons": ["Nominal reduction lacks a strictly negative paired confidence bound."]
+  },
+  "finalAccess": "not started at this checkpoint",
+  "productionPromoted": false
+}

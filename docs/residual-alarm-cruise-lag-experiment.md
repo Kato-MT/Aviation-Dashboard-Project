@@ -66,3 +66,9 @@ pnpm exec tsx tools/residual-lag/run.ts --stage replay --output reports/residual
 ```
 
 Runs retain checksummed five-seed batches. Source/model changes require a new output directory. A stopped run only reuses verified matching batches. Once selection exists, training and development are locked. If no setting passes development, the diagnostic fallback first prefers settings preserving ordinary and confirmed detection limits, then higher confirmed cruise-lag recall, lower nominal alarms, higher overall confirmed recall and lower threshold. A fallback remains rejected.
+
+## Frozen development outcome
+
+No tested setting passed all development gates. The prescribed diagnostic fallback freezes targeted and control forests at threshold 0.70. Both are rejected; final results cannot change that development decision. The targeted model produced 18/40 nominal missions with alerts versus 10/40 for the incumbent. Confirmed cruise-lag responses improved from 1/40 to 15/40, and current-noise challenge responses from 0/40 to 13/40. The rejected fallback prioritizes cruise recall among settings preserving detection limits, as specified before evaluation; it is not the lowest-alarm setting.
+
+Higher thresholds reduced nominal alarms, but none jointly established a supported reduction and the required cruise-lag benefit. The trained model, exported parity, selected settings and development report hashes are recorded in [the frozen checkpoint](residual-alarm-cruise-lag-freeze.json). This checkpoint is committed before final evaluation starts.
