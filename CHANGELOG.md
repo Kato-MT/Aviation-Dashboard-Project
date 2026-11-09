@@ -4,6 +4,10 @@ All notable changes are documented here. This project follows [Semantic Versioni
 
 ## [Unreleased]
 
+### Fixed
+
+- Preserve negative numeric values in findings CSV exports while retaining formula protection for text cells.
+
 ## [2.2.0] - 2026-07-19
 
 ### Added

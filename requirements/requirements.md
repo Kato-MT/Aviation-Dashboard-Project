@@ -85,7 +85,7 @@
 | ID          | Release | Requirement                                                                                          |
 | ----------- | ------- | ---------------------------------------------------------------------------------------------------- |
 | FDW-EXP-001 | v2.0    | JSON verification exports shall declare a supported report schema version.                           |
-| FDW-EXP-002 | v2.0    | CSV finding exports shall preserve stable rule IDs and evidence fields.                              |
+| FDW-EXP-002 | v2.0    | CSV finding exports shall preserve stable rule IDs, evidence fields, and numeric values.             |
 | FDW-EXP-003 | v2.0    | Normal exports shall exclude uploaded source samples.                                                |
 | FDW-EXP-004 | v2.0    | Including source samples shall require a separate explicit user choice.                              |
 | FDW-EXP-005 | v2.0    | CSV exports shall neutralize cells that a spreadsheet may interpret as formulas.                     |

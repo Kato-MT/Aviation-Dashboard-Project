@@ -205,7 +205,15 @@
         "FDW-EXP-005",
         "FDW-EXP-006"
       ],
-      "tests": ["TC-EXP-001", "TC-EXP-002", "TC-EXP-003", "TC-EXP-004", "TC-EXP-005", "TC-EXP-006"],
+      "tests": [
+        "TC-EXP-001",
+        "TC-EXP-002",
+        "TC-EXP-003",
+        "TC-EXP-004",
+        "TC-EXP-005",
+        "TC-EXP-006",
+        "TC-EXP-007"
+      ],
       "evidencePaths": ["tests/core", "tests/unit", "tests/browser"]
     },
     {

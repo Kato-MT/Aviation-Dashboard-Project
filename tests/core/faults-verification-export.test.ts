@@ -331,4 +331,29 @@ describe('evidence exports', () => {
     expect(csv).toContain("'@SUM(1,2)");
     expect(csv).toContain("'+SAFE");
   });
+
+  it.each([
+    [-12.5, '-12.5'],
+    [-1, '-1'],
+    [0, '0'],
+    [12.5, '12.5'],
+    ['-12.5', "'-12.5"],
+    ['-SUM(1,2)', "'-SUM(1,2)"],
+  ])('preserves numeric CSV values while escaping text: %j', (observedValue, expected) => {
+    const finding: Finding = {
+      findingId: 'f-numeric',
+      fingerprint: 'f-numeric',
+      ruleId: 'test.csv',
+      ruleLabel: 'CSV numeric test',
+      severity: 'warning',
+      sourceId: 'source-a',
+      observedValue,
+      expectedCondition: 'safe',
+      evidence: { message: 'Synthetic numeric export regression.' },
+      origin: 'rule-engine',
+    };
+
+    const parsed = parseCsv(exportFindingsCsv([finding]));
+    expect(parsed.records[1]?.[8]).toBe(expected);
+  });
 });
