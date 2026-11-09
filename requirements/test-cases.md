@@ -104,8 +104,9 @@ Each cataloged behavior has a stable `TC-*` identifier. Automated release eviden
 | TC-EXP-002   | JSON report excludes source samples by default.                                             |
 | TC-EXP-003   | Explicit source-data selection includes samples with a warning.                             |
 | TC-EXP-004   | CSV finding export contains stable evidence columns.                                        |
-| TC-EXP-005   | CSV cells beginning `=`, `+`, `-`, or `@` are neutralized.                                  |
+| TC-EXP-005   | CSV text cells beginning `=`, `+`, `-`, or `@` are neutralized.                             |
 | TC-EXP-006   | Export filename removes untrusted path separators and control characters.                   |
+| TC-EXP-007   | CSV numeric values retain their representation; negative text values remain escaped.        |
 | TC-SEC-001   | Uploaded HTML-like timestamp renders as literal text.                                       |
 | TC-SEC-002   | Uploaded event-handler text does not create an event handler.                               |
 | TC-SEC-003   | Uploaded script-like text does not create a script element.                                 |

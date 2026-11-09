@@ -23,7 +23,7 @@ The v2.2 catalog also labels release-required cases as `Linked` or `Pending`. `L
 | Verification                         | FDW-VER-001..008                   | TC-VER-001..009                                    | `tests/core`, `tests/integration`               |
 | Four-view UI                         | FDW-UI-001..006, 008, 010          | TC-UI-001..012                                     | `tests/browser`, `tests/accessibility`          |
 | State isolation                      | FDW-UI-007, 009                    | TC-UI-013..017                                     | `tests/unit`, `tests/browser`                   |
-| Exports                              | FDW-EXP-001..006                   | TC-EXP-001..006                                    | `tests/core`, `tests/unit`, `tests/browser`     |
+| Exports                              | FDW-EXP-001..006                   | TC-EXP-001..007                                    | `tests/core`, `tests/unit`, `tests/browser`     |
 | DOM and CSP                          | FDW-SEC-001, 009                   | TC-SEC-001..004                                    | `tests/unit`, `tests/browser`                   |
 | Accessibility and responsive         | FDW-SEC-002..007                   | TC-A11Y-001..012                                   | `tests/accessibility`, `tests/browser`          |
 | Dependency security                  | FDW-SEC-008                        | release audit and TC-BUILD-001                     | `.github/workflows`                             |

@@ -119,13 +119,12 @@ function safeSpreadsheetText(value: string): string {
 }
 
 function csvCell(value: unknown): string {
-  const stringValue = safeSpreadsheetText(
+  const stringValue =
     typeof value === 'string'
-      ? value
+      ? safeSpreadsheetText(value)
       : value === undefined || value === null
         ? ''
-        : JSON.stringify(value),
-  );
+        : JSON.stringify(value);
   return `"${stringValue.replaceAll('"', '""')}"`;
 }
 
